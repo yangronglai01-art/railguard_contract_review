@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# Local configuration
+.env
+.env.*
+!.env.example
+
+# Runtime data
+data/uploads/
+data/runtime/
+*.db
+*.db-shm
+*.db-wal
+logs/
+
+# Training outputs
+training/outputs/
+checkpoints/
+*.safetensors
+*.bin
+wandb/
+
+# Editor and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
