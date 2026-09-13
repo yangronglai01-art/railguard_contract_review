@@ -32,4 +32,4 @@ wandb/
 .idea/
 .vscode/
 .DS_Store
-Thumbs.db
+Thumbs.db.pytest_tmp/
