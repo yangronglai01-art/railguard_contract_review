@@ -9,6 +9,7 @@ from docx import Document
 from fastapi.testclient import TestClient
 
 from railguard.api.main import create_app
+from railguard.config import Settings
 from railguard.parsers.documents import DEFAULT_MAX_FILE_SIZE
 from railguard.storage.contracts import ContractRepository
 
@@ -34,7 +35,20 @@ def client(tmp_path: Path) -> Iterator[TestClient]:
     repository = ContractRepository(
         tmp_path / "api-contracts.db"
     )
-    application = create_app(repository)
+    settings = Settings(
+        rag_mode="mock",
+        rag_mock_corpus_path=Path(
+            "data/demo/rag-corpus.json"
+        ),
+        checkpoint_path=(
+            tmp_path
+            / "api-review-checkpoints.sqlite3"
+        ),
+    )
+    application = create_app(
+        repository,
+        settings=settings,
+    )
 
     # 上下文管理器会执行FastAPI生命周期函数。
     with TestClient(application) as test_client:

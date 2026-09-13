@@ -24,6 +24,10 @@ class Settings(BaseSettings):
     rag_base_url: str = "http://localhost:8001"
     rag_api_key: str | None = None
     rag_timeout_seconds: float = 10.0
+    # 本地Mock模式使用的演示知识库文件。
+    rag_mock_corpus_path: Path = Path(
+        "data/demo/rag-corpus.json"
+    )
 
     # SQLite数据库文件路径。
     # 使用明确的Path，避免把sqlite:///误当成Windows文件路径。

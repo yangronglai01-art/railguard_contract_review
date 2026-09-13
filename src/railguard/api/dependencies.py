@@ -3,6 +3,7 @@
 from fastapi import Request
 
 from railguard.storage.contracts import ContractRepository
+from railguard.workflow.service import ReviewService
 
 
 def get_contract_repository(
@@ -25,3 +26,25 @@ def get_contract_repository(
         )
 
     return repository
+
+
+def get_review_service(
+    request: Request,
+) -> ReviewService:
+    """从当前FastAPI应用中取得审核工作流服务。
+
+    ReviewService在应用生命周期中创建，并共享同一个
+    LangGraph图、checkpoint连接和RAG检索器。
+    """
+    service = getattr(
+        request.app.state,
+        "review_service",
+        None,
+    )
+
+    if service is None:
+        raise RuntimeError(
+            "Review service is not initialized."
+        )
+
+    return service
