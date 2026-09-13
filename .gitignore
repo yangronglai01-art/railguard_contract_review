@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 .venv/
 .pytest_cache/
+.pytest_tmp/
+.test_tmp/
 .ruff_cache/
 *.egg-info/
 build/
@@ -32,4 +34,4 @@ wandb/
 .idea/
 .vscode/
 .DS_Store
-Thumbs.db.pytest_tmp/
+Thumbs.db

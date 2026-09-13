@@ -13,7 +13,6 @@ from docx import Document
 from docx.table import Table
 from docx.text.paragraph import Paragraph
 
-
 # 演示版本允许上传的最大文件大小为10MB。
 DEFAULT_MAX_FILE_SIZE = 10 * 1024 * 1024
 

@@ -35,7 +35,7 @@ where = ["src"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
-addopts = "--basetemp=.pytest_tmp"
+addopts = "--basetemp=.test_tmp -p no:cacheprovider"
 
 [tool.ruff]
 target-version = "py311"
