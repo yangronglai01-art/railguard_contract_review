@@ -1,0 +1,82 @@
+{
+  "hits": [
+    {
+      "document_id": "demo-software-procurement-guide-v1",
+      "title": "软件采购合同审查指引（演示数据）",
+      "content": "软件采购合同应将付款与需求确认、阶段交付和最终验收结果挂钩。除经审批的预付款外，不应在交付和验收前支付全部合同价款。",
+      "source": "第四条 付款安排",
+      "score": null,
+      "metadata": {
+        "category": "payment",
+        "document_type": "internal_demo_policy",
+        "version": "demo-1",
+        "keywords": "付款,合同款,预付款,里程碑,尾款,验收"
+      }
+    },
+    {
+      "document_id": "demo-software-procurement-guide-v1",
+      "title": "软件采购合同审查指引（演示数据）",
+      "content": "验收条款应约定验收标准、测试材料、整改期限和复验程序。不得仅以采购方未提出异议或系统上线经过一定时间作为验收合格条件。",
+      "source": "第六条 验收管理",
+      "score": null,
+      "metadata": {
+        "category": "acceptance",
+        "document_type": "internal_demo_policy",
+        "version": "demo-1",
+        "keywords": "验收,异议,上线,测试,整改,复验,合格"
+      }
+    },
+    {
+      "document_id": "demo-software-procurement-guide-v1",
+      "title": "软件采购合同审查指引（演示数据）",
+      "content": "合同应明确源代码、定制开发成果、接口文档等知识产权和使用权归属，并约定第三方组件引起侵权时由供应商承担相应责任。",
+      "source": "第八条 知识产权",
+      "score": null,
+      "metadata": {
+        "category": "intellectual_property",
+        "document_type": "internal_demo_policy",
+        "version": "demo-1",
+        "keywords": "知识产权,著作权,源代码,定制开发,接口文档,第三方组件,侵权"
+      }
+    },
+    {
+      "document_id": "demo-information-security-guide-v1",
+      "title": "供应商数据安全管理要求（演示数据）",
+      "content": "供应商接触设备运行数据、用户账号或生产信息时，应明确数据使用范围、访问权限、保存期限、返还删除要求和安全事件报告时限。",
+      "source": "第三条 数据处理要求",
+      "score": null,
+      "metadata": {
+        "category": "data_security",
+        "document_type": "internal_demo_policy",
+        "version": "demo-1",
+        "keywords": "数据,账号,安全,保密,权限,删除,泄露,生产信息"
+      }
+    },
+    {
+      "document_id": "demo-software-procurement-guide-v1",
+      "title": "软件采购合同审查指引（演示数据）",
+      "content": "合同应明确质保期限、故障等级、响应时间、修复时间和服务期结束后的数据及文档移交安排。",
+      "source": "第十条 运维与质保",
+      "score": null,
+      "metadata": {
+        "category": "support",
+        "document_type": "internal_demo_policy",
+        "version": "demo-1",
+        "keywords": "维护,运维,质保,故障,响应,修复,服务期,移交"
+      }
+    },
+    {
+      "document_id": "demo-software-procurement-guide-v1",
+      "title": "软件采购合同审查指引（演示数据）",
+      "content": "合同应明确延期交付、质量缺陷、数据泄露和知识产权侵权的违约责任，并设置采购方可以解除合同的具体条件。",
+      "source": "第十二条 违约与解除",
+      "score": null,
+      "metadata": {
+        "category": "liability",
+        "document_type": "internal_demo_policy",
+        "version": "demo-1",
+        "keywords": "违约,赔偿,解除,延期,缺陷,责任,泄露,侵权"
+      }
+    }
+  ]
+}
