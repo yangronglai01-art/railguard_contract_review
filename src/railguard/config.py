@@ -29,6 +29,12 @@ class Settings(BaseSettings):
     # 使用明确的Path，避免把sqlite:///误当成Windows文件路径。
     database_path: Path = Path("data/runtime/railguard.db")
 
+    # LangGraph审核流程checkpoint数据库路径。
+    # 与合同业务数据库分开，便于独立迁移和故障排查。
+    checkpoint_path: Path = Path(
+        "data/runtime/review-checkpoints.sqlite3"
+    )
+
     # 允许从项目根目录的.env文件加载配置。
     model_config = SettingsConfigDict(
         env_file=".env",
