@@ -75,6 +75,7 @@ class ReviewNodes:
             "legal_findings": [],
             "security_findings": [],
             "findings": [],
+            "final_findings": [],
             "human_decision": None,
             "final_summary": "",
             "completed_nodes": ["initialize_review"],
@@ -398,11 +399,17 @@ class ReviewNodes:
             level_counts[finding.level] += 1
 
         status = state.get("status", "approved")
-        status_text = {
-            "approved": "人工审核通过",
-            "rejected": "人工审核驳回",
-            "changes_requested": "需要修改后重新提交",
-        }.get(status, "自动审核完成")
+        decision = state.get("human_decision")
+        
+        # 没有风险时会跳过人工审核，应显示为自动完成。
+        if decision is None:
+            status_text = "自动审核完成"
+        else:
+            status_text = {
+                "approved": "人工审核通过",
+                "rejected": "人工审核驳回",
+                "changes_requested": "需要修改后重新提交",
+            }.get(status, "审核完成")
 
         summary = (
             f"{status_text}。Agent共识别{len(findings)}项风险，"
@@ -415,6 +422,7 @@ class ReviewNodes:
         return {
             "final_summary": summary,
             "completed_nodes": ["finalize_review"],
+			"final_findings": accepted_findings,
         }
 
     @staticmethod

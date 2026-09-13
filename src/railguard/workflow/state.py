@@ -160,6 +160,10 @@ class ReviewState(TypedDict, total=False):
     # 汇总、去重并完成引用验证后的最终风险列表。
     findings: list[RiskFinding]
 
+    # 人工审核后最终保留的风险列表。
+    # findings保留Agent原始结果，本字段保存业务最终结果。
+    final_findings: list[RiskFinding]
+
     # 人工审核恢复流程时提交的决定。
     human_decision: HumanReviewDecision | None
 
