@@ -66,7 +66,10 @@ def test_upload_and_get_docx_contract(
 
     assert uploaded["filename"] == "monitoring-platform.docx"
     assert "设备监测平台软件采购合同" in uploaded["full_text"]
-    assert uploaded["clauses"] == []
+    # 测试合同没有“第X条”标题，因此回退为一个全文条款。
+    assert len(uploaded["clauses"]) == 1
+    assert uploaded["clauses"][0]["title"] == "合同全文"
+    assert uploaded["clauses"][0]["text"] == uploaded["full_text"]
 
     get_response = client.get(
         f"/contracts/{contract_id}"

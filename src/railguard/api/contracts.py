@@ -13,6 +13,7 @@ from fastapi import (
 
 from railguard.api.dependencies import get_contract_repository
 from railguard.models.schemas import ContractDocument
+from railguard.parsers.clauses import split_clauses
 from railguard.parsers.documents import (
     DEFAULT_MAX_FILE_SIZE,
     DocumentTooLargeError,
@@ -51,7 +52,7 @@ async def upload_contract(
     2. 如果读到额外字节，解析器会判断文件超限；
     3. 无论解析是否成功，都会关闭上传文件；
     4. 成功后保存规范化全文；
-    5. 条款列表暂时为空，下一阶段加入条款切分。
+    5. 使用可解释规则切分条款并保存原文位置。
     """
     # UploadFile的filename允许为空，因此需要提供空字符串回退值。
     filename = file.filename or ""
@@ -93,9 +94,13 @@ async def upload_contract(
         ) from exc
 
     # 创建通过Pydantic校验的合同业务模型。
+    # 使用规则切分合同，并保留每个条款的原文位置。
+    clauses = split_clauses(full_text)
+
     contract = ContractDocument(
         filename=filename,
         full_text=full_text,
+        clauses=clauses,
     )
 
     # 将合同完整JSON保存到SQLite。
