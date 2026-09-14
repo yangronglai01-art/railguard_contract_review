@@ -344,13 +344,15 @@ HTTP适配器负责处理超时、连接失败、非成功状态码和无效响�
 
 ## 离线评测
 
-项目使用固定合成评测集比较不同审核实现。三个实验阶段按顺序升级，并使用同一份数据集、Mock RAG语料、LangGraph流程和评分逻辑：
+项目使用固定合成评测集比较不同审核实现。三个阶段按顺序推进，复用相同的数据集、Mock RAG语料、LangGraph流程和评分逻辑：
 
 | 阶段 | 被评测系统 | `system_name` | 目的 |
 |---|---|---|---|
 | A | 确定性规则Agent | `deterministic_rules` | 建立可重复的工程基线 |
-| B | 通用基础模型 | `base_llm` | 评估模型相对规则的语义理解提升 |
-| C | 监督微调模型 | `sft_llm` | 评估领域微调带来的增量效果 |
+| B | DeepSeek通用审核模型 | `deepseek_base_llm` | 评估通用模型相对规则的整体效果 |
+| C | 开放权重底座及合同领域微调模型 | `domain_base_llm` / `domain_sft_llm` | 比较同一底座微调前后的增量效果 |
+
+阶段B与阶段C可能使用不同模型。领域微调的收益以阶段C中同一底座微调前后的比较为准。
 
 评测数据位于：
 
@@ -411,53 +413,77 @@ data/runtime/evaluations/rules-v1-report.json
 - 只检查关键词是否出现，无法判断知识产权、违约责任、运维服务和数据安全条款内容是否充分
 - 会把“不得支付全部合同款”的否定表达误判为风险
 
-### 阶段B：基础模型
+### 阶段B：DeepSeek通用审核模型
 
-先在本地 `.env` 中配置模型。访问密钥只保存在 `.env` 或服务器密钥管理系统中，不能提交到Git：
+在本机 `.env` 中填写DeepSeek开放平台配置。访问密钥保存在本机配置或服务器密钥管理系统中：
 
 ```dotenv
-MODEL_PROVIDER=openai
-MODEL_NAME=你的基础模型名称
-OPENAI_API_KEY=你的访问密钥
-OPENAI_BASE_URL=
-MODEL_TIMEOUT_SECONDS=60
+MODEL_PROVIDER=deepseek
+MODEL_NAME=deepseek-v4-pro
+DEEPSEEK_API_KEY=你的DeepSeek访问密钥
+DEEPSEEK_BASE_URL=https://api.deepseek.com
+MODEL_TIMEOUT_SECONDS=120
 MODEL_MAX_RETRIES=2
 MODEL_MAX_INPUT_CHARS=120000
 ```
 
-`OPENAI_BASE_URL` 留空时使用SDK默认地址，也可以填写兼容OpenAI协议的企业模型网关。
+DeepSeek模式使用Responses API，通过 `text.format` 发送命名JSON Schema。本地使用完整JSON解析，并继续校验必填字段、风险分类、条款ID和证据引用权限。
 
-运行基础模型评测：
+协议参考：[DeepSeek Responses API](https://api-docs.deepseek.com/api/create-response/)。
+
+项目也保留OpenAI兼容模式，可通过 `MODEL_PROVIDER=openai`、`OPENAI_API_KEY` 和 `OPENAI_BASE_URL` 配置对应服务。
+
+运行DeepSeek模型评测：
 
 ```powershell
-& ".\.venv\Scripts\python.exe" -m railguard.evaluation --target llm --system-name base_llm
+& ".\.venv\Scripts\python.exe" -m railguard.evaluation --target llm --system-name deepseek_base_llm --output data/runtime/evaluations/deepseek-v4-pro-v1-report.json
 ```
 
-默认报告输出到：
+11个案例分别调用商务、法务和数据安全三个Agent，因此完整评测预计产生33次模型调用。发生临时故障时，SDK重试可能增加实际请求次数。
+
+报告保存到：
 
 ```text
-data/runtime/evaluations/base-llm-v1-report.json
+data/runtime/evaluations/deepseek-v4-pro-v1-report.json
 ```
 
-11个案例会分别调用商务、法务和数据安全三个Agent，因此一次完整评测会产生33次模型调用。默认允许2次重试，供应商持续失败时实际请求次数可能增加。
+修改 `.env` 后需要重新启动本机后端；Docker部署需要重新创建API容器，使环境变量生效。
 
-### 阶段C：监督微调模型
+### 阶段C：合同领域微调模型
 
-微调模型继续使用相同的严格输出协议、提示词、RAG、工作流和评测数据。只需修改 `.env` 中的模型名称：
+领域微调使用DeepSeek开放权重模型，在独立GPU环境中执行监督微调，采用LoRA或QLoRA方式训练。
+
+微调完成后，通过支持JSON Schema的OpenAI兼容推理服务部署。以下为部署后的配置示例，推理服务需单独建设：
 
 ```dotenv
 MODEL_PROVIDER=openai
-MODEL_NAME=你的微调模型名称
-OPENAI_API_KEY=你的访问密钥
+MODEL_NAME=你的领域微调模型服务名称
+OPENAI_API_KEY=你的推理服务密钥
+OPENAI_BASE_URL=http://127.0.0.1:8002/v1
+MODEL_TIMEOUT_SECONDS=120
+MODEL_MAX_RETRIES=2
+MODEL_MAX_INPUT_CHARS=120000
 ```
 
-运行微调模型评测并使用独立报告路径：
+为准确评估微调收益，先配置同一个开放权重底座的未微调模型，生成领域底座基线：
 
 ```powershell
-& ".\.venv\Scripts\python.exe" -m railguard.evaluation --target llm --system-name sft_llm --output data/runtime/evaluations/sft-llm-v1-report.json
+& ".\.venv\Scripts\python.exe" -m railguard.evaluation --target llm --system-name domain_base_llm --output data/runtime/evaluations/domain-base-v1-report.json
 ```
 
-每份报告都会记录：
+再切换到合同领域微调模型服务，生成微调报告：
+
+```powershell
+& ".\.venv\Scripts\python.exe" -m railguard.evaluation --target llm --system-name domain_sft_llm --output data/runtime/evaluations/domain-sft-v1-report.json
+```
+
+微调前后固定评测数据集、RAG知识库、提示词、输出协议和生成参数。训练集与评测集保持隔离。
+
+DeepSeek云API模型与领域微调模型之间的结果用于比较不同模型方案；微调效果以同一开放权重底座微调前后的结果为准。
+
+### 评测报告与指标口径
+
+每份报告记录：
 
 - `system_name`
 - `model_provider`
@@ -467,11 +493,13 @@ OPENAI_API_KEY=你的访问密钥
 - 每个案例的预测结果和匹配明细
 - 总体精确率、召回率、F1、等级、定位和引用指标
 
-报告不会保存API密钥或模型网关地址。运行报告属于本地评测产物，不提交到Git。
+报告不保存API密钥或模型网关地址。运行报告属于本地评测产物。
 
-当前精确率、召回率和F1使用 `finding_kind:category` 进行一对一匹配，因此它们表示**风险类别识别指标**。风险是否定位到正确条款由原文定位准确率单独计算，不能把当前F1描述为严格的条款级F1。
+当前精确率、召回率和F1使用 `finding_kind:category` 进行一对一匹配，表示风险类别识别指标。是否定位到正确条款由原文定位准确率单独计算，当前F1不属于严格的条款级F1。
 
-`source_matched` 只表示证据ID、检索范围和风险分类一致，不表示证据已经证明法律结论正确。
+`source_matched` 表示证据ID、检索范围和风险分类一致，不表示证据已经证明法律结论正确。
+
+### 开发检查
 
 执行Ruff：
 
@@ -485,34 +513,34 @@ OPENAI_API_KEY=你的访问密钥
 & ".\.venv\Scripts\python.exe" -m pytest -q
 ```
 
-Starlette产生的一项AnyIO弃用警告来自第三方依赖，不影响当前功能。
+Starlette产生的一项AnyIO弃用警告来自第三方依赖。
 
 ## 关键设计选择
 
 ### 为什么使用LangGraph
 
-合同审核不是一次模型调用，而是包含检索、多个专业Agent、结果汇总、引用验证、人工暂停和恢复的有状态流程。LangGraph负责显式节点编排、并行执行、条件路由和checkpoint恢复。
+合同审核包含检索、多个专业Agent、结果汇总、引用验证、人工暂停和恢复。LangGraph负责显式节点编排、并行执行、条件路由和checkpoint恢复。
 
 ### 为什么保留Agent原始风险
 
-`findings` 始终保留Agent产生并经过引用验证的原始风险，`final_findings` 保存人工审核后保留的风险。这样可以区分模型判断和人工决定，支持后续审计和效果评估。
+`findings` 保存Agent产生并经过引用验证的原始风险，`final_findings` 保存人工审核后保留的风险。两者分别支持模型评估和人工决定审计。
 
 ### 为什么合同数据库和checkpoint分开
 
-合同数据库属于业务数据，checkpoint属于工作流运行状态。分别保存后，可以独立迁移、备份和排查故障。
+合同数据库保存业务资料，checkpoint保存工作流运行状态。分别保存后，可以独立迁移、备份和排查故障。
 
 ### 为什么默认使用确定性Agent
 
-确定性Agent使离线演示、自动测试和阶段A基线保持稳定。基础模型和微调模型通过同一个 `RiskAnalyzer` 接口注入，不需要修改LangGraph节点、人工审批或持久化流程。
+确定性Agent保证离线演示、自动测试和阶段A基线稳定。模型Agent通过相同的 `RiskAnalyzer` 接口注入，复用LangGraph节点、人工审批和持久化流程。
 
 ### 引用验证代表什么
 
-`source_matched` 表示风险引用的证据ID、来源范围和风险分类能够匹配，不代表相关法律规则必然适用于真实合同。最终判断仍需要专业人员确认。
+`source_matched` 表示风险引用的证据ID、来源范围和风险分类能够匹配。法律规则的适用性和最终审核决定由专业人员确认。
 
 ## 当前限制
 
-- 已具备真实大模型调用能力，但尚未生成阶段B基础模型正式评测报告
-- 监督微调训练和尚未生成阶段C评测报告
+- 已完成OpenAI和DeepSeek接入代码及自动测试，尚未完成DeepSeek真实接口验证和阶段B正式评测
+- 尚未完成领域监督微调训练和阶段C正式评测
 - 第一版评测集只有11份合成合同和14项标签，规模较小
 - Mock知识库内容为合成数据
 - PDF仅支持文本型文件，尚未加入扫描件OCR
@@ -523,10 +551,10 @@ Starlette产生的一项AnyIO弃用警告来自第三方依赖，不影响当前
 
 ## 后续计划
 
-1. 配置基础模型并运行阶段B离线评测，保存提示词基线报告。
-2. 根据规则版和基础模型的漏检、误检构建监督微调训练集。
-3. 对风险分类、理由和修改建议执行监督微调。
-4. 使用相同数据集运行阶段C评测，对比A、B、C三个实验结果。
+1. 验证DeepSeek真实接口并运行阶段B离线评测。
+2. 根据漏检和误检分析构建独立的监督微调训练集。
+3. 选择开放权重底座，生成未微调模型的领域基线。
+4. 完成合同领域微调，并对比同一底座微调前后的结果。
 5. 扩充人工标注数据，并升级到严格条款级匹配指标。
-6. 接入真实RAG服务并补充知识库版本和语料哈希管理。
+6. 接入真实RAG服务，记录知识库版本和语料哈希。
 7. 增加OCR、身份认证、审计日志、监控告警和备份策略。

@@ -132,29 +132,71 @@ async def test_llm_target_rejects_mock_configuration() -> None:
         )
 
 
+@pytest.mark.parametrize(
+    (
+        "model_provider",
+        "model_name",
+        "api_key",
+        "base_url",
+        "system_name",
+    ),
+    [
+        (
+            "openai",
+            "ft:contract-review-model",
+            "secret-openai-test-key",
+            "https://openai.example/v1",
+            "sft_llm",
+        ),
+        (
+            "deepseek",
+            "deepseek-v4-pro",
+            "secret-deepseek-test-key",
+            "https://deepseek.example",
+            "deepseek_base_llm",
+        ),
+    ],
+)
 async def test_llm_cli_uses_config_and_saves_safe_report(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
+    model_provider: str,
+    model_name: str,
+    api_key: str,
+    base_url: str,
+    system_name: str,
 ) -> None:
-    """验证阶段C也能复用入口且报告不泄露连接信息。"""
-    output_path = tmp_path / "sft-report.json"
+    """验证两家供应商都能完成评测并生成正确的实验报告。"""
+    output_path = tmp_path / f"{model_provider}-report.json"
+
     arguments = create_arguments(
         target="llm",
-        system_name="sft_llm",
+        system_name=system_name,
         output=output_path,
     )
-    settings = Settings(
-        _env_file=None,
-        model_provider="openai",
-        model_name="ft:contract-review-model",
-        openai_api_key="secret-test-key",
-        openai_base_url="https://model.example/v1",
-        model_timeout_seconds=48.0,
-        model_max_retries=1,
-        model_max_input_chars=75_000,
-    )
+
+    # 显式设置两家供应商的字段，隔离机器已有的连接配置。
+    model_arguments: dict[str, object] = {
+        "_env_file": None,
+        "model_provider": model_provider,
+        "model_name": model_name,
+        "openai_api_key": None,
+        "openai_base_url": None,
+        "deepseek_api_key": None,
+        "deepseek_base_url": "https://api.deepseek.com",
+        "model_timeout_seconds": 48.0,
+        "model_max_retries": 1,
+        "model_max_input_chars": 75_000,
+    }
+
+    # 根据当前测试参数填写对应供应商的连接字段。
+    model_arguments[f"{model_provider}_api_key"] = api_key
+    model_arguments[f"{model_provider}_base_url"] = base_url
+    settings = Settings(**model_arguments)
+
     captured: dict[str, object] = {}
+
     commercial = EmptyModelAnalyzer(
         "commercial_risk_agent"
     )
@@ -174,7 +216,7 @@ async def test_llm_cli_uses_config_and_saves_safe_report(
         max_retries: int,
         max_input_chars: int,
     ) -> RiskAnalyzerSet:
-        """记录CLI传给供应商工厂的全部模型配置。"""
+        """记录CLI传给对应供应商工厂的全部模型配置。"""
         captured.update(
             {
                 "model_name": model_name,
@@ -192,25 +234,51 @@ async def test_llm_cli_uses_config_and_saves_safe_report(
             security=security,
         )
 
+    # 当前供应商使用本地模型工厂，记录调用次数而不访问网络。
     monkeypatch.setattr(
         cli_module,
-        "create_openai_risk_analyzers",
+        f"create_{model_provider}_risk_analyzers",
         fake_model_factory,
     )
 
+    def fail_if_other_factory_is_called(
+        **kwargs: object,
+    ) -> RiskAnalyzerSet:
+        """误调用另一家供应商工厂时立即使测试失败。"""
+        del kwargs
+
+        raise AssertionError(
+            "Unexpected model provider factory"
+        )
+
+    other_factory_name = (
+        "create_deepseek_risk_analyzers"
+        if model_provider == "openai"
+        else "create_openai_risk_analyzers"
+    )
+
+    monkeypatch.setattr(
+        cli_module,
+        other_factory_name,
+        fail_if_other_factory_is_called,
+    )
+
+    # 运行完整评测入口，并将报告保存到测试临时目录。
     await cli_module.run_from_arguments(
         arguments,
         settings=settings,
     )
 
     assert captured == {
-        "model_name": "ft:contract-review-model",
-        "api_key": "secret-test-key",
-        "base_url": "https://model.example/v1",
+        "model_name": model_name,
+        "api_key": api_key,
+        "base_url": base_url,
         "timeout_seconds": 48.0,
         "max_retries": 1,
         "max_input_chars": 75_000,
     }
+
+    # 数据集共11个案例，每个案例分别调用三个专业Agent。
     assert commercial.call_count == 11
     assert legal.call_count == 11
     assert security.call_count == 11
@@ -222,14 +290,16 @@ async def test_llm_cli_uses_config_and_saves_safe_report(
         serialized
     )
 
-    assert report.system_name == "sft_llm"
+    assert report.system_name == system_name
     assert report.system_metadata == {
-        "model_provider": "openai",
-        "model_name": "ft:contract-review-model",
+        "model_provider": model_provider,
+        "model_name": model_name,
         "prompt_version": "contract-risk-v1",
     }
-    assert "secret-test-key" not in serialized
-    assert "https://model.example/v1" not in serialized
+
+    # 报告元数据只记录实验条件，不写入访问凭证和网关地址。
+    assert api_key not in serialized
+    assert base_url not in serialized
 
     terminal_output = capsys.readouterr().out
     assert "预计33次模型调用" in terminal_output

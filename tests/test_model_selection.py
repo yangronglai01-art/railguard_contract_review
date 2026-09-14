@@ -54,11 +54,18 @@ def test_mock_mode_keeps_deterministic_analyzers(
             "model factory must not run in mock mode"
         )
 
+    # Mock模式下，两家供应商的工厂都不应该被调用。
     monkeypatch.setattr(
         main_module,
         "create_openai_risk_analyzers",
         fail_if_model_factory_is_called,
     )
+    monkeypatch.setattr(
+        main_module,
+        "create_deepseek_risk_analyzers",
+        fail_if_model_factory_is_called,
+    )
+
     settings = create_settings(
         tmp_path=tmp_path,
         model_provider="mock",
@@ -117,6 +124,7 @@ def test_openai_mode_injects_structured_model_analyzers(
         "create_openai_risk_analyzers",
         fake_model_factory,
     )
+
     settings = Settings(
         _env_file=None,
         model_provider="openai",
@@ -142,6 +150,7 @@ def test_openai_mode_injects_structured_model_analyzers(
 
     assert response.status_code == 200
     assert response.json()["model_provider"] == "openai"
+
     assert captured == {
         "model_name": "contract-base-model",
         "api_key": "test-api-key",
@@ -149,4 +158,98 @@ def test_openai_mode_injects_structured_model_analyzers(
         "timeout_seconds": 42.0,
         "max_retries": 4,
         "max_input_chars": 90_000,
+    }
+
+
+def test_deepseek_mode_injects_its_own_model_configuration(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """验证DeepSeek模式选择对应工厂、密钥和接口地址。"""
+    captured: dict[str, object] = {}
+
+    def fake_deepseek_factory(
+        *,
+        model_name: str,
+        api_key: str,
+        base_url: str | None,
+        timeout_seconds: float,
+        max_retries: int,
+        max_input_chars: int,
+    ) -> RiskAnalyzerSet:
+        """记录DeepSeek配置并返回不会访问网络的三个Agent。"""
+        captured.update(
+            {
+                "model_name": model_name,
+                "api_key": api_key,
+                "base_url": base_url,
+                "timeout_seconds": timeout_seconds,
+                "max_retries": max_retries,
+                "max_input_chars": max_input_chars,
+            }
+        )
+
+        return RiskAnalyzerSet(
+            commercial=DemoCommercialRiskAnalyzer(),
+            legal=DemoLegalRiskAnalyzer(),
+            security=DemoSecurityRiskAnalyzer(),
+        )
+
+    def fail_if_openai_factory_is_called(
+        **kwargs: object,
+    ) -> RiskAnalyzerSet:
+        """DeepSeek模式误调用OpenAI工厂时立即使测试失败。"""
+        del kwargs
+
+        raise AssertionError(
+            "OpenAI factory must not run in DeepSeek mode"
+        )
+
+    monkeypatch.setattr(
+        main_module,
+        "create_deepseek_risk_analyzers",
+        fake_deepseek_factory,
+    )
+    monkeypatch.setattr(
+        main_module,
+        "create_openai_risk_analyzers",
+        fail_if_openai_factory_is_called,
+    )
+
+    # 同时提供两家供应商的测试配置，验证应用选中DeepSeek配置。
+    settings = Settings(
+        _env_file=None,
+        model_provider="deepseek",
+        model_name="deepseek-v4-pro",
+        openai_api_key="openai-test-key",
+        openai_base_url="https://openai.example/v1",
+        deepseek_api_key="deepseek-test-key",
+        deepseek_base_url="https://deepseek.example",
+        model_timeout_seconds=120.0,
+        model_max_retries=1,
+        model_max_input_chars=85_000,
+        database_path=tmp_path / "contracts.db",
+        checkpoint_path=tmp_path / "checkpoints.sqlite3",
+        rag_mode="mock",
+        rag_mock_corpus_path=Path(
+            "data/demo/rag-corpus.json"
+        ),
+    )
+    application = main_module.create_app(
+        settings=settings,
+    )
+
+    with TestClient(application) as client:
+        response = client.get("/health")
+
+    assert response.status_code == 200
+    assert response.json()["model_provider"] == "deepseek"
+
+    assert captured == {
+        "model_name": "deepseek-v4-pro",
+        "api_key": "deepseek-test-key",
+        "base_url": "https://deepseek.example",
+        "timeout_seconds": 120.0,
+        "max_retries": 1,
+        "max_input_chars": 85_000,
     }

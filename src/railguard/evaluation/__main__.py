@@ -6,6 +6,7 @@ from pathlib import Path
 
 from railguard.agents.prompts import PROMPT_VERSION
 from railguard.agents.provider import (
+    create_deepseek_risk_analyzers,
     create_openai_risk_analyzers,
 )
 from railguard.config import Settings
@@ -154,21 +155,36 @@ async def run_llm_target(
     *,
     settings: Settings | None = None,
 ) -> EvaluationReport:
-    """根据环境配置执行阶段B基础模型或阶段C微调模型。"""
+    """根据供应商配置执行通用模型或合同领域微调模型评测。"""
     active_settings = settings or Settings()
 
-    if active_settings.model_provider != "openai":
+    # 根据供应商选择对应密钥、接口地址和模型创建工厂。
+    if active_settings.model_provider == "openai":
+        api_key = active_settings.openai_api_key
+        base_url = active_settings.openai_base_url
+        factory = create_openai_risk_analyzers
+        key_name = "OPENAI_API_KEY"
+
+    elif active_settings.model_provider == "deepseek":
+        api_key = active_settings.deepseek_api_key
+        base_url = active_settings.deepseek_base_url
+        factory = create_deepseek_risk_analyzers
+        key_name = "DEEPSEEK_API_KEY"
+
+    else:
+        # 真实模型目标必须明确启用对应供应商。
         raise ValueError(
-            "LLM evaluation requires MODEL_PROVIDER=openai"
+            "LLM evaluation requires "
+            "MODEL_PROVIDER=openai or deepseek"
         )
 
-    api_key = active_settings.openai_api_key
-
-    if api_key is None:
+    # 再次检查密钥，保证模型工厂收到有效的字符串。
+    if api_key is None or not api_key.strip():
         raise ValueError(
-            "LLM evaluation requires OPENAI_API_KEY"
+            f"LLM evaluation requires {key_name}"
         )
 
+    # 实验名称必须明确，便于区分不同阶段的评测报告。
     if not arguments.system_name.strip():
         raise ValueError(
             "system_name must not be blank"
@@ -177,10 +193,12 @@ async def run_llm_target(
     dataset = load_evaluation_dataset(
         arguments.dataset
     )
-    analyzers = create_openai_risk_analyzers(
+
+    # 两家供应商使用相同的调用限制和专业Agent接口。
+    analyzers = factory(
         model_name=active_settings.model_name,
         api_key=api_key,
-        base_url=active_settings.openai_base_url,
+        base_url=base_url,
         timeout_seconds=(
             active_settings.model_timeout_seconds
         ),
@@ -190,7 +208,8 @@ async def run_llm_target(
         ),
     )
 
-    # 一份案例会分别调用商务、法务和安全三个模型Agent。
+    # 每份案例分别调用商务、法务和安全三个模型Agent。
+    # 这里的次数不包含SDK发生临时故障时产生的重试请求。
     request_count = len(dataset.cases) * 3
     print(
         "即将运行真实模型评测："
@@ -198,6 +217,8 @@ async def run_llm_target(
         f"预计{request_count}次模型调用。"
     )
 
+    # 复用同一数据集、RAG知识库和评测口径。
+    # 元数据只记录供应商、模型和提示词版本。
     return await run_llm_evaluation(
         dataset=dataset,
         rag_corpus_path=arguments.rag_corpus,

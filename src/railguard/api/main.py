@@ -11,6 +11,7 @@ from fastapi import FastAPI
 
 from railguard.agents.provider import (
     RiskAnalyzerSet,
+    create_deepseek_risk_analyzers,
     create_openai_risk_analyzers,
 )
 from railguard.api.contracts import router as contracts_router
@@ -70,37 +71,51 @@ async def _create_rag_retriever(
 def _create_risk_analyzers(
     settings: Settings,
 ) -> RiskAnalyzerSet | None:
-    """根据配置创建规则Agent或结构化大模型Agent。
+    """根据配置选择确定性规则或对应供应商的大模型Agent。
 
-    返回None表示继续使用build_review_graph中的确定性规则Agent。
-    返回RiskAnalyzerSet表示把三个模型Agent注入同一工作流。
+    返回None时，工作流使用默认的确定性规则Agent。
+    返回RiskAnalyzerSet时，将三个专业模型Agent注入同一工作流。
     """
+    # Mock模式不创建外部模型客户端。
     if settings.model_provider == "mock":
         return None
 
+    # 根据供应商选择对应密钥、接口地址和创建工厂。
     if settings.model_provider == "openai":
-        # Settings已经验证真实模型模式必须提供访问密钥。
-        # 此处再次收窄类型，避免把None传给供应商工厂。
         api_key = settings.openai_api_key
+        base_url = settings.openai_base_url
+        factory = create_openai_risk_analyzers
+        key_name = "OPENAI_API_KEY"
 
-        if api_key is None:
-            raise ValueError(
-                "OPENAI_API_KEY is required when "
-                "MODEL_PROVIDER=openai"
-            )
+    elif settings.model_provider == "deepseek":
+        api_key = settings.deepseek_api_key
+        base_url = settings.deepseek_base_url
+        factory = create_deepseek_risk_analyzers
+        key_name = "DEEPSEEK_API_KEY"
 
-        return create_openai_risk_analyzers(
-            model_name=settings.model_name,
-            api_key=api_key,
-            base_url=settings.openai_base_url,
-            timeout_seconds=settings.model_timeout_seconds,
-            max_retries=settings.model_max_retries,
-            max_input_chars=settings.model_max_input_chars,
+    else:
+        raise ValueError(
+            "Unsupported model provider: "
+            f"{settings.model_provider}"
         )
 
-    raise ValueError(
-        "Unsupported model provider: "
-        f"{settings.model_provider}"
+    # Settings已经执行配置校验。
+    # 此处再次检查并收窄类型，保证工厂收到有效字符串。
+    if api_key is None or not api_key.strip():
+        raise ValueError(
+            f"{key_name} is required when "
+            f"MODEL_PROVIDER={settings.model_provider}"
+        )
+
+    # 两家供应商共用超时、重试和输入限制。
+    # 工厂内部负责处理各自的结构化输出协议差异。
+    return factory(
+        model_name=settings.model_name,
+        api_key=api_key,
+        base_url=base_url,
+        timeout_seconds=settings.model_timeout_seconds,
+        max_retries=settings.model_max_retries,
+        max_input_chars=settings.model_max_input_chars,
     )
 
 
