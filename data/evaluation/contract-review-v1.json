@@ -1,0 +1,266 @@
+{
+  "dataset_name": "railguard-contract-review",
+  "version": "1.0.0",
+  "description": "面向采购方的软件采购与技术服务合同合成评测集，覆盖六类风险、完整负例、同义改写和否定表达。",
+  "cases": [
+    {
+      "case_id": "demo-six-risks",
+      "title": "演示合同六类风险",
+      "filename": "demo-six-risks.txt",
+      "contract_text": "设备监测平台软件采购合同\n\n第一条 项目内容\n\n乙方为甲方建设设备监测平台。\n\n第二条 付款方式\n\n合同签订后五日内，甲方支付全部合同款。\n\n第三条 验收\n\n系统上线三日后，甲方未提出异议视为验收合格。",
+      "expected_findings": [
+        {
+          "category": "payment",
+          "finding_kind": "clause_risk",
+          "level": "high",
+          "source_text_contains": "支付全部合同款",
+          "annotation_note": "交付和验收前全额付款。"
+        },
+        {
+          "category": "acceptance",
+          "finding_kind": "clause_risk",
+          "level": "high",
+          "source_text_contains": "未提出异议视为验收合格",
+          "annotation_note": "采购方沉默被视为验收合格。"
+        },
+        {
+          "category": "intellectual_property",
+          "finding_kind": "missing_clause",
+          "level": "high",
+          "expected_clause_contains": "知识产权",
+          "annotation_note": "未约定源代码和开发成果归属。"
+        },
+        {
+          "category": "liability",
+          "finding_kind": "missing_clause",
+          "level": "high",
+          "expected_clause_contains": "违约责任",
+          "annotation_note": "未约定违约责任和解除条件。"
+        },
+        {
+          "category": "support",
+          "finding_kind": "missing_clause",
+          "level": "medium",
+          "expected_clause_contains": "运维服务",
+          "annotation_note": "未约定质保和运维服务。"
+        },
+        {
+          "category": "data_security",
+          "finding_kind": "missing_clause",
+          "level": "high",
+          "expected_clause_contains": "数据安全",
+          "annotation_note": "未约定供应商数据安全义务。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "literal",
+        "multi-risk"
+      ],
+      "notes": "用于验证当前规则版能够稳定识别的完整演示路径。"
+    },
+    {
+      "case_id": "complete-safe-contract",
+      "title": "关键条款完整合同",
+      "filename": "complete-safe-contract.txt",
+      "contract_text": "设备监测平台软件采购合同\n\n第一条 付款方式\n\n合同签订后支付10%，阶段交付后支付40%，最终验收合格并经双方书面确认后支付40%，质保期满支付10%。\n\n第二条 验收\n\n双方按照测试标准完成测试，乙方完成整改和复验后，由双方签署书面验收报告。\n\n第三条 知识产权\n\n定制源代码、接口文档和开发成果的知识产权归甲方所有，乙方承担第三方侵权责任。\n\n第四条 违约责任\n\n乙方延期交付或存在质量缺陷时承担违约责任和赔偿责任，甲方有权解除合同。\n\n第五条 运维服务\n\n乙方提供一年质保期和运维服务，明确故障响应、修复时间及服务期满后的文档移交。\n\n第六条 数据安全\n\n乙方承担数据安全和保密义务，限制数据访问范围，并在合同结束后返还或删除数据。",
+      "expected_findings": [],
+      "tags": [
+        "negative",
+        "complete",
+        "safe"
+      ],
+      "notes": "用于衡量完整合同上的误报。"
+    },
+    {
+      "case_id": "literal-payment-risk",
+      "title": "全额预付单一风险",
+      "filename": "literal-payment-risk.txt",
+      "contract_text": "设备监测平台软件采购合同\n\n第一条 付款方式\n\n合同签订后五日内，甲方支付全部合同款。\n\n第二条 验收\n\n双方按照测试标准完成测试、整改和复验，并签署书面验收报告。\n\n第三条 知识产权\n\n源代码、技术文档和开发成果的知识产权归甲方所有。\n\n第四条 违约责任\n\n乙方延期交付时承担违约金和赔偿责任，甲方有权解除合同。\n\n第五条 运维服务\n\n乙方提供一年质保期和运维服务，明确响应及修复时间。\n\n第六条 数据安全\n\n乙方承担数据安全和保密义务，合同结束后删除全部甲方数据。",
+      "expected_findings": [
+        {
+          "category": "payment",
+          "finding_kind": "clause_risk",
+          "level": "high",
+          "source_text_contains": "支付全部合同款",
+          "annotation_note": "付款没有与交付和验收挂钩。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "literal",
+        "payment",
+        "single-risk"
+      ],
+      "notes": "用于隔离验证付款规则。"
+    },
+    {
+      "case_id": "literal-acceptance-risk",
+      "title": "默认验收单一风险",
+      "filename": "literal-acceptance-risk.txt",
+      "contract_text": "设备监测平台软件采购合同\n\n第一条 付款方式\n\n合同签订后支付10%，阶段交付后支付40%，最终验收后支付尾款。\n\n第二条 验收\n\n系统上线三日后，甲方未提出异议视为验收合格。\n\n第三条 知识产权\n\n源代码、接口文档和开发成果的知识产权归甲方所有。\n\n第四条 违约责任\n\n乙方延期交付时承担违约责任和赔偿责任，甲方有权解除合同。\n\n第五条 运维服务\n\n乙方提供一年质保期和运维服务，明确故障响应和修复时间。\n\n第六条 数据安全\n\n乙方承担数据安全和保密义务，并在合同结束后删除甲方数据。",
+      "expected_findings": [
+        {
+          "category": "acceptance",
+          "finding_kind": "clause_risk",
+          "level": "high",
+          "source_text_contains": "未提出异议视为验收合格",
+          "annotation_note": "以采购方沉默代替书面验收。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "literal",
+        "acceptance",
+        "single-risk"
+      ],
+      "notes": "用于隔离验证验收规则。"
+    },
+    {
+      "case_id": "paraphrased-payment-risk",
+      "title": "全额预付同义改写",
+      "filename": "paraphrased-payment-risk.txt",
+      "contract_text": "设备监测平台软件采购合同\n\n第一条 付款方式\n\n双方盖章次日，甲方一次性结清合同价款总额的100%，乙方收到款项后开始交付。\n\n第二条 验收\n\n双方按照测试标准完成测试、整改和复验，并签署书面验收报告。\n\n第三条 知识产权\n\n源代码、接口文档和开发成果的知识产权归甲方所有。\n\n第四条 违约责任\n\n乙方延期交付时承担违约责任和赔偿责任，甲方有权解除合同。\n\n第五条 运维服务\n\n乙方提供一年质保期和运维服务，明确响应和修复时间。\n\n第六条 数据安全\n\n乙方承担数据安全和保密义务，合同结束后删除甲方数据。",
+      "expected_findings": [
+        {
+          "category": "payment",
+          "finding_kind": "clause_risk",
+          "level": "high",
+          "source_text_contains": "一次性结清合同价款总额的100%",
+          "annotation_note": "使用同义表达描述交付前全额付款。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "paraphrase",
+        "payment",
+        "hard"
+      ],
+      "notes": "用于检查模型对非固定关键词表达的识别能力。"
+    },
+    {
+      "case_id": "negated-payment-safe",
+      "title": "全额预付否定表达",
+      "filename": "negated-payment-safe.txt",
+      "contract_text": "设备监测平台软件采购合同\n\n第一条 付款方式\n\n合同签订后，甲方不得支付全部合同款。阶段交付后支付40%，最终验收合格后支付50%，质保期满支付10%。\n\n第二条 验收\n\n双方按照测试标准完成整改和复验，并签署书面验收报告。\n\n第三条 知识产权\n\n源代码、接口文档和开发成果的知识产权归甲方所有。\n\n第四条 违约责任\n\n乙方延期交付时承担违约责任和赔偿责任，甲方有权解除合同。\n\n第五条 运维服务\n\n乙方提供一年质保期和运维服务，明确响应和修复时间。\n\n第六条 数据安全\n\n乙方承担数据安全和保密义务，合同结束后删除甲方数据。",
+      "expected_findings": [],
+      "tags": [
+        "negative",
+        "negation",
+        "payment",
+        "hard"
+      ],
+      "notes": "用于检测只依赖关键词而忽略否定语义产生的误报。"
+    },
+    {
+      "case_id": "weak-intellectual-property",
+      "title": "知识产权内容不充分",
+      "filename": "weak-intellectual-property.txt",
+      "contract_text": "设备监测平台软件采购合同\n\n第一条 付款方式\n\n最终验收合格后支付尾款。\n\n第二条 验收\n\n双方按照测试标准完成整改和复验，并签署书面验收报告。\n\n第三条 知识产权\n\n知识产权归属由双方另行协商，协商不成不影响付款。\n\n第四条 违约责任\n\n乙方延期交付时承担违约责任和赔偿责任，甲方有权解除合同。\n\n第五条 运维服务\n\n乙方提供一年质保期和运维服务，明确响应和修复时间。\n\n第六条 数据安全\n\n乙方承担数据安全和保密义务，合同结束后删除甲方数据。",
+      "expected_findings": [
+        {
+          "category": "intellectual_property",
+          "finding_kind": "clause_risk",
+          "level": "high",
+          "source_text_contains": "知识产权归属由双方另行协商",
+          "annotation_note": "出现条款标题但没有确定成果权利归属。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "weak-clause",
+        "intellectual-property",
+        "hard"
+      ],
+      "notes": "用于区分条款存在和条款内容充分。"
+    },
+    {
+      "case_id": "weak-data-security",
+      "title": "数据安全内容不充分",
+      "filename": "weak-data-security.txt",
+      "contract_text": "设备监测平台软件采购合同\n\n第一条 付款方式\n\n最终验收合格后支付尾款。\n\n第二条 验收\n\n双方按照测试标准完成整改和复验，并签署书面验收报告。\n\n第三条 知识产权\n\n源代码和开发成果的知识产权归甲方所有。\n\n第四条 违约责任\n\n乙方延期交付时承担违约责任和赔偿责任，甲方有权解除合同。\n\n第五条 运维服务\n\n乙方提供一年质保期和运维服务，明确响应和修复时间。\n\n第六条 数据安全\n\n乙方承担保密义务，数据处理范围、保存期限和删除安排由双方另行协商。",
+      "expected_findings": [
+        {
+          "category": "data_security",
+          "finding_kind": "clause_risk",
+          "level": "high",
+          "source_text_contains": "数据处理范围、保存期限和删除安排由双方另行协商",
+          "annotation_note": "仅有原则性保密表述，没有可执行的数据安全义务。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "weak-clause",
+        "data-security",
+        "hard"
+      ],
+      "notes": "用于检查数据安全条款的内容质量判断。"
+    },
+    {
+      "case_id": "weak-support-clause",
+      "title": "运维服务内容不充分",
+      "filename": "weak-support-clause.txt",
+      "contract_text": "设备监测平台软件采购合同\n\n第一条 付款方式\n\n最终验收合格后支付尾款。\n\n第二条 验收\n\n双方按照测试标准完成整改和复验，并签署书面验收报告。\n\n第三条 知识产权\n\n源代码和开发成果的知识产权归甲方所有。\n\n第四条 违约责任\n\n乙方延期交付时承担违约责任和赔偿责任，甲方有权解除合同。\n\n第五条 运维服务\n\n乙方提供售后服务，具体服务内容由双方另行协商。\n\n第六条 数据安全\n\n乙方承担数据安全和保密义务，合同结束后删除甲方数据。",
+      "expected_findings": [
+        {
+          "category": "support",
+          "finding_kind": "clause_risk",
+          "level": "medium",
+          "source_text_contains": "具体服务内容由双方另行协商",
+          "annotation_note": "没有质保期限、响应时间和修复时限。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "weak-clause",
+        "support",
+        "hard"
+      ],
+      "notes": "用于检查只有售后服务标题但没有服务级别的情况。"
+    },
+    {
+      "case_id": "weak-liability-clause",
+      "title": "违约责任内容不充分",
+      "filename": "weak-liability-clause.txt",
+      "contract_text": "设备监测平台软件采购合同\n\n第一条 付款方式\n\n最终验收合格后支付尾款。\n\n第二条 验收\n\n双方按照测试标准完成整改和复验，并签署书面验收报告。\n\n第三条 知识产权\n\n源代码和开发成果的知识产权归甲方所有。\n\n第四条 违约责任\n\n违约责任按照法律规定执行，其他事项由双方另行协商。\n\n第五条 运维服务\n\n乙方提供一年质保期和运维服务，明确响应和修复时间。\n\n第六条 数据安全\n\n乙方承担数据安全和保密义务，合同结束后删除甲方数据。",
+      "expected_findings": [
+        {
+          "category": "liability",
+          "finding_kind": "clause_risk",
+          "level": "high",
+          "source_text_contains": "违约责任按照法律规定执行",
+          "annotation_note": "没有明确延期交付、质量缺陷和解除责任。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "weak-clause",
+        "liability",
+        "hard"
+      ],
+      "notes": "用于检查空洞的违约责任条款。"
+    },
+    {
+      "case_id": "paraphrased-acceptance-risk",
+      "title": "默认验收同义改写",
+      "filename": "paraphrased-acceptance-risk.txt",
+      "contract_text": "设备监测平台软件采购合同\n\n第一条 付款方式\n\n最终验收合格后支付尾款。\n\n第二条 验收\n\n平台上线满三个工作日，甲方未回复即自动通过验收，无需双方书面确认。\n\n第三条 知识产权\n\n源代码和开发成果的知识产权归甲方所有。\n\n第四条 违约责任\n\n乙方延期交付时承担违约责任和赔偿责任，甲方有权解除合同。\n\n第五条 运维服务\n\n乙方提供一年质保期和运维服务，明确响应和修复时间。\n\n第六条 数据安全\n\n乙方承担数据安全和保密义务，合同结束后删除甲方数据。",
+      "expected_findings": [
+        {
+          "category": "acceptance",
+          "finding_kind": "clause_risk",
+          "level": "high",
+          "source_text_contains": "甲方未回复即自动通过验收",
+          "annotation_note": "以同义表达约定采购方沉默即自动验收。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "paraphrase",
+        "acceptance",
+        "hard"
+      ],
+      "notes": "用于检查默认验收同义表达。"
+    }
+  ]
+}
