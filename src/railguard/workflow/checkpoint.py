@@ -1,10 +1,43 @@
-"""LangGraph SQLite checkpoint生命周期工具。"""
+"""LangGraph SQLite checkpoint生命周期和安全序列化工具。"""
 
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
 
+from langgraph.checkpoint.serde.jsonplus import (
+    JsonPlusSerializer,
+)
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
+
+from railguard.models.schemas import (
+    Clause,
+    ContractDocument,
+    Evidence,
+    RiskFinding,
+)
+from railguard.workflow.state import (
+    HumanReviewDecision,
+    WorkflowError,
+)
+
+
+def create_checkpoint_serializer() -> JsonPlusSerializer:
+    """创建只允许恢复RailGuard业务模型的序列化器。
+
+    LangGraph严格模式默认拒绝反序列化未注册的自定义类型。
+    此处按模块和类名建立精确白名单，不允许任意Python类型，
+    兼顾checkpoint恢复能力和反序列化安全。
+    """
+    return JsonPlusSerializer(
+        allowed_msgpack_modules=(
+            Clause,
+            ContractDocument,
+            Evidence,
+            RiskFinding,
+            HumanReviewDecision,
+            WorkflowError,
+        )
+    )
 
 
 def create_review_config(
@@ -46,6 +79,9 @@ async def open_sqlite_checkpointer(
     async with AsyncSqliteSaver.from_conn_string(
         str(resolved_path)
     ) as checkpointer:
+        # 为当前SQLite saver启用精确的业务类型白名单。
+        checkpointer.serde = create_checkpoint_serializer()
+
         # setup创建LangGraph所需的数据表，可重复调用。
         await checkpointer.setup()
         yield checkpointer

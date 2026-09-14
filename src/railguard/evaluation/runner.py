@@ -1,5 +1,6 @@
 """合同审核离线评测执行器。"""
 
+from collections.abc import Mapping
 from pathlib import Path
 
 from langgraph.checkpoint.memory import InMemorySaver
@@ -10,6 +11,7 @@ from railguard.evaluation.metrics import (
 )
 from railguard.evaluation.models import (
     EvaluationCase,
+    EvaluationCaseResult,
     EvaluationDataset,
     EvaluationReport,
 )
@@ -19,6 +21,15 @@ from railguard.models.schemas import (
 )
 from railguard.parsers.clauses import split_clauses
 from railguard.rag.mock import MockRagRetriever
+from railguard.workflow.analyzers import (
+    DemoCommercialRiskAnalyzer,
+    DemoLegalRiskAnalyzer,
+    DemoSecurityRiskAnalyzer,
+    RiskAnalyzer,
+)
+from railguard.workflow.checkpoint import (
+    create_checkpoint_serializer,
+)
 from railguard.workflow.graph import build_review_graph
 from railguard.workflow.service import ReviewService
 
@@ -68,22 +79,37 @@ def build_evaluation_contract(
     )
 
 
-async def run_rules_evaluation(
+async def run_analyzer_evaluation(
     *,
     dataset: EvaluationDataset,
     rag_corpus_path: Path,
+    commercial_analyzer: RiskAnalyzer,
+    legal_analyzer: RiskAnalyzer,
+    security_analyzer: RiskAnalyzer,
+    system_name: str,
+    system_metadata: Mapping[str, str] | None = None,
 ) -> EvaluationReport:
-    """运行当前确定性规则Agent并生成完整评测报告。"""
+    """使用指定的三个Agent运行统一离线评测流程。
+
+    规则模型、基础模型和微调模型都通过此函数执行，
+    保证它们使用相同数据集、RAG、LangGraph节点和评分方法。
+    """
     retriever = MockRagRetriever.from_json_file(
         rag_corpus_path
     )
     graph = build_review_graph(
         retriever=retriever,
-        checkpointer=InMemorySaver(),
+        commercial_analyzer=commercial_analyzer,
+        legal_analyzer=legal_analyzer,
+        security_analyzer=security_analyzer,
+        checkpointer=InMemorySaver(
+            serde=create_checkpoint_serializer()
+        ),
     )
     service = ReviewService(graph)
-    case_results = []
+    case_results: list[EvaluationCaseResult] = []
 
+    # 案例保持数据集中的固定顺序，便于比较不同实验报告。
     for evaluation_case in dataset.cases:
         contract = build_evaluation_contract(
             evaluation_case
@@ -112,9 +138,72 @@ async def run_rules_evaluation(
         )
 
     return build_evaluation_report(
-        system_name="deterministic_rules",
+        system_name=system_name,
+        system_metadata=system_metadata,
         dataset=dataset,
         case_results=case_results,
+    )
+
+
+async def run_rules_evaluation(
+    *,
+    dataset: EvaluationDataset,
+    rag_corpus_path: Path,
+) -> EvaluationReport:
+    """运行确定性规则Agent并生成阶段A基线报告。"""
+    return await run_analyzer_evaluation(
+        dataset=dataset,
+        rag_corpus_path=rag_corpus_path,
+        commercial_analyzer=(
+            DemoCommercialRiskAnalyzer()
+        ),
+        legal_analyzer=DemoLegalRiskAnalyzer(),
+        security_analyzer=DemoSecurityRiskAnalyzer(),
+        system_name="deterministic_rules",
+        system_metadata={
+            "model_provider": "mock",
+            "model_name": "deterministic_rules",
+            "prompt_version": "not_applicable",
+        },
+    )
+
+
+async def run_llm_evaluation(
+    *,
+    dataset: EvaluationDataset,
+    rag_corpus_path: Path,
+    commercial_analyzer: RiskAnalyzer,
+    legal_analyzer: RiskAnalyzer,
+    security_analyzer: RiskAnalyzer,
+    system_name: str,
+    model_provider: str,
+    model_name: str,
+    prompt_version: str,
+) -> EvaluationReport:
+    """运行基础或微调大模型并生成可追溯评测报告。"""
+    metadata = {
+        "model_provider": model_provider.strip(),
+        "model_name": model_name.strip(),
+        "prompt_version": prompt_version.strip(),
+    }
+
+    if any(
+        not value
+        for value in metadata.values()
+    ):
+        raise ValueError(
+            "LLM evaluation metadata must not be blank"
+        )
+
+    # 只写入公开实验条件，不保存API密钥和内部接口地址。
+    return await run_analyzer_evaluation(
+        dataset=dataset,
+        rag_corpus_path=rag_corpus_path,
+        commercial_analyzer=commercial_analyzer,
+        legal_analyzer=legal_analyzer,
+        security_analyzer=security_analyzer,
+        system_name=system_name,
+        system_metadata=metadata,
     )
 
 

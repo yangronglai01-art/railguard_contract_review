@@ -1,6 +1,6 @@
 """合同审核离线评测的匹配和指标计算。"""
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime
 
 from railguard.evaluation.models import (
@@ -320,12 +320,14 @@ def build_evaluation_report(
     system_name: str,
     dataset: EvaluationDataset,
     case_results: Sequence[EvaluationCaseResult],
+    system_metadata: Mapping[str, str] | None = None,
 ) -> EvaluationReport:
-    """创建包含逐案例结果和总体指标的评测报告。"""
+    """创建包含实验条件、逐案例结果和总体指标的评测报告。"""
     resolved_results = list(case_results)
 
     return EvaluationReport(
         system_name=system_name,
+        system_metadata=dict(system_metadata or {}),
         dataset_name=dataset.dataset_name,
         dataset_version=dataset.version,
         generated_at=datetime.now(UTC),

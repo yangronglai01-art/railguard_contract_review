@@ -284,8 +284,14 @@ class EvaluationCaseResult(SchemaModel):
 class EvaluationReport(SchemaModel):
     """一次完整离线评测的可序列化报告。"""
 
-    # 被评测系统名称，例如deterministic_rules。
+    # 被评测系统名称，例如deterministic_rules或base_llm。
     system_name: str = Field(min_length=1)
+
+    # 记录模型供应商、模型名、提示词版本等实验条件。
+    # 字段只保存可公开的追溯信息，不能写入API密钥。
+    system_metadata: dict[str, str] = Field(
+        default_factory=dict
+    )
 
     # 评测集名称和版本。
     dataset_name: str = Field(min_length=1)
