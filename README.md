@@ -200,6 +200,87 @@ Copy-Item .env.example .env
 
 ## 演示流程
 
+## Docker部署
+
+项目使用同一个镜像运行FastAPI和Streamlit，通过Docker Compose启动两个独立服务。
+
+### 构建并启动
+
+```powershell
+docker compose up --build -d
+```
+
+Compose会启动：
+
+| 服务 | 容器端口 | 默认宿主机端口 |
+|---|---:|---:|
+| FastAPI后端 | 8000 | 8000 |
+| Streamlit前端 | 8501 | 8501 |
+
+启动后访问：
+
+- Streamlit：<http://127.0.0.1:8501>
+- Swagger：<http://127.0.0.1:8000/docs>
+- 健康检查：<http://127.0.0.1:8000/health>
+
+部署到服务器后，将 `127.0.0.1` 替换为服务器IP或域名。
+
+### 查看容器状态
+
+```powershell
+docker compose ps
+```
+
+`api` 和 `ui` 都显示 `healthy` 表示启动成功。Streamlit会等待FastAPI健康检查通过后再启动。
+
+### 查看运行日志
+
+```powershell
+docker compose logs --no-color --tail 100 api ui
+```
+
+持续查看日志：
+
+```powershell
+docker compose logs -f api ui
+```
+
+### 停止服务
+
+```powershell
+docker compose down
+```
+
+该命令停止并删除容器，但保留合同和LangGraph checkpoint数据。
+
+### 数据持久化
+
+Docker使用命名卷保存运行数据：
+
+```text
+railguard-contract-review_railguard-runtime
+```
+
+该卷挂载到容器内的：
+
+```text
+/app/data/runtime
+```
+
+重新构建镜像或重新创建容器不会删除合同和审核checkpoint。只有明确执行带 `--volumes` 的删除命令时才会删除该卷。
+
+### Docker环境变量
+
+可以在项目根目录的 `.env` 中调整：
+
+```dotenv
+RAILGUARD_API_PORT=8000
+RAILGUARD_UI_PORT=8501
+DOCKER_RAG_BASE_URL=http://host.docker.internal:8001
+```
+
+当 `RAG_MODE=http` 时，`DOCKER_RAG_BASE_URL` 表示API容器访问外部RAG服务的地址。
+
 1. 打开Streamlit人工审核工作台。
 2. 上传 `data/demo/software-purchase-demo.docx`。
 3. 查看解析后的合同条款和原文位置。
@@ -318,4 +399,4 @@ HTTP适配器负责处理超时、连接失败、非成功状态码和无效响�
 4. 比较规则基线、通用模型和微调模型的评测结果。
 5. 接入真实RAG服务并补充知识库版本管理。
 6. 增加OCR、身份认证和审计日志。
-7. 增加Docker部署、健康检查和运行监控。
+7. 完善反向代理、HTTPS、日志采集、监控告警和备份策略。

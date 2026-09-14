@@ -1,0 +1,107 @@
+name: railguard-contract-review
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: railguard-contract-review:local
+    restart: unless-stopped
+    init: true
+
+    environment:
+      APP_NAME: "${APP_NAME:-RailGuard AI}"
+      APP_ENV: "${APP_ENV:-production}"
+      APP_VERSION: "${APP_VERSION:-0.1.0}"
+
+      MODEL_PROVIDER: "${MODEL_PROVIDER:-mock}"
+      MODEL_NAME: "${MODEL_NAME:-mock-contract-reviewer}"
+      OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
+
+      RAG_MODE: "${RAG_MODE:-mock}"
+      RAG_BASE_URL: "${DOCKER_RAG_BASE_URL:-http://host.docker.internal:8001}"
+      RAG_API_KEY: "${RAG_API_KEY:-}"
+      RAG_TIMEOUT_SECONDS: "${RAG_TIMEOUT_SECONDS:-10}"
+      RAG_MOCK_CORPUS_PATH: "/app/data/demo/rag-corpus.json"
+
+      DATABASE_PATH: "/app/data/runtime/railguard.db"
+      CHECKPOINT_PATH: "/app/data/runtime/review-checkpoints.sqlite3"
+
+    volumes:
+      - railguard-runtime:/app/data/runtime
+
+    ports:
+      - "${RAILGUARD_API_PORT:-8000}:8000"
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - >-
+          import urllib.request;
+          urllib.request.urlopen(
+          "http://127.0.0.1:8000/health",
+          timeout=3
+          ).read()
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 15s
+
+    security_opt:
+      - no-new-privileges:true
+
+  ui:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: railguard-contract-review:local
+    restart: unless-stopped
+    init: true
+
+    command:
+      - python
+      - -m
+      - streamlit
+      - run
+      - src/railguard/ui/app.py
+      - --server.address=0.0.0.0
+      - --server.port=8501
+      - --server.headless=true
+      - --browser.gatherUsageStats=false
+
+    environment:
+      RAILGUARD_API_BASE_URL: "http://api:8000"
+
+    ports:
+      - "${RAILGUARD_UI_PORT:-8501}:8501"
+
+    depends_on:
+      api:
+        condition: service_healthy
+
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - >-
+          import urllib.request;
+          urllib.request.urlopen(
+          "http://127.0.0.1:8501/_stcore/health",
+          timeout=3
+          ).read()
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 15s
+
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  railguard-runtime:
