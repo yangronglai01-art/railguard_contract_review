@@ -33,9 +33,26 @@ def _execution_status_code(
     """把审核执行错误映射为HTTP状态码。"""
     status_by_code = {
         "rag_timeout": status.HTTP_504_GATEWAY_TIMEOUT,
-        "rag_unavailable": status.HTTP_503_SERVICE_UNAVAILABLE,
+        "rag_unavailable": (
+            status.HTTP_503_SERVICE_UNAVAILABLE
+        ),
         "rag_request_rejected": status.HTTP_502_BAD_GATEWAY,
         "rag_protocol_error": status.HTTP_502_BAD_GATEWAY,
+        "model_input_too_large": (
+            status.HTTP_413_CONTENT_TOO_LARGE
+        ),
+        "model_unavailable": (
+            status.HTTP_503_SERVICE_UNAVAILABLE
+        ),
+        "model_response_invalid": (
+            status.HTTP_502_BAD_GATEWAY
+        ),
+        "model_protocol_error": (
+            status.HTTP_502_BAD_GATEWAY
+        ),
+        "model_execution_failed": (
+            status.HTTP_500_INTERNAL_SERVER_ERROR
+        ),
         "workflow_protocol_error": (
             status.HTTP_500_INTERNAL_SERVER_ERROR
         ),

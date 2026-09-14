@@ -17,6 +17,10 @@ services:
       MODEL_PROVIDER: "${MODEL_PROVIDER:-mock}"
       MODEL_NAME: "${MODEL_NAME:-mock-contract-reviewer}"
       OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
+      OPENAI_BASE_URL: "${OPENAI_BASE_URL:-}"
+      MODEL_TIMEOUT_SECONDS: "${MODEL_TIMEOUT_SECONDS:-60}"
+      MODEL_MAX_RETRIES: "${MODEL_MAX_RETRIES:-2}"
+      MODEL_MAX_INPUT_CHARS: "${MODEL_MAX_INPUT_CHARS:-120000}"
 
       RAG_MODE: "${RAG_MODE:-mock}"
       RAG_BASE_URL: "${DOCKER_RAG_BASE_URL:-http://host.docker.internal:8001}"

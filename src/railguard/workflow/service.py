@@ -10,6 +10,13 @@ from typing import cast
 from langgraph.graph.state import CompiledStateGraph
 from langgraph.types import Command, StateSnapshot
 
+from railguard.agents.llm import (
+    LlmAnalyzerError,
+    LlmInputTooLargeError,
+    LlmInvocationError,
+    LlmProtocolError,
+    LlmResponseError,
+)
 from railguard.models.schemas import (
     ContractDocument,
     Evidence,
@@ -101,6 +108,7 @@ class ReviewService:
             RagUnavailableError,
             RagRequestError,
             RagProtocolError,
+            LlmAnalyzerError,
             WorkflowProtocolError,
         ) as exc:
             raise self._map_execution_error(
@@ -174,6 +182,7 @@ class ReviewService:
                 RagUnavailableError,
                 RagRequestError,
                 RagProtocolError,
+                LlmAnalyzerError,
                 WorkflowProtocolError,
             ) as exc:
                 raise self._map_execution_error(
@@ -350,6 +359,18 @@ class ReviewService:
             code = "rag_request_rejected"
         elif isinstance(error, RagProtocolError):
             code = "rag_protocol_error"
+        elif isinstance(error, LlmInputTooLargeError):
+            code = "model_input_too_large"
+        elif isinstance(error, LlmInvocationError):
+            code = "model_unavailable"
+            retryable = True
+        elif isinstance(error, LlmResponseError):
+            code = "model_response_invalid"
+            retryable = True
+        elif isinstance(error, LlmProtocolError):
+            code = "model_protocol_error"
+        elif isinstance(error, LlmAnalyzerError):
+            code = "model_execution_failed"
         elif isinstance(error, WorkflowProtocolError):
             code = "workflow_protocol_error"
 
@@ -399,6 +420,46 @@ class ReviewService:
                 review_id=review_id,
                 code="rag_protocol_error",
                 message="RAG服务返回了无效数据。",
+                retryable=False,
+            )
+
+        if isinstance(error, LlmInputTooLargeError):
+            return ReviewExecutionError(
+                review_id=review_id,
+                code="model_input_too_large",
+                message="合同和证据超过模型输入限制。",
+                retryable=False,
+            )
+
+        if isinstance(error, LlmInvocationError):
+            return ReviewExecutionError(
+                review_id=review_id,
+                code="model_unavailable",
+                message="大模型服务暂时不可用。",
+                retryable=True,
+            )
+
+        if isinstance(error, LlmResponseError):
+            return ReviewExecutionError(
+                review_id=review_id,
+                code="model_response_invalid",
+                message="大模型返回了无效的结构化数据。",
+                retryable=True,
+            )
+
+        if isinstance(error, LlmProtocolError):
+            return ReviewExecutionError(
+                review_id=review_id,
+                code="model_protocol_error",
+                message="大模型结果违反了审核协议。",
+                retryable=False,
+            )
+
+        if isinstance(error, LlmAnalyzerError):
+            return ReviewExecutionError(
+                review_id=review_id,
+                code="model_execution_failed",
+                message="大模型审核执行失败。",
                 retryable=False,
             )
 

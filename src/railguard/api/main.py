@@ -1,11 +1,18 @@
 ﻿"""RailGuard FastAPI应用入口。"""
 
 from collections.abc import AsyncIterator
-from contextlib import AsyncExitStack, asynccontextmanager
+from contextlib import (
+    AsyncExitStack,
+    asynccontextmanager,
+)
 
 import httpx
 from fastapi import FastAPI
 
+from railguard.agents.provider import (
+    RiskAnalyzerSet,
+    create_openai_risk_analyzers,
+)
 from railguard.api.contracts import router as contracts_router
 from railguard.api.reviews import router as reviews_router
 from railguard.config import Settings, get_settings
@@ -60,6 +67,43 @@ async def _create_rag_retriever(
     )
 
 
+def _create_risk_analyzers(
+    settings: Settings,
+) -> RiskAnalyzerSet | None:
+    """根据配置创建规则Agent或结构化大模型Agent。
+
+    返回None表示继续使用build_review_graph中的确定性规则Agent。
+    返回RiskAnalyzerSet表示把三个模型Agent注入同一工作流。
+    """
+    if settings.model_provider == "mock":
+        return None
+
+    if settings.model_provider == "openai":
+        # Settings已经验证真实模型模式必须提供访问密钥。
+        # 此处再次收窄类型，避免把None传给供应商工厂。
+        api_key = settings.openai_api_key
+
+        if api_key is None:
+            raise ValueError(
+                "OPENAI_API_KEY is required when "
+                "MODEL_PROVIDER=openai"
+            )
+
+        return create_openai_risk_analyzers(
+            model_name=settings.model_name,
+            api_key=api_key,
+            base_url=settings.openai_base_url,
+            timeout_seconds=settings.model_timeout_seconds,
+            max_retries=settings.model_max_retries,
+            max_input_chars=settings.model_max_input_chars,
+        )
+
+    raise ValueError(
+        "Unsupported model provider: "
+        f"{settings.model_provider}"
+    )
+
+
 def create_app(
     repository: ContractRepository | None = None,
     *,
@@ -100,8 +144,27 @@ def create_app(
                     settings=active_settings,
                     stack=stack,
                 )
+                analyzer_set = _create_risk_analyzers(
+                    active_settings
+                )
+
                 graph = build_review_graph(
                     retriever=retriever,
+                    commercial_analyzer=(
+                        analyzer_set.commercial
+                        if analyzer_set is not None
+                        else None
+                    ),
+                    legal_analyzer=(
+                        analyzer_set.legal
+                        if analyzer_set is not None
+                        else None
+                    ),
+                    security_analyzer=(
+                        analyzer_set.security
+                        if analyzer_set is not None
+                        else None
+                    ),
                     checkpointer=checkpointer,
                 )
                 active_review_service = ReviewService(graph)
@@ -136,7 +199,9 @@ def create_app(
             "service": active_settings.app_name,
             "version": active_settings.app_version,
             "environment": active_settings.app_env,
-            "model_provider": active_settings.model_provider,
+            "model_provider": (
+                active_settings.model_provider
+            ),
             "rag_mode": active_settings.rag_mode,
         }
 
