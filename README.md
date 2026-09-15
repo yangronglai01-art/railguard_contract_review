@@ -431,6 +431,15 @@ DeepSeek模式使用Responses API，通过 `text.format` 发送命名JSON Schema
 
 协议参考：[DeepSeek Responses API](https://api-docs.deepseek.com/api/create-response/)。
 
+
+运行正式评测前，可以先使用虚构短合同执行一次真实接口冒烟测试：
+
+```powershell
+& ".\.venv\Scripts\python.exe" -m railguard.agents.smoke
+```
+
+该命令只调用一次商务风险Agent，用于验证API认证、Responses协议、JSON Schema、本地解析和业务校验。脚本不会打印访问密钥，也不会启动完整的三个Agent审核流程。
+
 项目也保留OpenAI兼容模式，可通过 `MODEL_PROVIDER=openai`、`OPENAI_API_KEY` 和 `OPENAI_BASE_URL` 配置对应服务。
 
 运行DeepSeek模型评测：
@@ -539,7 +548,7 @@ Starlette产生的一项AnyIO弃用警告来自第三方依赖。
 
 ## 当前限制
 
-- 已完成OpenAI和DeepSeek接入代码及自动测试，尚未完成DeepSeek真实接口验证和阶段B正式评测
+- 已完成DeepSeek真实接口冒烟测试，以及三个模型Agent、人工中断和checkpoint恢复的完整审核闭环；尚未运行11份案例的阶段B正式离线评测
 - 尚未完成领域监督微调训练和阶段C正式评测
 - 第一版评测集只有11份合成合同和14项标签，规模较小
 - Mock知识库内容为合成数据
@@ -551,7 +560,7 @@ Starlette产生的一项AnyIO弃用警告来自第三方依赖。
 
 ## 后续计划
 
-1. 验证DeepSeek真实接口并运行阶段B离线评测。
+1. 运行阶段B DeepSeek固定评测集，保存报告并分析相对规则基线的提升和退化。
 2. 根据漏检和误检分析构建独立的监督微调训练集。
 3. 选择开放权重底座，生成未微调模型的领域基线。
 4. 完成合同领域微调，并对比同一底座微调前后的结果。

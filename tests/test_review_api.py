@@ -57,6 +57,9 @@ def client(tmp_path: Path) -> Iterator[TestClient]:
         tmp_path / "review-api-contracts.db"
     )
     settings = Settings(
+        _env_file=None,
+        model_provider="mock",
+        model_name="mock-contract-reviewer",
         rag_mode="mock",
         rag_mock_corpus_path=Path(
             "data/demo/rag-corpus.json"
@@ -236,6 +239,9 @@ def test_review_api_returns_structured_execution_error(
     )
     service = ReviewService(graph)
     settings = Settings(
+        _env_file=None,
+        model_provider="mock",
+        model_name="mock-contract-reviewer",
         rag_mode="mock",
         checkpoint_path=(
             tmp_path
