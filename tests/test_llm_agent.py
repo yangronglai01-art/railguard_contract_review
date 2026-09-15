@@ -314,8 +314,8 @@ async def test_analyzer_rejects_unknown_clause_id() -> None:
         )
 
 
-async def test_analyzer_rejects_evidence_from_another_scope() -> None:
-    """验证已有条款风险不能引用合同级缺失条款证据。"""
+async def test_analyzer_accepts_contract_evidence_for_clause_risk() -> None:
+    """验证已有条款风险可以引用合同级同类审查指引。"""
     contract = create_contract()
     payment_clause = find_payment_clause(contract)
     contract_evidence = create_evidence()
@@ -333,19 +333,18 @@ async def test_analyzer_rejects_evidence_from_another_scope() -> None:
         invoker=invoker,
     )
 
-    with pytest.raises(
-        LlmProtocolError,
-        match="outside its scope",
-    ):
-        await analyzer.analyze(
-            contract=contract,
-            evidence_by_clause={},
-            contract_evidence=[contract_evidence],
-        )
+    findings = await analyzer.analyze(
+        contract=contract,
+        evidence_by_clause={},
+        contract_evidence=[contract_evidence],
+    )
+
+    assert len(findings) == 1
+    assert findings[0].evidence_ids == ["evidence-payment-01"]
 
 
-async def test_analyzer_rejects_evidence_from_another_category() -> None:
-    """验证付款风险不能引用验收分类的证据。"""
+async def test_analyzer_filters_evidence_from_another_category() -> None:
+    """验证付款风险会过滤掉验收分类的证据引用。"""
     contract = create_contract()
     payment_clause = find_payment_clause(contract)
     acceptance_evidence = create_evidence(
@@ -365,19 +364,18 @@ async def test_analyzer_rejects_evidence_from_another_category() -> None:
         invoker=invoker,
     )
 
-    with pytest.raises(
-        LlmProtocolError,
-        match="another category",
-    ):
-        await analyzer.analyze(
-            contract=contract,
-            evidence_by_clause={
-                payment_clause.clause_id: [
-                    acceptance_evidence
-                ],
-            },
-            contract_evidence=[],
-        )
+    findings = await analyzer.analyze(
+        contract=contract,
+        evidence_by_clause={
+            payment_clause.clause_id: [
+                acceptance_evidence
+            ],
+        },
+        contract_evidence=[],
+    )
+
+    assert len(findings) == 1
+    assert findings[0].evidence_ids == []
 
 
 async def test_analyzer_rejects_duplicate_findings() -> None:

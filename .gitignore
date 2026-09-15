@@ -35,3 +35,6 @@ wandb/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Temporary working notes (remove before publishing)
+PROGRESS.md

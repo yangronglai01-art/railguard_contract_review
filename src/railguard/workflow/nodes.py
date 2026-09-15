@@ -257,44 +257,39 @@ class ReviewNodes:
                 finding=finding,
             )
 
-            if len(finding.evidence_ids) != len(
-                set(finding.evidence_ids)
-            ):
-                raise AnalyzerProtocolError(
-                    "Finding contains duplicate evidence_ids"
-                )
-
-            if not finding.evidence_ids:
-                verified_findings.append(
-                    finding.model_copy(
-                        update={
-                            "citation_status": "unsupported"
-                        }
-                    )
-                )
-                continue
+            # 过滤证据引用：丢弃未知、越界、类别不匹配或重复的ID。
+            # 引用验证的目标是标记引用质量，而不是因单条幻觉引用
+            # 废弃整个风险发现。
+            valid_evidence_ids: list[str] = []
 
             for evidence_id in finding.evidence_ids:
+                if evidence_id in valid_evidence_ids:
+                    continue
+
                 evidence = allowed_evidence.get(evidence_id)
 
                 if evidence is None:
-                    raise AnalyzerProtocolError(
-                        "Finding referenced an unknown evidence_id"
-                    )
+                    continue
 
                 if (
                     evidence.metadata.get("category")
                     != finding.category
                 ):
-                    raise AnalyzerProtocolError(
-                        "Finding referenced evidence from "
-                        "a different category"
-                    )
+                    continue
+
+                valid_evidence_ids.append(evidence_id)
+
+            citation_status = (
+                "source_matched"
+                if valid_evidence_ids
+                else "unsupported"
+            )
 
             verified_findings.append(
                 finding.model_copy(
                     update={
-                        "citation_status": "source_matched"
+                        "citation_status": citation_status,
+                        "evidence_ids": valid_evidence_ids,
                     }
                 )
             )
@@ -431,14 +426,26 @@ class ReviewNodes:
         state: ReviewState,
         finding: RiskFinding,
     ) -> dict[str, Evidence]:
-        """返回一项风险可以合法引用的证据集合。"""
+        """返回一项风险可以合法引用的证据集合。
+
+        条款级风险可以引用该条款检索到的证据，也可以引用合同级
+        审查指引；缺失条款风险只能引用合同级证据。类别匹配由调用方
+        单独校验。
+        """
         if finding.finding_kind == "clause_risk":
-            evidence_items = state.get(
+            clause_evidence = state.get(
                 "evidence_by_clause",
                 {},
             ).get(
                 finding.clause_id or "",
                 [],
+            )
+            contract_evidence = state.get(
+                "contract_evidence",
+                [],
+            )
+            evidence_items = list(clause_evidence) + list(
+                contract_evidence
             )
         else:
             evidence_items = state.get(

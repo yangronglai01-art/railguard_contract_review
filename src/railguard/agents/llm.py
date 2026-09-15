@@ -294,21 +294,27 @@ class LlmRiskAnalyzer:
             contract_evidence=contract_evidence,
         )
 
+        # 过滤证据引用：丢弃不存在、越界或类别不匹配的ID，并去重。
+        # 单条幻觉引用不废弃整个风险发现；引用质量由后续
+        # verify_citations节点统一标记为source_matched或unsupported。
+        filtered_evidence_ids: list[str] = []
+
         for evidence_id in candidate.evidence_ids:
+            if evidence_id in filtered_evidence_ids:
+                continue
+
             evidence = allowed_evidence.get(evidence_id)
 
             if evidence is None:
-                raise LlmProtocolError(
-                    "LLM referenced evidence outside its scope"
-                )
+                continue
 
             if (
                 evidence.metadata.get("category")
                 != candidate.category
             ):
-                raise LlmProtocolError(
-                    "LLM referenced evidence from another category"
-                )
+                continue
+
+            filtered_evidence_ids.append(evidence_id)
 
         # finding_id和citation_status由应用生成，模型无权控制。
         return RiskFinding(
@@ -321,7 +327,7 @@ class LlmRiskAnalyzer:
             suggested_revision=(
                 candidate.suggested_revision.strip()
             ),
-            evidence_ids=list(candidate.evidence_ids),
+            evidence_ids=filtered_evidence_ids,
         )
 
     @staticmethod
@@ -334,11 +340,19 @@ class LlmRiskAnalyzer:
         ],
         contract_evidence: Sequence[Evidence],
     ) -> dict[str, Evidence]:
-        """返回当前风险类型和位置允许引用的证据。"""
+        """返回当前风险类型和位置允许引用的证据。
+
+        条款级风险可以引用该条款检索到的证据，也可以引用合同级
+        审查指引；缺失条款风险只能引用合同级证据。类别匹配由调用方
+        单独校验。
+        """
         if candidate.finding_kind == "clause_risk":
-            evidence_items = evidence_by_clause.get(
+            clause_evidence = evidence_by_clause.get(
                 candidate.clause_id or "",
                 (),
+            )
+            evidence_items = tuple(clause_evidence) + tuple(
+                contract_evidence
             )
         else:
             evidence_items = contract_evidence
