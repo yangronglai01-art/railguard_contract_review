@@ -278,10 +278,10 @@ async def test_llm_cli_uses_config_and_saves_safe_report(
         "max_input_chars": 75_000,
     }
 
-    # 数据集共11个案例，每个案例分别调用三个专业Agent。
-    assert commercial.call_count == 11
-    assert legal.call_count == 11
-    assert security.call_count == 11
+    # 数据集共21个案例，每个案例分别调用三个专业Agent。
+    assert commercial.call_count == 21
+    assert legal.call_count == 21
+    assert security.call_count == 21
 
     serialized = output_path.read_text(
         encoding="utf-8"
@@ -302,5 +302,5 @@ async def test_llm_cli_uses_config_and_saves_safe_report(
     assert base_url not in serialized
 
     terminal_output = capsys.readouterr().out
-    assert "预计33次模型调用" in terminal_output
+    assert "预计63次模型调用" in terminal_output
     assert str(output_path) in terminal_output

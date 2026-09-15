@@ -113,7 +113,7 @@ async def test_llm_evaluation_reuses_all_dataset_cases() -> None:
         for evaluation_case in dataset.cases
     ]
 
-    assert len(dataset.cases) == 11
+    assert len(dataset.cases) == 21
     assert commercial.received_contract_ids == (
         expected_contract_ids
     )
@@ -130,10 +130,10 @@ async def test_llm_evaluation_reuses_all_dataset_cases() -> None:
         "model_name": "contract-base-model",
         "prompt_version": "contract-risk-v1",
     }
-    assert len(report.case_results) == 11
-    assert report.aggregate_metrics.expected_count == 14
+    assert len(report.case_results) == 21
+    assert report.aggregate_metrics.expected_count == 26
     assert report.aggregate_metrics.predicted_count == 0
-    assert report.aggregate_metrics.false_negative == 14
+    assert report.aggregate_metrics.false_negative == 26
 
 
 async def test_llm_report_metadata_is_safe_and_round_trippable() -> None:
@@ -244,8 +244,8 @@ async def test_rules_baseline_records_reproducible_metadata() -> None:
         "model_name": "deterministic_rules",
         "prompt_version": "not_applicable",
     }
-    assert metrics.true_positive == 8
-    assert metrics.false_positive == 1
-    assert metrics.false_negative == 6
-    assert metrics.precision == 0.8889
-    assert metrics.recall == 0.5714
+    assert metrics.true_positive == 13
+    assert metrics.false_positive == 2
+    assert metrics.false_negative == 13
+    assert metrics.precision == 0.8667
+    assert metrics.recall == 0.5

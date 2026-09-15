@@ -35,14 +35,14 @@ def test_loads_versioned_evaluation_dataset() -> None:
     assert dataset.dataset_name == (
         "railguard-contract-review"
     )
-    assert dataset.version == "1.0.0"
-    assert len(dataset.cases) == 11
+    assert dataset.version == "1.1.0"
+    assert len(dataset.cases) == 21
     assert (
         sum(
             len(evaluation_case.expected_findings)
             for evaluation_case in dataset.cases
         )
-        == 14
+        == 26
     )
 
 
@@ -100,15 +100,15 @@ async def test_rules_baseline_produces_expected_metrics(
 
     metrics = report.aggregate_metrics
 
-    assert len(report.case_results) == 11
-    assert metrics.expected_count == 14
-    assert metrics.predicted_count == 9
-    assert metrics.true_positive == 8
-    assert metrics.false_positive == 1
-    assert metrics.false_negative == 6
-    assert metrics.precision == 0.8889
-    assert metrics.recall == 0.5714
-    assert metrics.f1 == 0.6956
+    assert len(report.case_results) == 21
+    assert metrics.expected_count == 26
+    assert metrics.predicted_count == 15
+    assert metrics.true_positive == 13
+    assert metrics.false_positive == 2
+    assert metrics.false_negative == 13
+    assert metrics.precision == 0.8667
+    assert metrics.recall == 0.5
+    assert metrics.f1 == 0.6342
     assert metrics.level_accuracy == 1.0
     assert metrics.location_accuracy == 1.0
     assert metrics.citation_coverage == 1.0
