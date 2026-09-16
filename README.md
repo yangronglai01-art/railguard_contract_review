@@ -404,6 +404,9 @@ data/evaluation/contract-review-v1.json
 data/runtime/evaluations/rules-v1.1-report.json
 ```
 
+已经核验并随Git归档的21例正式报告见：
+[rules-v1.1-report.json](data/evaluation/reports/rules-v1.1-report.json)。
+
 当前规则基线结果：
 
 | 指标 | 结果 |

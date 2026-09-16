@@ -1,0 +1,895 @@
+{
+  "system_name": "deterministic_rules",
+  "system_metadata": {
+    "model_provider": "mock",
+    "model_name": "deterministic_rules",
+    "prompt_version": "not_applicable",
+    "validator_version": "citation-validator-v2",
+    "dataset_sha256": "ee4cde5ec5356f1a34e45cf2d8ead4b1c7d4f03d4ea6754efeb331526ce188ae",
+    "rag_corpus_sha256": "3c4f88d7b5238ab7faf9a553111ebbed48514edff2034e7cef7d19af58589fbd",
+    "git_commit": "dedc958f9acd59b7c6e27c4ce1c523917df0d17f",
+    "worktree_dirty": "false"
+  },
+  "dataset_name": "railguard-contract-review",
+  "dataset_version": "1.1.0",
+  "generated_at": "2026-09-16T02:15:34.331115Z",
+  "case_results": [
+    {
+      "case_id": "demo-six-risks",
+      "title": "演示合同六类风险",
+      "predicted_findings": [
+        {
+          "finding_id": "839afc9205fc4abd86e811abc4041ede",
+          "finding_kind": "clause_risk",
+          "clause_id": "demo-six-risks-clause-003",
+          "expected_clause": null,
+          "category": "payment",
+          "level": "high",
+          "reason": "合同约定在交付和验收前支付全部价款，采购方缺少与交付成果挂钩的付款保障。",
+          "suggested_revision": "建议按合同签订、阶段交付和最终验收设置分期付款，并保留验收后的尾款。",
+          "evidence_ids": [
+            "mock-c8571d8be22f742104baf273"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "82fe2e2d8fed450f926f931ebe264e5e",
+          "finding_kind": "clause_risk",
+          "clause_id": "demo-six-risks-clause-004",
+          "expected_clause": null,
+          "category": "acceptance",
+          "level": "high",
+          "reason": "条款以采购方未提出异议作为验收合格条件，缺少明确的测试标准和书面确认。",
+          "suggested_revision": "建议约定验收材料、测试标准、整改期限和复验程序，并以双方书面验收确认为准。",
+          "evidence_ids": [
+            "mock-8d8ff5c08e9977a8d982d6de"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "1a2fe51c5f9d4740bd7914dda907aa23",
+          "finding_kind": "missing_clause",
+          "clause_id": null,
+          "expected_clause": "知识产权和开发成果归属条款",
+          "category": "intellectual_property",
+          "level": "high",
+          "reason": "合同未明确源代码、定制开发成果和接口文档的权利归属，也未约定第三方侵权责任。",
+          "suggested_revision": "建议明确源代码、定制成果、技术文档的所有权或使用权，并约定第三方侵权处理责任。",
+          "evidence_ids": [
+            "mock-9173b594e53bd151b097713e"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "cce529cf81b240adbd53f36cdc8f0f3c",
+          "finding_kind": "missing_clause",
+          "clause_id": null,
+          "expected_clause": "违约责任和合同解除条款",
+          "category": "liability",
+          "level": "high",
+          "reason": "合同未约定延期交付、质量缺陷等情形的违约责任和采购方解除合同的条件。",
+          "suggested_revision": "建议补充延期交付、质量缺陷和重大违约的责任标准，并明确采购方的解除权。",
+          "evidence_ids": [
+            "mock-2861fb5f571b5537507b33ba"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "e1b94487bd66475fb51f447510c99813",
+          "finding_kind": "missing_clause",
+          "clause_id": null,
+          "expected_clause": "运维服务和质量保证条款",
+          "category": "support",
+          "level": "medium",
+          "reason": "合同未明确质保期限、故障响应时间、修复时间和服务期结束后的移交安排。",
+          "suggested_revision": "建议补充质保期、故障等级、响应与修复时限，以及数据和技术文档移交要求。",
+          "evidence_ids": [
+            "mock-cf2238f9ee370f607f0b10e8"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "c488785855b24f34986ef1ebdda89702",
+          "finding_kind": "missing_clause",
+          "clause_id": null,
+          "expected_clause": "数据安全和保密义务条款",
+          "category": "data_security",
+          "level": "high",
+          "reason": "合同未约定供应商对设备运行数据、用户账号和生产信息的访问、保存、删除与事件报告义务。",
+          "suggested_revision": "建议明确数据使用范围、访问权限、保存期限、返还删除要求和安全事件报告时限。",
+          "evidence_ids": [
+            "mock-af800b18ed246eee9f016068"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:payment",
+          "finding_id": "839afc9205fc4abd86e811abc4041ede",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        },
+        {
+          "match_key": "clause_risk:acceptance",
+          "finding_id": "82fe2e2d8fed450f926f931ebe264e5e",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        },
+        {
+          "match_key": "missing_clause:intellectual_property",
+          "finding_id": "1a2fe51c5f9d4740bd7914dda907aa23",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        },
+        {
+          "match_key": "missing_clause:liability",
+          "finding_id": "cce529cf81b240adbd53f36cdc8f0f3c",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        },
+        {
+          "match_key": "missing_clause:support",
+          "finding_id": "e1b94487bd66475fb51f447510c99813",
+          "expected_level": "medium",
+          "predicted_level": "medium",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        },
+        {
+          "match_key": "missing_clause:data_security",
+          "finding_id": "c488785855b24f34986ef1ebdda89702",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 6,
+        "predicted_count": 6,
+        "true_positive": 6,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "complete-safe-contract",
+      "title": "关键条款完整合同",
+      "predicted_findings": [],
+      "matches": [],
+      "missing_expected": [],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 0,
+        "predicted_count": 0,
+        "true_positive": 0,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "level_accuracy": null,
+        "location_accuracy": null,
+        "citation_coverage": null,
+        "source_matched_rate": null
+      }
+    },
+    {
+      "case_id": "literal-payment-risk",
+      "title": "全额预付单一风险",
+      "predicted_findings": [
+        {
+          "finding_id": "f0b4d20fc1854738908bc7a016fadde3",
+          "finding_kind": "clause_risk",
+          "clause_id": "literal-payment-risk-clause-002",
+          "expected_clause": null,
+          "category": "payment",
+          "level": "high",
+          "reason": "合同约定在交付和验收前支付全部价款，采购方缺少与交付成果挂钩的付款保障。",
+          "suggested_revision": "建议按合同签订、阶段交付和最终验收设置分期付款，并保留验收后的尾款。",
+          "evidence_ids": [
+            "mock-c8571d8be22f742104baf273"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:payment",
+          "finding_id": "f0b4d20fc1854738908bc7a016fadde3",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 1,
+        "true_positive": 1,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "literal-acceptance-risk",
+      "title": "默认验收单一风险",
+      "predicted_findings": [
+        {
+          "finding_id": "35075eb4e2204ed99c084d37327889af",
+          "finding_kind": "clause_risk",
+          "clause_id": "literal-acceptance-risk-clause-003",
+          "expected_clause": null,
+          "category": "acceptance",
+          "level": "high",
+          "reason": "条款以采购方未提出异议作为验收合格条件，缺少明确的测试标准和书面确认。",
+          "suggested_revision": "建议约定验收材料、测试标准、整改期限和复验程序，并以双方书面验收确认为准。",
+          "evidence_ids": [
+            "mock-8d8ff5c08e9977a8d982d6de"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:acceptance",
+          "finding_id": "35075eb4e2204ed99c084d37327889af",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 1,
+        "true_positive": 1,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "paraphrased-payment-risk",
+      "title": "全额预付同义改写",
+      "predicted_findings": [],
+      "matches": [],
+      "missing_expected": [
+        "clause_risk:payment"
+      ],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 0,
+        "true_positive": 0,
+        "false_positive": 0,
+        "false_negative": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "level_accuracy": null,
+        "location_accuracy": null,
+        "citation_coverage": null,
+        "source_matched_rate": null
+      }
+    },
+    {
+      "case_id": "negated-payment-safe",
+      "title": "全额预付否定表达",
+      "predicted_findings": [
+        {
+          "finding_id": "f553c996630b40a596f4ca4538d41a67",
+          "finding_kind": "clause_risk",
+          "clause_id": "negated-payment-safe-clause-002",
+          "expected_clause": null,
+          "category": "payment",
+          "level": "high",
+          "reason": "合同约定在交付和验收前支付全部价款，采购方缺少与交付成果挂钩的付款保障。",
+          "suggested_revision": "建议按合同签订、阶段交付和最终验收设置分期付款，并保留验收后的尾款。",
+          "evidence_ids": [
+            "mock-c8571d8be22f742104baf273"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [],
+      "missing_expected": [],
+      "unexpected_predictions": [
+        "clause_risk:payment#f553c996630b40a596f4ca4538d41a67"
+      ],
+      "metrics": {
+        "expected_count": 0,
+        "predicted_count": 1,
+        "true_positive": 0,
+        "false_positive": 1,
+        "false_negative": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "level_accuracy": null,
+        "location_accuracy": null,
+        "citation_coverage": null,
+        "source_matched_rate": null
+      }
+    },
+    {
+      "case_id": "weak-intellectual-property",
+      "title": "知识产权内容不充分",
+      "predicted_findings": [],
+      "matches": [],
+      "missing_expected": [
+        "clause_risk:intellectual_property"
+      ],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 0,
+        "true_positive": 0,
+        "false_positive": 0,
+        "false_negative": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "level_accuracy": null,
+        "location_accuracy": null,
+        "citation_coverage": null,
+        "source_matched_rate": null
+      }
+    },
+    {
+      "case_id": "weak-data-security",
+      "title": "数据安全内容不充分",
+      "predicted_findings": [],
+      "matches": [],
+      "missing_expected": [
+        "clause_risk:data_security"
+      ],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 0,
+        "true_positive": 0,
+        "false_positive": 0,
+        "false_negative": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "level_accuracy": null,
+        "location_accuracy": null,
+        "citation_coverage": null,
+        "source_matched_rate": null
+      }
+    },
+    {
+      "case_id": "weak-support-clause",
+      "title": "运维服务内容不充分",
+      "predicted_findings": [],
+      "matches": [],
+      "missing_expected": [
+        "clause_risk:support"
+      ],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 0,
+        "true_positive": 0,
+        "false_positive": 0,
+        "false_negative": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "level_accuracy": null,
+        "location_accuracy": null,
+        "citation_coverage": null,
+        "source_matched_rate": null
+      }
+    },
+    {
+      "case_id": "weak-liability-clause",
+      "title": "违约责任内容不充分",
+      "predicted_findings": [],
+      "matches": [],
+      "missing_expected": [
+        "clause_risk:liability"
+      ],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 0,
+        "true_positive": 0,
+        "false_positive": 0,
+        "false_negative": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "level_accuracy": null,
+        "location_accuracy": null,
+        "citation_coverage": null,
+        "source_matched_rate": null
+      }
+    },
+    {
+      "case_id": "paraphrased-acceptance-risk",
+      "title": "默认验收同义改写",
+      "predicted_findings": [],
+      "matches": [],
+      "missing_expected": [
+        "clause_risk:acceptance"
+      ],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 0,
+        "true_positive": 0,
+        "false_positive": 0,
+        "false_negative": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "level_accuracy": null,
+        "location_accuracy": null,
+        "citation_coverage": null,
+        "source_matched_rate": null
+      }
+    },
+    {
+      "case_id": "weak-payment-clause",
+      "title": "付款条款内容不充分",
+      "predicted_findings": [],
+      "matches": [],
+      "missing_expected": [
+        "clause_risk:payment"
+      ],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 0,
+        "true_positive": 0,
+        "false_positive": 0,
+        "false_negative": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "level_accuracy": null,
+        "location_accuracy": null,
+        "citation_coverage": null,
+        "source_matched_rate": null
+      }
+    },
+    {
+      "case_id": "weak-acceptance-clause",
+      "title": "验收条款内容不充分",
+      "predicted_findings": [],
+      "matches": [],
+      "missing_expected": [
+        "clause_risk:acceptance"
+      ],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 0,
+        "true_positive": 0,
+        "false_positive": 0,
+        "false_negative": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "level_accuracy": null,
+        "location_accuracy": null,
+        "citation_coverage": null,
+        "source_matched_rate": null
+      }
+    },
+    {
+      "case_id": "negated-acceptance-safe",
+      "title": "否定默认验收",
+      "predicted_findings": [
+        {
+          "finding_id": "ab0f4583cdd3485ea62780259e0fd5e1",
+          "finding_kind": "clause_risk",
+          "clause_id": "negated-acceptance-safe-clause-003",
+          "expected_clause": null,
+          "category": "acceptance",
+          "level": "high",
+          "reason": "条款以采购方未提出异议作为验收合格条件，缺少明确的测试标准和书面确认。",
+          "suggested_revision": "建议约定验收材料、测试标准、整改期限和复验程序，并以双方书面验收确认为准。",
+          "evidence_ids": [
+            "mock-8d8ff5c08e9977a8d982d6de"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [],
+      "missing_expected": [],
+      "unexpected_predictions": [
+        "clause_risk:acceptance#ab0f4583cdd3485ea62780259e0fd5e1"
+      ],
+      "metrics": {
+        "expected_count": 0,
+        "predicted_count": 1,
+        "true_positive": 0,
+        "false_positive": 1,
+        "false_negative": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "level_accuracy": null,
+        "location_accuracy": null,
+        "citation_coverage": null,
+        "source_matched_rate": null
+      }
+    },
+    {
+      "case_id": "missing-support-only",
+      "title": "仅缺运维服务条款",
+      "predicted_findings": [],
+      "matches": [],
+      "missing_expected": [
+        "missing_clause:support"
+      ],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 0,
+        "true_positive": 0,
+        "false_positive": 0,
+        "false_negative": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "level_accuracy": null,
+        "location_accuracy": null,
+        "citation_coverage": null,
+        "source_matched_rate": null
+      }
+    },
+    {
+      "case_id": "missing-ip-only",
+      "title": "仅缺知识产权条款",
+      "predicted_findings": [
+        {
+          "finding_id": "74fcce70fb3a4401b760733ecf8b64c1",
+          "finding_kind": "missing_clause",
+          "clause_id": null,
+          "expected_clause": "知识产权和开发成果归属条款",
+          "category": "intellectual_property",
+          "level": "high",
+          "reason": "合同未明确源代码、定制开发成果和接口文档的权利归属，也未约定第三方侵权责任。",
+          "suggested_revision": "建议明确源代码、定制成果、技术文档的所有权或使用权，并约定第三方侵权处理责任。",
+          "evidence_ids": [
+            "mock-9173b594e53bd151b097713e"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "missing_clause:intellectual_property",
+          "finding_id": "74fcce70fb3a4401b760733ecf8b64c1",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 1,
+        "true_positive": 1,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "multi-payment-acceptance",
+      "title": "付款与验收双风险",
+      "predicted_findings": [
+        {
+          "finding_id": "738993f90181403295c31c92fc24c80b",
+          "finding_kind": "clause_risk",
+          "clause_id": "multi-payment-acceptance-clause-002",
+          "expected_clause": null,
+          "category": "payment",
+          "level": "high",
+          "reason": "合同约定在交付和验收前支付全部价款，采购方缺少与交付成果挂钩的付款保障。",
+          "suggested_revision": "建议按合同签订、阶段交付和最终验收设置分期付款，并保留验收后的尾款。",
+          "evidence_ids": [
+            "mock-c8571d8be22f742104baf273"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "d0db4ec1047048589097a61ddda7e22f",
+          "finding_kind": "clause_risk",
+          "clause_id": "multi-payment-acceptance-clause-003",
+          "expected_clause": null,
+          "category": "acceptance",
+          "level": "high",
+          "reason": "条款以采购方未提出异议作为验收合格条件，缺少明确的测试标准和书面确认。",
+          "suggested_revision": "建议约定验收材料、测试标准、整改期限和复验程序，并以双方书面验收确认为准。",
+          "evidence_ids": [
+            "mock-8d8ff5c08e9977a8d982d6de"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:payment",
+          "finding_id": "738993f90181403295c31c92fc24c80b",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        },
+        {
+          "match_key": "clause_risk:acceptance",
+          "finding_id": "d0db4ec1047048589097a61ddda7e22f",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 2,
+        "predicted_count": 2,
+        "true_positive": 2,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "tech-service-multi-risk",
+      "title": "技术服务合同双风险",
+      "predicted_findings": [
+        {
+          "finding_id": "3816dfae206f4bddb49c3ab0e837f353",
+          "finding_kind": "missing_clause",
+          "clause_id": null,
+          "expected_clause": "数据安全和保密义务条款",
+          "category": "data_security",
+          "level": "high",
+          "reason": "合同未约定供应商对设备运行数据、用户账号和生产信息的访问、保存、删除与事件报告义务。",
+          "suggested_revision": "建议明确数据使用范围、访问权限、保存期限、返还删除要求和安全事件报告时限。",
+          "evidence_ids": [
+            "mock-af800b18ed246eee9f016068"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "missing_clause:data_security",
+          "finding_id": "3816dfae206f4bddb49c3ab0e837f353",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [
+        "clause_risk:payment"
+      ],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 2,
+        "predicted_count": 1,
+        "true_positive": 1,
+        "false_positive": 0,
+        "false_negative": 1,
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1": 0.6667,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "data-service-contract",
+      "title": "数据服务合同数据安全不充分",
+      "predicted_findings": [],
+      "matches": [],
+      "missing_expected": [
+        "clause_risk:data_security"
+      ],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 0,
+        "true_positive": 0,
+        "false_positive": 0,
+        "false_negative": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "level_accuracy": null,
+        "location_accuracy": null,
+        "citation_coverage": null,
+        "source_matched_rate": null
+      }
+    },
+    {
+      "case_id": "low-support-gap",
+      "title": "运维服务响应时限缺失",
+      "predicted_findings": [],
+      "matches": [],
+      "missing_expected": [
+        "clause_risk:support"
+      ],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 0,
+        "true_positive": 0,
+        "false_positive": 0,
+        "false_negative": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "level_accuracy": null,
+        "location_accuracy": null,
+        "citation_coverage": null,
+        "source_matched_rate": null
+      }
+    },
+    {
+      "case_id": "missing-liability-support",
+      "title": "缺违约责任与运维服务条款",
+      "predicted_findings": [
+        {
+          "finding_id": "3f8a92c6998d4e81b330b06463091a05",
+          "finding_kind": "missing_clause",
+          "clause_id": null,
+          "expected_clause": "违约责任和合同解除条款",
+          "category": "liability",
+          "level": "high",
+          "reason": "合同未约定延期交付、质量缺陷等情形的违约责任和采购方解除合同的条件。",
+          "suggested_revision": "建议补充延期交付、质量缺陷和重大违约的责任标准，并明确采购方的解除权。",
+          "evidence_ids": [
+            "mock-2861fb5f571b5537507b33ba"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "missing_clause:liability",
+          "finding_id": "3f8a92c6998d4e81b330b06463091a05",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [
+        "missing_clause:support"
+      ],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 2,
+        "predicted_count": 1,
+        "true_positive": 1,
+        "false_positive": 0,
+        "false_negative": 1,
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1": 0.6667,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    }
+  ],
+  "aggregate_metrics": {
+    "expected_count": 26,
+    "predicted_count": 15,
+    "true_positive": 13,
+    "false_positive": 2,
+    "false_negative": 13,
+    "precision": 0.8667,
+    "recall": 0.5,
+    "f1": 0.6342,
+    "level_accuracy": 1.0,
+    "location_accuracy": 1.0,
+    "citation_coverage": 1.0,
+    "source_matched_rate": 1.0
+  }
+}
