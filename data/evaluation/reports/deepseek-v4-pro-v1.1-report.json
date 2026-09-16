@@ -1,0 +1,2439 @@
+{
+  "system_name": "deepseek_base_llm",
+  "system_metadata": {
+    "model_provider": "deepseek",
+    "model_name": "deepseek-v4-pro",
+    "prompt_version": "contract-risk-v2",
+    "validator_version": "citation-validator-v2",
+    "metrics_version": "evaluation-metrics-v2",
+    "dataset_sha256": "ee4cde5ec5356f1a34e45cf2d8ead4b1c7d4f03d4ea6754efeb331526ce188ae",
+    "rag_corpus_sha256": "3c4f88d7b5238ab7faf9a553111ebbed48514edff2034e7cef7d19af58589fbd",
+    "model_timeout_seconds": "300.0",
+    "model_max_retries": "2",
+    "model_max_input_chars": "120000",
+    "git_commit": "db5b6d464096bc713334784676455fdd37069c63",
+    "worktree_dirty": "false"
+  },
+  "dataset_name": "railguard-contract-review",
+  "dataset_version": "1.1.0",
+  "generated_at": "2026-09-16T07:42:57.026524Z",
+  "case_results": [
+    {
+      "case_id": "demo-six-risks",
+      "title": "演示合同六类风险",
+      "predicted_findings": [
+        {
+          "finding_id": "d0172cc2e0604a66ba1e13b5689128c6",
+          "finding_kind": "clause_risk",
+          "clause_id": "demo-six-risks-clause-003",
+          "expected_clause": null,
+          "category": "payment",
+          "level": "high",
+          "reason": "合同约定签订后五日内甲方支付全部合同款，付款发生在交付和验收之前，未与需求确认、阶段交付或最终验收挂钩。一旦供应商未交付、交付不合格或中途不履约，采购方已付全款，缺乏价款杠杆和追索筹码，退款与整改均处于被动。",
+          "suggested_revision": "将付款与交付和验收结果挂钩，例如：合同签订后支付不超过一定比例的预付款；阶段交付或初验合格后支付部分款项；最终验收合格后支付尾款并保留质保金。",
+          "evidence_ids": [
+            "mock-c8571d8be22f742104baf273"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "3d3b799ae2ed43d4928b7a999c437b93",
+          "finding_kind": "clause_risk",
+          "clause_id": "demo-six-risks-clause-004",
+          "expected_clause": null,
+          "category": "acceptance",
+          "level": "high",
+          "reason": "合同仅以系统上线三日后甲方未提出异议作为验收合格，属于期限届满或沉默自动通过。采购方在未完成测试标准核对、未取得整改和复验前，就可能被推定为验收合格，从而丧失拒绝接收、要求修复的权利，并可能触发后续付款或其他义务。",
+          "suggested_revision": "删除“未提出异议视为验收合格”的自动通过条款，改为：双方事先约定验收标准、测试用例和文档；甲方在测试完成后出具书面验收意见；不合格的，供应商应在明确期限内整改并申请复验，验收合格以书面确认为准。",
+          "evidence_ids": [
+            "mock-8d8ff5c08e9977a8d982d6de"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "d9c36bd6c3544d28a87ead0224c696de",
+          "finding_kind": "missing_clause",
+          "clause_id": null,
+          "expected_clause": "合同应明确源代码、定制开发成果、接口文档等知识产权和使用权归属，并约定第三方组件或交付物侵权时由供应商承担相应责任。",
+          "category": "intellectual_property",
+          "level": "high",
+          "reason": "合同仅约定“乙方为甲方建设设备监测平台”，没有约定定制开发成果、源代码、接口文档的知识产权归属或使用权范围，也没有约定第三方侵权责任承担。采购方支付全部合同款后，可能无法获得维护和二次开发所需的源代码及文档；若发生第三方侵权索赔，采购方可能需自行承担责任。",
+          "suggested_revision": "增加知识产权条款，明确本项目定制开发成果、源代码、接口文档的知识产权归甲方所有，或授予甲方永久、不可撤销的使用许可；同时约定乙方保证交付物不侵犯第三方权利，并承担因侵权产生的索赔、赔偿和抗辩责任。",
+          "evidence_ids": [
+            "mock-9173b594e53bd151b097713e"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "8b1bd30cbaa24fbf83f9024cd24f5fc5",
+          "finding_kind": "missing_clause",
+          "clause_id": null,
+          "expected_clause": "合同应明确延期交付、质量缺陷、赔偿、解除和退款等违约责任及采购方解除合同的具体条件。",
+          "category": "liability",
+          "level": "high",
+          "reason": "合同没有约定延期交付、质量缺陷、赔偿、解除或退款责任。若乙方延期交付、交付物存在质量缺陷或项目失败，采购方缺乏明确的违约金、索赔、解除合同和退款依据，已经支付的全部合同款难以有效追回。",
+          "suggested_revision": "增加违约与解除条款，约定延期交付违约金、质量缺陷修复及赔偿标准，并设置乙方重大违约时甲方可解除合同、要求退还已付款项及赔偿损失的具体条件。",
+          "evidence_ids": [
+            "mock-2861fb5f571b5537507b33ba"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "4da364388ab1433396f8707e69d3c257",
+          "finding_kind": "missing_clause",
+          "clause_id": null,
+          "expected_clause": "合同应明确质保期限、故障等级、响应时间、修复时限、服务退出和资料移交安排。",
+          "category": "support",
+          "level": "high",
+          "reason": "合同未约定质保期限、故障响应和修复时限，也没有服务退出和资料移交安排。系统上线后发生故障、乙方停止维护或双方合作终止时，采购方没有明确的服务保障和过渡支持依据，可能面临系统停摆且无法获得必要的源码、数据或文档。",
+          "suggested_revision": "增加运维与质保条款，约定质保期限、故障等级及对应的响应和修复时限、技术支持方式，并明确服务退出或合同终止后乙方应移交源代码、接口文档、配置数据及其他必要资料。",
+          "evidence_ids": [
+            "mock-cf2238f9ee370f607f0b10e8"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "9474230ccb284788b2c5f0f6cc8bd4b8",
+          "finding_kind": "missing_clause",
+          "clause_id": null,
+          "expected_clause": "合同应明确供应商在接触设备运行数据、用户账号或生产信息时的数据使用范围、最小访问权限、保存期限、返还删除要求、安全事件报告时限及分包方数据安全责任。",
+          "category": "data_security",
+          "level": "high",
+          "reason": "合同仅约定建设设备监测平台、付款和验收，没有任何数据安全条款。平台上线后供应商可能接触、留存或处理设备运行数据、用户账号和生产信息，采购方无法约束其使用范围、保存期限和删除返还，也无法在发生数据泄露时要求及时报告、追责或控制损失。",
+          "suggested_revision": "增设数据安全条款，明确供应商仅可为合同目的处理数据，并约定最小权限、访问控制、加密存储、保存期限、合同终止后的返还或删除义务、安全事件报告时限，以及分包方须经采购方书面同意并承担同等数据安全义务。",
+          "evidence_ids": [
+            "mock-af800b18ed246eee9f016068"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:payment",
+          "finding_id": "d0172cc2e0604a66ba1e13b5689128c6",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        },
+        {
+          "match_key": "clause_risk:acceptance",
+          "finding_id": "3d3b799ae2ed43d4928b7a999c437b93",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        },
+        {
+          "match_key": "missing_clause:intellectual_property",
+          "finding_id": "d9c36bd6c3544d28a87ead0224c696de",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": null,
+          "has_citation": true,
+          "citation_source_matched": true
+        },
+        {
+          "match_key": "missing_clause:liability",
+          "finding_id": "8b1bd30cbaa24fbf83f9024cd24f5fc5",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": null,
+          "has_citation": true,
+          "citation_source_matched": true
+        },
+        {
+          "match_key": "missing_clause:support",
+          "finding_id": "4da364388ab1433396f8707e69d3c257",
+          "expected_level": "medium",
+          "predicted_level": "high",
+          "level_matched": false,
+          "location_matched": null,
+          "has_citation": true,
+          "citation_source_matched": true
+        },
+        {
+          "match_key": "missing_clause:data_security",
+          "finding_id": "9474230ccb284788b2c5f0f6cc8bd4b8",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": null,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 6,
+        "predicted_count": 6,
+        "true_positive": 6,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "level_accuracy": 0.8333,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "complete-safe-contract",
+      "title": "关键条款完整合同",
+      "predicted_findings": [
+        {
+          "finding_id": "d2d63f6e1e774d69b9ca59fac5c6df92",
+          "finding_kind": "clause_risk",
+          "clause_id": "complete-safe-contract-clause-005",
+          "expected_clause": null,
+          "category": "liability",
+          "level": "medium",
+          "reason": "该条款仅笼统约定延期交付或质量缺陷时乙方承担违约责任和赔偿责任、甲方有权解除合同，但未约定违约金计算方式、赔偿范围、质量缺陷认定标准、解除合同的具体触发条件以及解除后已付款项退还安排。发生违约时，采购方难以量化追责并行使解除权，救济存在不确定性。",
+          "suggested_revision": "增加具体的延期违约金比例或计算方式、赔偿范围、质量缺陷整改期限、甲方可解除合同的具体情形，以及解除后已付款项退还和费用承担安排。",
+          "evidence_ids": [
+            "mock-2861fb5f571b5537507b33ba"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "4d36682f8c3a4f1883e2630e73be9360",
+          "finding_kind": "clause_risk",
+          "clause_id": "complete-safe-contract-clause-006",
+          "expected_clause": null,
+          "category": "support",
+          "level": "medium",
+          "reason": "条款仅概括性表述乙方提供一年质保期和运维服务、明确故障响应、修复时间及服务期满后的文档移交，但合同正文未给出故障等级、响应时间、修复时限、服务退出安排或文档移交清单。实际发生故障时，采购方缺少可执行的运维标准，难以约束乙方及时修复和完成退出移交。",
+          "suggested_revision": "增加运维服务级别协议，明确故障等级、响应时间、修复时限、超时罚则、服务期满后的文档移交清单和移交验收程序。",
+          "evidence_ids": [
+            "mock-cf2238f9ee370f607f0b10e8"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "affbb25ab93f420588931eef203ed411",
+          "finding_kind": "clause_risk",
+          "clause_id": "complete-safe-contract-clause-007",
+          "expected_clause": null,
+          "category": "data_security",
+          "level": "medium",
+          "reason": "第六条仅笼统约定乙方承担数据安全和保密义务、限制数据访问范围并在合同结束后返还或删除数据，但未明确数据使用目的、访问权限边界、保存期限、安全事件报告时限及分包方责任。该平台软件可能接触设备运行数据、用户账号或生产信息，一旦供应商超范围处理、迟延报告安全事件或将处理工作擅自分包，采购方难以依据合同及时追责、止损或证明对方违约。",
+          "suggested_revision": "建议将数据安全义务细化为：列明受保护数据类型和处理目的；限定访问人员、访问权限及最小必要范围；约定保存期限、删除或返还方式及完成证明；要求供应商在发现数据泄露或安全事件后于明确时限内书面通知采购方；禁止未经采购方书面同意分包数据处理，确需分包的，分包方应承担不低于供应商的数据安全义务，且供应商仍承担连带责任。",
+          "evidence_ids": [
+            "mock-af800b18ed246eee9f016068"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [],
+      "missing_expected": [],
+      "unexpected_predictions": [
+        "clause_risk:liability#d2d63f6e1e774d69b9ca59fac5c6df92",
+        "clause_risk:support#4d36682f8c3a4f1883e2630e73be9360",
+        "clause_risk:data_security#affbb25ab93f420588931eef203ed411"
+      ],
+      "metrics": {
+        "expected_count": 0,
+        "predicted_count": 3,
+        "true_positive": 0,
+        "false_positive": 3,
+        "false_negative": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "level_accuracy": null,
+        "location_accuracy": null,
+        "citation_coverage": null,
+        "source_matched_rate": null
+      }
+    },
+    {
+      "case_id": "literal-payment-risk",
+      "title": "全额预付单一风险",
+      "predicted_findings": [
+        {
+          "finding_id": "689884f693a948ceb555826a5cba2fb7",
+          "finding_kind": "clause_risk",
+          "clause_id": "literal-payment-risk-clause-002",
+          "expected_clause": null,
+          "category": "payment",
+          "level": "high",
+          "reason": "该条款约定合同签订后五日内甲方支付全部合同款，构成全额预付。在供应商尚未完成交付、测试和最终验收前，采购方即支付全部价款，一旦出现延期交付、质量缺陷或验收不合格，采购方将丧失付款制约手段，追索和扣款难度显著增加，资金风险较高。",
+          "suggested_revision": "将付款与需求确认、阶段交付、测试及最终验收结果挂钩；仅对经审批的必要预付款支付合理比例，并将尾款或质保金保留至最终验收合格且质保期满后支付；如确需预付，应设置预付款上限，并要求供应商提供退款保障或担保。",
+          "evidence_ids": [
+            "mock-c8571d8be22f742104baf273"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "2e3456ebffba4b4cbd70ca00ad9c99a1",
+          "finding_kind": "clause_risk",
+          "clause_id": "literal-payment-risk-clause-004",
+          "expected_clause": null,
+          "category": "intellectual_property",
+          "level": "medium",
+          "reason": "该条款仅约定源代码、技术文档和开发成果的知识产权归甲方所有，未约定第三方组件、开源组件或接口文档等引发知识产权侵权时由乙方承担担保、抗辩和赔偿责任。采购方即使取得相关成果权利，仍可能因第三方侵权索赔而承担诉讼成本或使用中断损失。",
+          "suggested_revision": "补充知识产权保证条款，明确乙方保证交付成果不侵犯第三方知识产权；如发生第三方侵权索赔，乙方应承担抗辩、和解及全部赔偿责任，并负责替换或修复交付成果以消除侵权。",
+          "evidence_ids": [
+            "mock-9173b594e53bd151b097713e"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "a301361a044445b1b048fa948d724488",
+          "finding_kind": "clause_risk",
+          "clause_id": "literal-payment-risk-clause-005",
+          "expected_clause": null,
+          "category": "liability",
+          "level": "high",
+          "reason": "违约责任条款仅原则性表述延期交付时乙方承担违约金和赔偿责任、甲方有权解除合同，但未明确违约金计算标准、赔偿范围、质量缺陷违约责任、解除权触发条件和已付款项退还安排。结合合同签订后五日内支付全部合同款，采购方在乙方根本违约或交付质量不合格时缺乏可执行的退款和追偿保障。",
+          "suggested_revision": "明确延期违约金按日或按合同总价比例计算，列明赔偿范围；增加交付成果质量缺陷的违约责任；约定甲方解除合同的具体情形，以及解除后乙方应在限期内全额退还已付款项并承担清理、恢复费用。",
+          "evidence_ids": [
+            "mock-2861fb5f571b5537507b33ba"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "d06334a0bee24de2a243a7c5774042f5",
+          "finding_kind": "clause_risk",
+          "clause_id": "literal-payment-risk-clause-006",
+          "expected_clause": null,
+          "category": "support",
+          "level": "medium",
+          "reason": "条款仅写“明确响应及修复时间”，但未实际约定故障等级、响应时限、修复时限、可用性标准或未达标后果。采购方在系统故障时无法按可量化标准要求乙方修复，也难以追究运维服务不及时的责任。",
+          "suggested_revision": "补充具体服务级别协议，按故障等级约定响应时间、远程或现场修复时限、恢复时间目标，并设置未达标的违约金、服务扣款或采购方委托第三方修复的费用承担机制。",
+          "evidence_ids": [
+            "mock-cf2238f9ee370f607f0b10e8"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "41aa65321c6d46fb8956231f81bb738e",
+          "finding_kind": "missing_clause",
+          "clause_id": null,
+          "expected_clause": "合同应约定服务期届满或提前终止后，乙方应配合采购方完成服务退出，并在约定期限内移交源代码、技术文档、配置文件、运维手册、账号权限及必要数据等，且不得留存或利用甲方数据。",
+          "category": "support",
+          "level": "medium",
+          "reason": "合同未实质覆盖服务期结束或提前解除后的服务退出和资料移交安排，采购方可能因缺少源代码、配置和运维资料而无法接管系统，导致运维中断或受制于原供应商。",
+          "suggested_revision": "增加服务退出与移交条款，明确移交清单、移交时限、验收标准、乙方配合义务，以及未按时移交的违约责任和采购方扣留尾款或追偿的权利。",
+          "evidence_ids": [
+            "mock-cf2238f9ee370f607f0b10e8"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "912da534469c48cfa839c17ddf61c80c",
+          "finding_kind": "clause_risk",
+          "clause_id": "literal-payment-risk-clause-007",
+          "expected_clause": null,
+          "category": "data_security",
+          "level": "medium",
+          "reason": "第六条仅笼统约定“乙方承担数据安全和保密义务，合同结束后删除全部甲方数据”，未限定供应商处理设备运行数据、用户账号和生产信息时的使用目的、访问范围、最小权限、保存期限、安全事件报告及分包方责任。供应商在提供服务期间可能超范围访问、留存或向未授权方披露甲方数据；发生泄露时，采购方难以依据可执行的义务追究责任并及时采取补救措施。",
+          "suggested_revision": "增加可执行的数据安全义务：明确供应商仅可为履行合同目的处理甲方数据，列明可访问的数据类别和人员权限，落实最小权限访问和操作日志；约定各类数据的保存期限，按阶段返还或删除，并在合同终止后提供删除证明；要求发生数据安全事件后24至48小时内书面通知甲方并提供补救与支持；分包方须经甲方书面同意并承担同等数据安全义务，供应商对分包方行为承担连带责任。",
+          "evidence_ids": [
+            "mock-af800b18ed246eee9f016068"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:payment",
+          "finding_id": "689884f693a948ceb555826a5cba2fb7",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [
+        "clause_risk:intellectual_property#2e3456ebffba4b4cbd70ca00ad9c99a1",
+        "clause_risk:liability#a301361a044445b1b048fa948d724488",
+        "clause_risk:support#d06334a0bee24de2a243a7c5774042f5",
+        "missing_clause:support#41aa65321c6d46fb8956231f81bb738e",
+        "clause_risk:data_security#912da534469c48cfa839c17ddf61c80c"
+      ],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 6,
+        "true_positive": 1,
+        "false_positive": 5,
+        "false_negative": 0,
+        "precision": 0.1667,
+        "recall": 1.0,
+        "f1": 0.2858,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "literal-acceptance-risk",
+      "title": "默认验收单一风险",
+      "predicted_findings": [
+        {
+          "finding_id": "536c0de60b9541bb9f9fb60ac378b83c",
+          "finding_kind": "clause_risk",
+          "clause_id": "literal-acceptance-risk-clause-003",
+          "expected_clause": null,
+          "category": "acceptance",
+          "level": "high",
+          "reason": "该条款约定系统上线三日后甲方未提出异议即视为验收合格，属于沉默/期限届满自动通过。采购方可能在三天内无法完成充分测试，导致存在缺陷的系统被推定为合格，乙方无需整改或复验即可进入后续付款和质保阶段。",
+          "suggested_revision": "删除“未提出异议视为验收合格”的自动通过机制；约定明确的验收标准、测试材料、整改期限和复验程序，并以甲方书面验收确认作为验收合格和尾款支付条件。",
+          "evidence_ids": [
+            "mock-8d8ff5c08e9977a8d982d6de"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "bff92b9849484087bb2a849f8d72a880",
+          "finding_kind": "clause_risk",
+          "clause_id": "literal-acceptance-risk-clause-002",
+          "expected_clause": null,
+          "category": "payment",
+          "level": "medium",
+          "reason": "付款条款虽有最终验收后支付尾款，但阶段交付后支付40%仅以“阶段交付”为触发，未要求阶段验收合格或书面确认；同时尾款/质保金比例未明确，采购方可能在阶段成果未通过测试时仍需支付大额款项，缺少有效履约约束。",
+          "suggested_revision": "将阶段付款与阶段验收合格及书面确认挂钩，明确各阶段验收标准；明确尾款或质保金比例（建议不低于合同总价10%），在最终验收合格后支付，并保留验收不合格暂停付款的权利。",
+          "evidence_ids": [
+            "mock-c8571d8be22f742104baf273"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "ca5747d0a7f34f56b0ae3e88cbe8548a",
+          "finding_kind": "clause_risk",
+          "clause_id": "literal-acceptance-risk-clause-004",
+          "expected_clause": null,
+          "category": "intellectual_property",
+          "level": "medium",
+          "reason": "条款仅约定源代码、接口文档和开发成果知识产权归甲方所有，但未约定乙方对第三方组件、开源代码或技术不侵权的保证及侵权责任承担。采购方可能在后续使用中被第三方主张权利并需自行应对索赔。",
+          "suggested_revision": "增加乙方保证交付成果不侵犯第三方知识产权，并约定第三方侵权索赔由乙方负责抗辩、承担赔偿及必要替换或修改义务。",
+          "evidence_ids": [
+            "mock-9173b594e53bd151b097713e"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "d1f2f117d02b4b87a6578b3a6ca8ec06",
+          "finding_kind": "clause_risk",
+          "clause_id": "literal-acceptance-risk-clause-005",
+          "expected_clause": null,
+          "category": "liability",
+          "level": "high",
+          "reason": "违约责任条款仅笼统表述乙方延期交付时承担违约责任和赔偿责任、甲方有权解除合同，但未明确延期天数的认定、违约金计算方式、赔偿范围、解除权行使条件和退款安排。采购方在实际发生延期时难以有效追责或退出合同。",
+          "suggested_revision": "明确延期交付的定义和宽限期，约定按日违约金或具体赔偿标准，列举甲方单方解除合同的具体触发情形及解除后的费用退还、损失赔偿安排。",
+          "evidence_ids": [
+            "mock-2861fb5f571b5537507b33ba"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "8ae86bf76a5646cdb8361bd5461bc64f",
+          "finding_kind": "clause_risk",
+          "clause_id": "literal-acceptance-risk-clause-006",
+          "expected_clause": null,
+          "category": "support",
+          "level": "medium",
+          "reason": "运维服务条款声称明确故障响应和修复时间，但未实际约定故障等级、响应时限、修复时限、服务标准，也未涉及服务期满后的资料移交和服务退出安排。采购方在系统故障时无法依据合同要求乙方及时处理。",
+          "suggested_revision": "补充故障等级分类、各级别响应时间和修复时限，明确服务退出流程、数据及文档移交义务和逾期处理机制。",
+          "evidence_ids": [
+            "mock-cf2238f9ee370f607f0b10e8"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "d61f697a52c44893bbfcb60170622131",
+          "finding_kind": "clause_risk",
+          "clause_id": "literal-acceptance-risk-clause-007",
+          "expected_clause": null,
+          "category": "data_security",
+          "level": "high",
+          "reason": "第六条仅原则性表述供应商承担数据安全和保密义务并在合同结束后删除甲方数据，未明确设备运行数据、用户账号和生产信息的使用目的、访问权限、最小权限原则、保存期限、返还或删除的具体标准和证明方式、安全事件报告时限及分包方责任。该平台运行中供应商很可能接触敏感生产数据，一旦发生超范围使用、数据泄露或逾期留存，采购方缺乏可执行约束和追责依据。",
+          "suggested_revision": "建议将数据安全条款细化为：供应商仅可为履行合同目的处理甲方数据，遵循最小权限和访问控制，并保存访问日志；明确各类数据的保存期限和存储位置；合同终止或甲方要求时在规定期限内返还或彻底删除并提供书面删除证明；发生数据泄露或安全事件时在24小时内书面通知甲方并说明影响、处置和补救措施；未经甲方事先书面同意不得分包数据处理，分包方应承担不低于本合同的保密和安全义务，供应商承担连带责任。",
+          "evidence_ids": [
+            "mock-af800b18ed246eee9f016068"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:acceptance",
+          "finding_id": "536c0de60b9541bb9f9fb60ac378b83c",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [
+        "clause_risk:payment#bff92b9849484087bb2a849f8d72a880",
+        "clause_risk:intellectual_property#ca5747d0a7f34f56b0ae3e88cbe8548a",
+        "clause_risk:liability#d1f2f117d02b4b87a6578b3a6ca8ec06",
+        "clause_risk:support#8ae86bf76a5646cdb8361bd5461bc64f",
+        "clause_risk:data_security#d61f697a52c44893bbfcb60170622131"
+      ],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 6,
+        "true_positive": 1,
+        "false_positive": 5,
+        "false_negative": 0,
+        "precision": 0.1667,
+        "recall": 1.0,
+        "f1": 0.2858,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "paraphrased-payment-risk",
+      "title": "全额预付同义改写",
+      "predicted_findings": [
+        {
+          "finding_id": "3f203dd7ceda44b687bff1b790336a03",
+          "finding_kind": "clause_risk",
+          "clause_id": "paraphrased-payment-risk-clause-002",
+          "expected_clause": null,
+          "category": "payment",
+          "level": "high",
+          "reason": "合同约定双方盖章次日甲方即支付100%合同价款，且乙方收款后才开始交付。支付未与交付、验收或质保义务挂钩，采购方在未收到可验收成果前即丧失全部款项的履约杠杆；如乙方迟延、交付不合格或根本不交付，甲方仍需自行追索，且无尾款或质保金可暂扣。",
+          "suggested_revision": "将付款调整为分阶段支付，例如预付款不超过30%，剩余价款与到货/部署、测试通过并签署书面验收报告等里程碑挂钩，并保留10%左右质保金至质保期满支付；删除盖章次日全额支付的约定。",
+          "evidence_ids": [
+            "mock-c8571d8be22f742104baf273"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "53926f9582f04257be21340c82670d27",
+          "finding_kind": "clause_risk",
+          "clause_id": "paraphrased-payment-risk-clause-004",
+          "expected_clause": null,
+          "category": "intellectual_property",
+          "level": "medium",
+          "reason": "该条仅约定源代码、接口文档和开发成果的知识产权归甲方所有，未约定乙方对第三方组件、代码或技术不侵权的保证，以及发生第三方侵权主张时的抗辩、赔偿或许可替代责任。若交付成果包含第三方权利瑕疵，甲方作为使用方可能被追责，且无法依据合同要求乙方赔偿或取得合法替代授权。",
+          "suggested_revision": "补充乙方保证交付成果不侵犯第三方知识产权；如发生第三方侵权主张，乙方应承担抗辩、和解、赔偿或取得继续使用权、替换或修改的责任，并明确因此给甲方造成的损失由乙方承担。",
+          "evidence_ids": [
+            "mock-9173b594e53bd151b097713e"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "cb1d9ca9f1b343029d55da7b168def07",
+          "finding_kind": "clause_risk",
+          "clause_id": "paraphrased-payment-risk-clause-005",
+          "expected_clause": null,
+          "category": "liability",
+          "level": "high",
+          "reason": "违约责任条款仅笼统提及延期交付时承担违约责任和赔偿责任、甲方有权解除合同，未设置延期违约金标准、质量缺陷责任、解除后的退款返还机制。在甲方已100%付款的情况下，一旦乙方延期交付或交付成果存在缺陷，甲方缺少可量化的金钱救济和退款保障，解除合同后可能仍难以追回已付款项。",
+          "suggested_revision": "明确延期交付按日计算的违约金比例或金额、质量缺陷免费修复或换货及赔偿范围；列明甲方解除合同的具体触发条件，并约定解除后乙方应在限期内退还未交付或缺陷部分对应款项并支付违约金。",
+          "evidence_ids": [
+            "mock-2861fb5f571b5537507b33ba"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "030b2373fbcd4f0b910c2d2032a6ddb8",
+          "finding_kind": "clause_risk",
+          "clause_id": "paraphrased-payment-risk-clause-006",
+          "expected_clause": null,
+          "category": "support",
+          "level": "medium",
+          "reason": "运维服务条款只写明一年质保期和“明确响应和修复时间”，但合同正文未给出具体响应时间、修复时限、故障等级或服务结束后的资料移交安排。实际发生故障或服务退出时，甲方无法依据合同要求乙方在特定期限内响应、修复或完成移交。",
+          "suggested_revision": "补充故障等级分类、不同等级响应时间与修复时限、7×24或工作时段支持范围、质保期满后的服务退出计划，以及源代码、文档、数据迁移至甲方或后续服务方的义务。",
+          "evidence_ids": [
+            "mock-cf2238f9ee370f607f0b10e8"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "3f8efb7b3a4e44f8a931481bdfdb0ec2",
+          "finding_kind": "clause_risk",
+          "clause_id": "paraphrased-payment-risk-clause-007",
+          "expected_clause": null,
+          "category": "data_security",
+          "level": "high",
+          "reason": "第六条仅笼统约定乙方承担数据安全和保密义务、合同结束后删除甲方数据，未明确供应商接触设备运行数据、用户账号和生产信息时的数据使用范围、访问权限、最小权限、保存期限、返还删除方式与时限、安全事件报告时限以及分包方责任。采购方在供应商超范围处理、泄露数据或未及时删除时缺乏可执行依据，难以有效追责。",
+          "suggested_revision": "补充可执行的数据安全条款：限定供应商仅可为实现合同目的处理甲方数据；列明可访问数据类型和人员范围，实施最小权限；约定保存期限、合同终止或服务结束后的返还/删除方式与时限；要求供应商在发生数据安全事件后24或48小时内书面通知甲方；未经甲方书面同意不得向分包方提供甲方数据，并明确分包方违规时供应商承担连带责任。",
+          "evidence_ids": [
+            "mock-af800b18ed246eee9f016068"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:payment",
+          "finding_id": "3f203dd7ceda44b687bff1b790336a03",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [
+        "clause_risk:intellectual_property#53926f9582f04257be21340c82670d27",
+        "clause_risk:liability#cb1d9ca9f1b343029d55da7b168def07",
+        "clause_risk:support#030b2373fbcd4f0b910c2d2032a6ddb8",
+        "clause_risk:data_security#3f8efb7b3a4e44f8a931481bdfdb0ec2"
+      ],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 5,
+        "true_positive": 1,
+        "false_positive": 4,
+        "false_negative": 0,
+        "precision": 0.2,
+        "recall": 1.0,
+        "f1": 0.3333,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "negated-payment-safe",
+      "title": "全额预付否定表达",
+      "predicted_findings": [
+        {
+          "finding_id": "b6f338d5138b425aa85d720b21726fe2",
+          "finding_kind": "clause_risk",
+          "clause_id": "negated-payment-safe-clause-004",
+          "expected_clause": null,
+          "category": "intellectual_property",
+          "level": "medium",
+          "reason": "第三条仅约定源代码、接口文档和开发成果的知识产权归甲方所有，但未约定第三方组件、开源代码或供应商既有技术引起侵权时的责任承担。如交付成果包含第三方权利瑕疵，采购方可能被第三方主张侵权，且难以依据本合同向乙方追偿。",
+          "suggested_revision": "增加知识产权保证与侵权赔偿条款：乙方保证交付成果不侵犯第三方知识产权；如发生第三方侵权主张，由乙方承担抗辩、和解及赔偿责任，并赔偿甲方损失；同时要求乙方披露第三方组件和开源许可合规情况。",
+          "evidence_ids": [
+            "mock-9173b594e53bd151b097713e"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "1f09470b4ffd4aea97eee40b314a2a88",
+          "finding_kind": "clause_risk",
+          "clause_id": "negated-payment-safe-clause-005",
+          "expected_clause": null,
+          "category": "liability",
+          "level": "medium",
+          "reason": "违约责任条款仅概括约定乙方延期交付时承担违约责任和赔偿责任、甲方有权解除合同，但未明确违约金或赔偿计算方式、质量缺陷责任、解除权行使程序以及已付款项退还安排。发生延期或缺陷时，甲方难以快速量化索赔，已付款项追回缺乏明确合同依据。",
+          "suggested_revision": "补充具体违约责任：约定延期交付违约金计算方式、质量缺陷修复不成的减价或退款机制、甲方解除合同的触发情形和书面通知程序，以及解除后乙方限期退还已付款项并赔偿直接损失。",
+          "evidence_ids": [
+            "mock-2861fb5f571b5537507b33ba"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "1bec6f8c028946c29eb983f251860c4e",
+          "finding_kind": "clause_risk",
+          "clause_id": "negated-payment-safe-clause-006",
+          "expected_clause": null,
+          "category": "support",
+          "level": "medium",
+          "reason": "运维服务条款虽称“明确响应和修复时间”，但合同未实际约定故障等级、响应时限、修复时限，也未覆盖服务退出条件和质保期满后的资料、文档及系统移交安排。发生系统故障或供应商停止服务时，采购方缺乏可执行的服务恢复和交接保障。",
+          "suggested_revision": "补充可执行的服务等级协议：按故障等级设定响应和修复时限；约定质保期满后的续保机制、服务退出提前通知期，以及源代码、文档、数据和运维知识的移交安排。",
+          "evidence_ids": [
+            "mock-cf2238f9ee370f607f0b10e8"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "772967e675584c7ca38c64076e0b0d74",
+          "finding_kind": "clause_risk",
+          "clause_id": "negated-payment-safe-clause-007",
+          "expected_clause": null,
+          "category": "data_security",
+          "level": "medium",
+          "reason": "第六条仅笼统约定“乙方承担数据安全和保密义务，合同结束后删除甲方数据”，未明确供应商处理设备运行数据、用户账号和生产信息时的使用目的、访问范围、最小权限、保存期限、返还删除程序、安全事件报告时限及分包方数据安全责任。采购方在合同履行中无法有效约束供应商的数据处理行为，发生超范围访问、泄露或分包转处理时难以追责。",
+          "suggested_revision": "在数据安全条款中补充：数据处理目的和范围、最小必要权限、访问日志留存、保存期限和到期返还/删除程序、安全事件分级与报告时限，以及禁止未经甲方书面同意分包处理，并要求分包方承担同等数据安全义务和违约责任。",
+          "evidence_ids": [
+            "mock-af800b18ed246eee9f016068"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [],
+      "missing_expected": [],
+      "unexpected_predictions": [
+        "clause_risk:intellectual_property#b6f338d5138b425aa85d720b21726fe2",
+        "clause_risk:liability#1f09470b4ffd4aea97eee40b314a2a88",
+        "clause_risk:support#1bec6f8c028946c29eb983f251860c4e",
+        "clause_risk:data_security#772967e675584c7ca38c64076e0b0d74"
+      ],
+      "metrics": {
+        "expected_count": 0,
+        "predicted_count": 4,
+        "true_positive": 0,
+        "false_positive": 4,
+        "false_negative": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "level_accuracy": null,
+        "location_accuracy": null,
+        "citation_coverage": null,
+        "source_matched_rate": null
+      }
+    },
+    {
+      "case_id": "weak-intellectual-property",
+      "title": "知识产权内容不充分",
+      "predicted_findings": [
+        {
+          "finding_id": "edb3c7092edb41d994518c3b08c9a0de",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-intellectual-property-clause-002",
+          "expected_clause": null,
+          "category": "payment",
+          "level": "medium",
+          "reason": "付款条款仅约定“最终验收合格后支付尾款”，未明确合同总价、预付款或进度款节点、比例，以及除尾款外的款项是否与阶段交付或验收结果挂钩。采购方可能面临付款节奏不可控、在交付验收前支付过高比例价款的风险，且尾款比例不明会削弱最终验收的约束力。",
+          "suggested_revision": "补充完整付款安排：明确合同总价；确需预付款的应设上限并取得审批；进度款应在阶段交付成果验收合格后支付；尾款设定合理比例并在最终验收合格后支付；同时约定验收不合格时暂停付款及退款、违约金机制。",
+          "evidence_ids": [
+            "mock-c8571d8be22f742104baf273"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "a957ba01d401422093cb14749f99d8a0",
+          "finding_kind": "missing_clause",
+          "clause_id": null,
+          "expected_clause": "应在付款条款中约定质量保证金或保留部分尾款，在质保期满且无未解决缺陷后支付，以保障质保期内的缺陷整改。",
+          "category": "payment",
+          "level": "medium",
+          "reason": "合同第六条约定一年质保期，但全文未约定质保金或保留部分尾款。最终验收合格后即支付尾款，验收后若出现质量缺陷，采购方缺少通过扣款约束供应商履行质保义务的手段。",
+          "suggested_revision": "在付款条款中增加质保金安排，例如最终验收合格后支付至95%，剩余5%作为质保金，在质保期满且无未解决缺陷后支付；或要求供应商提供等额质保保函。",
+          "evidence_ids": [
+            "mock-c8571d8be22f742104baf273"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "5aa6f707161d49d5881451593333bc5b",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-intellectual-property-clause-003",
+          "expected_clause": null,
+          "category": "acceptance",
+          "level": "low",
+          "reason": "验收条款要求按测试标准完成整改、复验并签署书面报告，但未在合同中定义或引用具体测试标准、测试材料、整改期限和复验程序。供应商可能对不合格认定和整改期限产生争议，采购方难以高效完成验收。",
+          "suggested_revision": "补充验收细则：明确测试标准或指标、测试用例与材料、整改期限、复验程序、书面验收报告签署时限；并约定未通过验收时不得进入付款或上线环节。",
+          "evidence_ids": [
+            "mock-8d8ff5c08e9977a8d982d6de"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "305580f1e41b4501b9f2fb9e871fd8c1",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-intellectual-property-clause-004",
+          "expected_clause": null,
+          "category": "intellectual_property",
+          "level": "high",
+          "reason": "知识产权归属约定为“双方另行协商”，且协商不成不影响付款。采购方在源代码、定制开发成果、接口文档等关键成果的权利归属尚未确定时仍须继续付款，一旦发生权属争议或需要修改、复用、对外提供软件时，采购方缺乏权利基础，可能无法获得必要使用权或源代码。",
+          "suggested_revision": "明确约定源代码、定制开发成果、接口文档及相关文档的知识产权和使用权归属；约定第三方组件或开源代码引发侵权时由供应商承担侵权责任并赔偿采购方损失；在知识产权归属未书面确认前，暂停支付相应款项或设置里程碑付款条件。",
+          "evidence_ids": [
+            "mock-9173b594e53bd151b097713e"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "065e793d6b7d4d10ad9878ef4d54cd64",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-intellectual-property-clause-005",
+          "expected_clause": null,
+          "category": "liability",
+          "level": "medium",
+          "reason": "违约责任条款仅提及延期交付，未覆盖质量缺陷、数据泄露、知识产权侵权等常见违约情形，也未明确解除合同的具体条件和退款安排。采购方在出现延期以外的重大违约时难以依据该条款索赔或解除合同。",
+          "suggested_revision": "补充质量缺陷、数据泄露、知识产权侵权等违约情形的责任承担；明确违约金或损失赔偿计算方式；列明采购方可以解除合同的具体触发条件以及解除后的费用退还和已付款项处理。",
+          "evidence_ids": [
+            "mock-2861fb5f571b5537507b33ba"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "1c1685d6025a4edb8bb9b7f31a7cc33c",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-intellectual-property-clause-006",
+          "expected_clause": null,
+          "category": "support",
+          "level": "medium",
+          "reason": "运维服务条款仅笼统表述“明确响应和修复时间”，但未实际约定故障等级、响应时限、修复时限、服务退出或资料移交安排。采购方在系统故障时无法要求供应商按时响应和修复，合同结束后也可能面临文档和运维资料移交困难。",
+          "suggested_revision": "明确质保范围、故障分级及对应响应时间、修复时限；约定服务期结束后的数据、文档、账号和运维资料移交安排；设置未达服务水平的处罚或扣款机制。",
+          "evidence_ids": [
+            "mock-cf2238f9ee370f607f0b10e8"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "5fc73fc8449047bfa653c086ff5d7b76",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-intellectual-property-clause-007",
+          "expected_clause": null,
+          "category": "data_security",
+          "level": "medium",
+          "reason": "第六条仅笼统约定“乙方承担数据安全和保密义务，合同结束后删除甲方数据”，未明确乙方处理设备运行数据、用户账号和生产信息的使用目的、范围、最小权限、保存期限、返还删除方式、安全事件报告时限及分包方责任。触发条件为供应商实际接触或处理采购方数据时，采购方缺乏可执行的标准和核查手段，发生超范围使用、数据泄露或分包不当处理时难以追责。",
+          "suggested_revision": "将数据安全条款细化为：数据处理目的和使用范围限于合同履行所必需；遵循最小必要和访问控制原则；明确各类数据的保存期限；约定合同结束后或采购方要求时的返还、删除程序及证明方式；要求发生数据安全事件后在24小时内书面通知采购方；禁止未经采购方书面同意的分包，或在分包时施加同等数据安全义务并由乙方承担连带责任；赋予采购方审计和合规检查权。",
+          "evidence_ids": [
+            "mock-af800b18ed246eee9f016068"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:intellectual_property",
+          "finding_id": "305580f1e41b4501b9f2fb9e871fd8c1",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [
+        "clause_risk:payment#edb3c7092edb41d994518c3b08c9a0de",
+        "missing_clause:payment#a957ba01d401422093cb14749f99d8a0",
+        "clause_risk:acceptance#5aa6f707161d49d5881451593333bc5b",
+        "clause_risk:liability#065e793d6b7d4d10ad9878ef4d54cd64",
+        "clause_risk:support#1c1685d6025a4edb8bb9b7f31a7cc33c",
+        "clause_risk:data_security#5fc73fc8449047bfa653c086ff5d7b76"
+      ],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 7,
+        "true_positive": 1,
+        "false_positive": 6,
+        "false_negative": 0,
+        "precision": 0.1429,
+        "recall": 1.0,
+        "f1": 0.2501,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "weak-data-security",
+      "title": "数据安全内容不充分",
+      "predicted_findings": [
+        {
+          "finding_id": "a2dae337541848b1a4b9d67e5bd8d5f7",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-data-security-clause-002",
+          "expected_clause": null,
+          "category": "payment",
+          "level": "medium",
+          "reason": "第二条仅约定“最终验收合格后支付尾款”，未明确合同总价款、预付款或进度款支付节点、比例和支付条件。采购方无法判断除尾款外的款项是否会在交付和验收前被大量支付；一旦供应商已收取大部分款项，交付质量或验收争议中采购方将缺乏付款杠杆。",
+          "suggested_revision": "补充付款安排：明确合同总价及各阶段付款比例，除经采购方书面审批的预付款外，预付款应设定上限；进度款应与阶段交付成果及验收合格挂钩；尾款或质保金应在最终验收合格后支付并保留合理比例。",
+          "evidence_ids": [
+            "mock-c8571d8be22f742104baf273"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "4e74f01d50064986b5c75a49d384d2d1",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-data-security-clause-003",
+          "expected_clause": null,
+          "category": "acceptance",
+          "level": "medium",
+          "reason": "第三条虽提及“测试标准”“整改和复验”“书面验收报告”，但未附具体测试标准或明确测试项目、通过指标、整改完成期限和复验启动条件，条款内容较为空洞。发生验收争议时，供应商可能自行解释测试标准，或通过拖延整改使项目长期无法关闭，采购方难以按客观标准拒绝验收。",
+          "suggested_revision": "补充可验证的验收标准和程序：明确测试项目、通过准则、测试材料、整改期限、复验条件以及双方书面确认验收报告的签发时限；约定未通过整改时采购方有权拒绝验收或按违约处理。",
+          "evidence_ids": [
+            "mock-8d8ff5c08e9977a8d982d6de"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "9efe8bceef0a42948a489519a53437d3",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-data-security-clause-004",
+          "expected_clause": null,
+          "category": "intellectual_property",
+          "level": "medium",
+          "reason": "第三条仅约定源代码和开发成果知识产权归甲方，未明确接口文档、定制化成果及相关文档的权利归属，也未约定第三方组件或第三方知识产权侵权时的责任承担。若发生侵权或文档、接口成果权属争议，采购方可能无法有效追责或完整取得交付成果。",
+          "suggested_revision": "明确所有定制开发成果、源代码、接口文档、配置文件及说明文档的知识产权均归甲方所有；增加供应商对第三方知识产权侵权的保证与赔偿义务，并约定侵权时乙方应承担更换、修改或退款责任。",
+          "evidence_ids": [
+            "mock-9173b594e53bd151b097713e"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "bb7fca2ca93c46b881f34e44542abca1",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-data-security-clause-005",
+          "expected_clause": null,
+          "category": "liability",
+          "level": "medium",
+          "reason": "第四条仅将延期交付作为触发违约责任、赔偿责任和甲方解除权的情形，未覆盖交付成果质量缺陷、数据安全事故、知识产权侵权等其他重大违约，也未约定退款、违约金或赔偿计算方式。采购方在非延期违约场景下可能缺乏明确的解除和追偿依据。",
+          "suggested_revision": "扩展违约情形，明确延期、质量缺陷、数据安全事故、知识产权侵权等均构成违约；约定违约金、赔偿范围和退款机制，并设置采购方在重大违约时可解除合同的具体条件。",
+          "evidence_ids": [
+            "mock-2861fb5f571b5537507b33ba"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "62842559ac6a45a4b5fda87ede33bb94",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-data-security-clause-006",
+          "expected_clause": null,
+          "category": "support",
+          "level": "medium",
+          "reason": "第五条仅笼统写明乙方提供一年质保期和运维服务并“明确响应和修复时间”，但合同文本未实际约定故障等级、响应时限、修复时限或超时责任，也未涉及服务期满后的资料、数据和系统移交安排。采购方难以按明确标准约束供应商服务表现。",
+          "suggested_revision": "补充分级的质保与运维服务水平协议，明确故障等级、响应时间、修复或恢复时间、可用性要求及未达标补救措施；同时约定服务退出时的知识转移、文档交接、数据返还和系统移交安排。",
+          "evidence_ids": [
+            "mock-cf2238f9ee370f607f0b10e8"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "90b165309f4b4363b346c66d73b5b7dc",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-data-security-clause-007",
+          "expected_clause": null,
+          "category": "data_security",
+          "level": "high",
+          "reason": "该条款仅笼统约定乙方承担保密义务，数据处理范围、保存期限和删除安排等关键数据安全义务均留待双方另行协商，采购方在本合同项下没有可强制执行的数据安全限制。若后续协商不成，或供应商超范围留存、未删除设备运行数据及用户账号信息，采购方难以依据本合同追究其责任。",
+          "suggested_revision": "明确数据处理目的限于合同履行，设定最小必要访问权限、具体保存期限，以及合同终止或服务结束时返还或删除数据并提供书面确认；禁止超范围留存或用于其他目的。",
+          "evidence_ids": [
+            "mock-af800b18ed246eee9f016068"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "eaafdb9ea9494972bfc0d547d680d209",
+          "finding_kind": "missing_clause",
+          "clause_id": null,
+          "expected_clause": "合同应约定供应商发生数据安全事件时在明确时限内书面通知采购方，并约定供应商将数据处理分包给第三方时须经采购方事先书面同意、对分包方施加不低于本合同的数据安全义务，并由供应商对分包方行为承担全部责任。",
+          "category": "data_security",
+          "level": "medium",
+          "reason": "合同整体未实质覆盖数据安全事件报告义务和分包方数据安全责任。供应商处理设备运行数据或用户账号时，一旦发生泄露或委托分包方处理，采购方无法获得及时通知，也难以向实际处理方追责。",
+          "suggested_revision": "增加数据安全事件通知条款，要求供应商在合理时限内书面报告事件；禁止未经采购方书面同意的数据分包，并要求供应商对分包方数据安全行为承担连带或全部责任。",
+          "evidence_ids": [
+            "mock-af800b18ed246eee9f016068"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:data_security",
+          "finding_id": "90b165309f4b4363b346c66d73b5b7dc",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [
+        "clause_risk:payment#a2dae337541848b1a4b9d67e5bd8d5f7",
+        "clause_risk:acceptance#4e74f01d50064986b5c75a49d384d2d1",
+        "clause_risk:intellectual_property#9efe8bceef0a42948a489519a53437d3",
+        "clause_risk:liability#bb7fca2ca93c46b881f34e44542abca1",
+        "clause_risk:support#62842559ac6a45a4b5fda87ede33bb94",
+        "missing_clause:data_security#eaafdb9ea9494972bfc0d547d680d209"
+      ],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 7,
+        "true_positive": 1,
+        "false_positive": 6,
+        "false_negative": 0,
+        "precision": 0.1429,
+        "recall": 1.0,
+        "f1": 0.2501,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "weak-support-clause",
+      "title": "运维服务内容不充分",
+      "predicted_findings": [
+        {
+          "finding_id": "83b1ed17a80649c98591125abfc44a18",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-support-clause-clause-002",
+          "expected_clause": null,
+          "category": "payment",
+          "level": "medium",
+          "reason": "付款条款仅约定最终验收合格后支付尾款，未约定合同价款总额、预付款/进度款比例及支付节点，也未明确尾款金额或比例。采购方可能面临付款结构不明确、供应商主张在最终验收前支付大部分款项的争议，且难以锁定足够尾款约束履约。",
+          "suggested_revision": "明确合同总价及分阶段支付安排，将主要款项与交付、初验、最终验收等里程碑挂钩；除经采购方书面审批的预付款外，不得在交付验收前支付主要合同价款；尾款及质保金比例应足以覆盖整改和质保期义务。",
+          "evidence_ids": [
+            "mock-c8571d8be22f742104baf273"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "f5002397c44c4e3bafb0b89ccef6af81",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-support-clause-clause-003",
+          "expected_clause": null,
+          "category": "acceptance",
+          "level": "medium",
+          "reason": "验收条款虽提及测试标准、整改和复验，但未明确具体测试标准、测试材料、整改/复验期限及逾期处理机制。验收标准空洞可能导致供应商主张已满足模糊标准或拖延整改，采购方难以依据客观标准拒绝验收或追究整改责任。",
+          "suggested_revision": "补充可量化的验收标准、测试用例或验收大纲，明确整改和复验期限、整改后仍不合格的处理机制及采购方解除权，并规定以采购方书面验收报告为唯一验收通过依据，排除沉默、上线或期限届满自动通过。",
+          "evidence_ids": [
+            "mock-8d8ff5c08e9977a8d982d6de"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "86c4e71714864270b4a0ef3355a6e6fe",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-support-clause-clause-004",
+          "expected_clause": null,
+          "category": "intellectual_property",
+          "level": "medium",
+          "reason": "该条款仅约定源代码和开发成果知识产权归甲方，未覆盖接口文档、配置说明、测试材料等定制成果，也未明确第三方组件、开源代码或工具引起侵权时由乙方承担赔偿责任。若发生第三方侵权索赔或成果范围争议，甲方可能无法获得完整权利保障并需自行承担抗辩和赔偿风险。",
+          "suggested_revision": "明确约定全部定制成果（包括但不限于源代码、目标代码、接口文档、配置说明、测试材料、实施文档）的知识产权归甲方所有；同时增加乙方保证和赔偿条款，约定因乙方提供或集成的第三方组件、开源代码等引发知识产权侵权时，由乙方承担抗辩、赔偿及相关费用。",
+          "evidence_ids": [
+            "mock-9173b594e53bd151b097713e"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "7ac56c59dd9e4b8bafe3ed9df07e6d1d",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-support-clause-clause-005",
+          "expected_clause": null,
+          "category": "liability",
+          "level": "medium",
+          "reason": "违约责任仅提及延期交付，未明确质量缺陷、知识产权侵权、数据泄露等情形下的违约责任，也未约定赔偿范围、违约金计算方式、解除合同的具体触发条件和行使程序。发生延期以外的违约时，甲方难以清晰主张救济和计算损失。",
+          "suggested_revision": "补充质量缺陷、功能不符、知识产权侵权、数据泄露等违约情形，明确违约金或赔偿计算方法、责任上限除外情形，并设置可操作的解除条件，例如连续整改失败、重大功能缺陷无法修复或发生严重数据安全事故时甲方有权解除并退款。",
+          "evidence_ids": [
+            "mock-2861fb5f571b5537507b33ba"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "54fc570bb9b0468b87e06a36d155700a",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-support-clause-clause-006",
+          "expected_clause": null,
+          "category": "support",
+          "level": "high",
+          "reason": "运维服务条款将具体服务内容交由双方另行协商，未约定质保期限、故障分级、响应时间、修复时限、服务退出或合同结束后的资料移交。当前条款无法形成可执行的服务标准，软件上线后甲方可能面临服务拖延、响应缺失且难以追责。",
+          "suggested_revision": "明确约定售后服务范围、质保期限、故障等级及对应响应时间与修复时限，设置未达标的责任后果，并约定服务期满或合同终止后的数据、文档、账户和运维资料移交安排。",
+          "evidence_ids": [
+            "mock-cf2238f9ee370f607f0b10e8"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "eccc6de9ac484e919d72422149cc6b04",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-support-clause-clause-007",
+          "expected_clause": null,
+          "category": "data_security",
+          "level": "high",
+          "reason": "第六条仅笼统约定乙方承担数据安全和保密义务并在合同结束后删除甲方数据，未明确数据使用目的、访问范围、最小权限、保存期限、返还删除流程、安全事件报告时限及分包方责任。供应商在运维或售后服务中可能接触设备运行数据、用户账号和生产信息，因缺少可执行的数据安全义务，采购方难以约束供应商的数据处理行为，也难以在发生数据滥用或泄露时及时追责。",
+          "suggested_revision": "补充数据安全条款或附件，明确供应商处理设备运行数据、用户账号和生产信息的目的、允许访问的数据类别和人员权限范围、最小必要原则、保存期限、合同结束后的返还和删除流程及期限、安全事件通知时限、分包方书面同意及同等安全义务，并约定违反数据安全义务的违约责任和采购方审计权。",
+          "evidence_ids": [
+            "mock-af800b18ed246eee9f016068"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:support",
+          "finding_id": "54fc570bb9b0468b87e06a36d155700a",
+          "expected_level": "medium",
+          "predicted_level": "high",
+          "level_matched": false,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [
+        "clause_risk:payment#83b1ed17a80649c98591125abfc44a18",
+        "clause_risk:acceptance#f5002397c44c4e3bafb0b89ccef6af81",
+        "clause_risk:intellectual_property#86c4e71714864270b4a0ef3355a6e6fe",
+        "clause_risk:liability#7ac56c59dd9e4b8bafe3ed9df07e6d1d",
+        "clause_risk:data_security#eccc6de9ac484e919d72422149cc6b04"
+      ],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 6,
+        "true_positive": 1,
+        "false_positive": 5,
+        "false_negative": 0,
+        "precision": 0.1667,
+        "recall": 1.0,
+        "f1": 0.2858,
+        "level_accuracy": 0.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "weak-liability-clause",
+      "title": "违约责任内容不充分",
+      "predicted_findings": [
+        {
+          "finding_id": "0a73351caff64be6a4a35a75df10de50",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-liability-clause-clause-002",
+          "expected_clause": null,
+          "category": "payment",
+          "level": "medium",
+          "reason": "付款条款仅约定最终验收合格后支付尾款，未明确预付款或进度款的比例、支付节点和支付前提。采购方可能在交付和验收前承担全额或高比例付款风险，且尾款比例过低时难以有效制约供应商整改或履约。",
+          "suggested_revision": "将付款与交付和验收里程碑挂钩，例如约定预付款不超过合同总价一定比例，进度款仅在通过阶段测试后支付，并保留不低于合同总价10%的尾款或质保金至最终验收合格且质保期满后支付。",
+          "evidence_ids": [
+            "mock-c8571d8be22f742104baf273"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "68afb7cc93894e94aea9f876387dbece",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-liability-clause-clause-003",
+          "expected_clause": null,
+          "category": "acceptance",
+          "level": "low",
+          "reason": "验收条款提及测试标准、整改、复验和书面验收报告，但未明确测试标准的具体内容或文件编号、整改期限、复验时限及验收组织方式。若双方对标准理解不一致，采购方可能难以拒绝不合格交付或可能被拖延验收。",
+          "suggested_revision": "补充具体验收标准、测试用例或验收清单作为合同附件，约定整改期限和复验时限；明确未通过复验的后果，并规定全部合格且取得采购方书面确认后方视为验收通过。",
+          "evidence_ids": [
+            "mock-8d8ff5c08e9977a8d982d6de"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "38614be6740a4f4dac4b8e460aef243c",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-liability-clause-clause-004",
+          "expected_clause": null,
+          "category": "intellectual_property",
+          "level": "medium",
+          "reason": "条款仅约定源代码和开发成果知识产权归甲方，未明确接口文档、数据库结构、部署脚本、定制配置等交付物的权利归属；同时未约定由供应商承担第三方组件、开源代码等引发的知识产权侵权责任。触发条件：发生第三方侵权索赔，或采购方需要将接口文档等交付物提供给其他供应商、审计或运维方时，采购方可能无法主张完整权利，并需自行承担侵权抗辩损失。",
+          "suggested_revision": "将接口文档、数据结构说明、部署脚本、定制配置等全部交付物明确列为甲方知识产权，并要求供应商保证交付物不侵犯第三方权利；发生第三方知识产权侵权索赔时，由供应商负责抗辩、赔偿，并保证甲方可继续使用或取得替代方案。",
+          "evidence_ids": [
+            "mock-9173b594e53bd151b097713e"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "ab9260ad3a3b4af2be8fa79635870e4b",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-liability-clause-clause-005",
+          "expected_clause": null,
+          "category": "liability",
+          "level": "high",
+          "reason": "该条仅泛泛表述按法律规定执行、其他事项另行协商，未明确延期交付违约金、质量缺陷修复责任、赔偿范围、解除条件或退款机制。触发条件：供应商延期交付、软件存在质量缺陷或发生重大违约时，采购方无法依据具体约定快速追究责任、解除合同或获得退款，只能依赖事后协商或法定程序，维权成本高且结果不确定。",
+          "suggested_revision": "补充具体违约责任条款，包括按延期天数计算违约金、缺陷修复期限和质量标准；约定供应商重大违约或逾期超过约定期限时采购方可单方解除合同并返还已付款项；明确知识产权侵权、数据泄露、质量缺陷等情形下的赔偿责任和赔偿范围。",
+          "evidence_ids": [
+            "mock-2861fb5f571b5537507b33ba"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "8aa3704fc4e541a5ab8fcc67beabcdae",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-liability-clause-clause-006",
+          "expected_clause": null,
+          "category": "support",
+          "level": "medium",
+          "reason": "该条虽写明提供一年质保期和运维服务，并声称明确响应和修复时间，但实际未给出故障等级、响应时间、修复时限、可用性指标等服务标准，也未约定服务期结束后的服务退出和资料移交。触发条件：系统发生故障时，采购方无法依据具体时限要求供应商响应和修复；服务期满或提前终止时，也可能缺乏明确交接安排，影响系统连续运行。",
+          "suggested_revision": "补充故障等级及对应响应时间、修复时间、可用性指标和未达标处理措施；并约定服务期届满或合同提前终止时，供应商应完成文档、数据、账户权限和运维资料移交，并提供合理过渡支持。",
+          "evidence_ids": [
+            "mock-cf2238f9ee370f607f0b10e8"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "2fa14a7579524d5cae3d56593463ce8c",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-liability-clause-clause-007",
+          "expected_clause": null,
+          "category": "data_security",
+          "level": "medium",
+          "reason": "该条款仅笼统规定乙方承担数据安全和保密义务、合同结束后删除甲方数据，未明确数据处理目的、范围、最小权限、保存期限、返还与删除的具体程序，也未约定安全事件报告时限及分包方责任。设备监测平台可能涉及设备运行数据、用户账号和生产信息，一旦供应商超范围使用、泄露或未及时删除，采购方难以依据合同有效追责和获得及时补救。",
+          "suggested_revision": "在数据安全条款中补充：乙方仅为履行合同目的、按最小必要权限处理甲方数据，不得用于其他目的；涉及分包方时须经甲方书面同意并承担同等数据安全义务；明确各类数据的保存期限、返还或删除方式及删除证明；发生数据泄露等安全事件时应在约定时限内书面通知甲方；乙方对分包方行为承担连带责任。",
+          "evidence_ids": [
+            "mock-af800b18ed246eee9f016068"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:liability",
+          "finding_id": "ab9260ad3a3b4af2be8fa79635870e4b",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [
+        "clause_risk:payment#0a73351caff64be6a4a35a75df10de50",
+        "clause_risk:acceptance#68afb7cc93894e94aea9f876387dbece",
+        "clause_risk:intellectual_property#38614be6740a4f4dac4b8e460aef243c",
+        "clause_risk:support#8aa3704fc4e541a5ab8fcc67beabcdae",
+        "clause_risk:data_security#2fa14a7579524d5cae3d56593463ce8c"
+      ],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 6,
+        "true_positive": 1,
+        "false_positive": 5,
+        "false_negative": 0,
+        "precision": 0.1667,
+        "recall": 1.0,
+        "f1": 0.2858,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "paraphrased-acceptance-risk",
+      "title": "默认验收同义改写",
+      "predicted_findings": [
+        {
+          "finding_id": "3bb756abfad84da1917ec7660c4206dd",
+          "finding_kind": "clause_risk",
+          "clause_id": "paraphrased-acceptance-risk-clause-002",
+          "expected_clause": null,
+          "category": "payment",
+          "level": "medium",
+          "reason": "付款条款仅约定“最终验收合格后支付尾款”，未明确预付款、进度款和尾款的比例及支付节点，也未说明各期付款与交付、阶段验收的对应关系。采购方可能在实际履约中已支付高比例预付款或进度款，而尾款比例不足，导致最终验收前失去履约制约能力。",
+          "suggested_revision": "明确预付款、里程碑款、验收款和尾款/质保金的比例及支付条件，将主要款项与交付和验收节点挂钩，并锁定足额尾款或质保金至最终验收合格后支付。",
+          "evidence_ids": [
+            "mock-c8571d8be22f742104baf273"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "d51e5603488948d79c5c5823f0f43acc",
+          "finding_kind": "clause_risk",
+          "clause_id": "paraphrased-acceptance-risk-clause-003",
+          "expected_clause": null,
+          "category": "acceptance",
+          "level": "high",
+          "reason": "验收条款规定平台上线满三个工作日甲方未回复即自动通过验收，且无需双方书面确认。这使采购方仅因未在极短期限内回复即被视为验收合格，即使系统存在缺陷或未按标准完成测试；同时缺少测试标准、整改、复验和书面确认机制，采购方可能在质量未确认时丧失拒绝验收和主张整改的权利。",
+          "suggested_revision": "删除沉默或期限届满自动通过验收的约定，改为经采购方书面确认后方可视为验收合格；同时明确验收标准、测试材料、验收流程、合理验收期、整改及复验程序。",
+          "evidence_ids": [
+            "mock-8d8ff5c08e9977a8d982d6de"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "7c523524d9574f5e94aa7d1fe2d433bb",
+          "finding_kind": "clause_risk",
+          "clause_id": "paraphrased-acceptance-risk-clause-003",
+          "expected_clause": null,
+          "category": "liability",
+          "level": "high",
+          "reason": "该条约定平台上线满三个工作日甲方未回复即自动通过验收，无需双方书面确认。该沉默即验收机制对采购方不利：甲方可能因内部测试、人员休假或审批流程未完成而无法在极短期限内反馈，导致存在缺陷的系统被视为验收合格，从而丧失以验收不合格为由要求整改、拒付或追责的质量缺陷责任基础。",
+          "suggested_revision": "删除沉默即验收条款，改为以双方签署书面验收报告作为验收合格唯一依据；同时明确验收标准、测试用例、缺陷等级、整改期限和复验程序，并约定采购方未及时反馈时供应商应书面催告并给予合理期限，不得自动推定验收。",
+          "evidence_ids": [
+            "mock-2861fb5f571b5537507b33ba"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "f4855e54d99e42f48ec810a678149595",
+          "finding_kind": "clause_risk",
+          "clause_id": "paraphrased-acceptance-risk-clause-004",
+          "expected_clause": null,
+          "category": "intellectual_property",
+          "level": "medium",
+          "reason": "该条仅约定源代码和开发成果知识产权归甲方，未涉及第三方组件、开源代码或接口文档的权属清点，也未约定供应商对第三方知识产权侵权的担保和赔偿责任。若供应商交付物中包含第三方代码且未取得适当授权，甲方作为权利人可能被第三方主张侵权或受到开源许可限制。",
+          "suggested_revision": "增加知识产权担保与赔偿条款：供应商应保证交付物为原创或已取得合法授权，列明第三方组件及许可类型；因第三方就交付物主张知识产权侵权而产生的索赔应由供应商承担抗辩和赔偿责任；并约定开源组件不得限制甲方的使用、修改和转让。",
+          "evidence_ids": [
+            "mock-9173b594e53bd151b097713e"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "e43b91fe95944e1583fda0c77e23c099",
+          "finding_kind": "clause_risk",
+          "clause_id": "paraphrased-acceptance-risk-clause-005",
+          "expected_clause": null,
+          "category": "liability",
+          "level": "medium",
+          "reason": "该条仅笼统约定乙方延期交付时承担违约责任和赔偿责任、甲方有权解除合同，但未约定延期天数、违约金计算方式、赔偿范围、解除权行使前的催告与整改期限，也未覆盖质量缺陷、数据泄露和知识产权侵权等责任情形。采购方在发生争议时难以有效计算和主张赔偿。",
+          "suggested_revision": "补充具体违约责任：按延期天数设置每日违约金比例或金额，约定累计违约金上限及甲方继续追偿的权利；明确质量缺陷、数据泄露、知识产权侵权等情形的赔偿责任；解除合同应约定催告期限、解除通知程序和已付款项退还安排。",
+          "evidence_ids": [
+            "mock-2861fb5f571b5537507b33ba"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "c20a61c6174847d6be5931abd993197b",
+          "finding_kind": "clause_risk",
+          "clause_id": "paraphrased-acceptance-risk-clause-006",
+          "expected_clause": null,
+          "category": "support",
+          "level": "medium",
+          "reason": "该条仅声明提供一年质保期和运维服务并“明确响应和修复时间”，但未实际载明故障等级、响应时限、修复时限或未达标补救措施，也未约定服务期结束后的数据、文档移交和服务退出安排。采购方难以据此考核和追责供应商的运维服务水平。",
+          "suggested_revision": "补充可量化的运维SLA：按故障等级约定响应时间、恢复/修复时限、可用性指标和未达标的服务扣款或补救措施；同时约定质保期满或合同终止前的服务退出计划，包括源代码、接口文档、配置文件、运维手册和数据移交义务。",
+          "evidence_ids": [
+            "mock-cf2238f9ee370f607f0b10e8"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "4bd0cefd2978473d9e7cf19a20738076",
+          "finding_kind": "clause_risk",
+          "clause_id": "paraphrased-acceptance-risk-clause-007",
+          "expected_clause": null,
+          "category": "data_security",
+          "level": "high",
+          "reason": "第六条仅笼统约定乙方承担数据安全和保密义务、合同结束后删除甲方数据，未明确数据处理目的、范围、最小权限、保存期限、返还删除程序、安全事件报告时限及分包方责任。采购方无法据此约束供应商的设备运行数据、用户账号或生产信息处理行为，发生超范围使用或泄露时难以审计、追责和证明违约。",
+          "suggested_revision": "应补充可执行的数据安全条款：明确供应商仅在合同目的范围内处理数据，列明数据类型和访问权限，遵循最小必要原则；约定具体保存期限、合同终止后的返还或删除程序及证明方式；要求安全事件在约定时限内书面报告；禁止未经采购方同意的分包，或要求分包方承担同等义务并由供应商承担连带责任。",
+          "evidence_ids": [
+            "mock-af800b18ed246eee9f016068"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:acceptance",
+          "finding_id": "d51e5603488948d79c5c5823f0f43acc",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [
+        "clause_risk:payment#3bb756abfad84da1917ec7660c4206dd",
+        "clause_risk:liability#7c523524d9574f5e94aa7d1fe2d433bb",
+        "clause_risk:intellectual_property#f4855e54d99e42f48ec810a678149595",
+        "clause_risk:liability#e43b91fe95944e1583fda0c77e23c099",
+        "clause_risk:support#c20a61c6174847d6be5931abd993197b",
+        "clause_risk:data_security#4bd0cefd2978473d9e7cf19a20738076"
+      ],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 7,
+        "true_positive": 1,
+        "false_positive": 6,
+        "false_negative": 0,
+        "precision": 0.1429,
+        "recall": 1.0,
+        "f1": 0.2501,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "weak-payment-clause",
+      "title": "付款条款内容不充分",
+      "predicted_findings": [
+        {
+          "finding_id": "b395cd64a0384f258b5e8f7df55bbec5",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-payment-clause-clause-002",
+          "expected_clause": null,
+          "category": "payment",
+          "level": "high",
+          "reason": "付款条款仅约定“付款安排由双方协商确定”，未将付款与交付、验收或质保节点挂钩，也未约定预付款上限、阶段付款比例、尾款或质保金。采购方可能在软件未交付或未验收合格前即被要求支付全部或大部分款项，丧失履约制衡能力。",
+          "suggested_revision": "明确付款节点和比例，将付款与可验证的交付成果及最终验收合格报告挂钩；设定经审批的预付款上限，保留适当比例的尾款或质保金，并在质保期届满且无未决质量问题后支付。",
+          "evidence_ids": [
+            "mock-c8571d8be22f742104baf273"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "f4180e9088f043e1899668dbfd3ba947",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-payment-clause-clause-005",
+          "expected_clause": null,
+          "category": "liability",
+          "level": "medium",
+          "reason": "违约责任条款仅笼统约定延期交付或质量缺陷时承担违约责任和赔偿责任，未明确违约金计算方式、赔偿范围、质量缺陷的具体判定标准、解除权行使条件和程序。触发条件可能是乙方延期交付或存在质量缺陷，但采购方难以量化损失并有效追责，可能陷入另行协商或无法获得充分救济的不利境地。",
+          "suggested_revision": "建议在违约责任条款中明确延期交付的每日违约金比例或固定金额、累计违约金上限，界定质量缺陷等级和补救期限，约定赔偿范围包括直接损失和合理费用，并列明甲方可单方解除合同的具体情形、书面通知程序及退款安排。",
+          "evidence_ids": [
+            "mock-2861fb5f571b5537507b33ba"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "fd12bfd8217440429af484554f877a79",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-payment-clause-clause-006",
+          "expected_clause": null,
+          "category": "support",
+          "level": "medium",
+          "reason": "运维服务条款虽提及一年质保期、故障响应、修复时间和服务期满后的文档移交，但并未给出具体的故障等级、响应时限、修复时限、可用性指标或移交清单和时间安排，内容空洞。发生系统故障或服务退出时，采购方无法依据合同要求供应商限期解决或完成交接，可能承受长时间停机或无法接手系统。",
+          "suggested_revision": "建议补充分级故障定义及对应的响应时间和修复时限，明确质保期内的服务范围、服务方式和服务水平指标，并约定服务期满前供应商应提交完整技术文档、源代码或配置说明、账号权限和数据移交的时间表与验收标准。",
+          "evidence_ids": [
+            "mock-cf2238f9ee370f607f0b10e8"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "ec7aa769c42b4b5c89af5d1d36270be4",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-payment-clause-clause-007",
+          "expected_clause": null,
+          "category": "data_security",
+          "level": "medium",
+          "reason": "第六条仅作原则性数据安全表述，未明确数据处理目的、范围、最小访问权限、保存期限、返还删除程序和时限、安全事件报告时限及分包方责任。供应商接触设备运行数据、用户账号或生产信息时若发生越权使用、泄露或迟延通知，采购方缺乏可执行的合同依据进行追责和及时止损。",
+          "suggested_revision": "建议明确：供应商仅可为合同目的处理设备运行数据、用户账号和生产信息，并遵循最小权限；约定各类数据的保存期限，合同结束后在指定期限内返还或不可恢复删除并出具书面证明；发生数据泄露或安全事件应在约定时限内书面通知采购方；涉及分包方时须经采购方事先书面同意，并承担同等数据安全义务。",
+          "evidence_ids": [
+            "mock-af800b18ed246eee9f016068"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:payment",
+          "finding_id": "b395cd64a0384f258b5e8f7df55bbec5",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [
+        "clause_risk:liability#f4180e9088f043e1899668dbfd3ba947",
+        "clause_risk:support#fd12bfd8217440429af484554f877a79",
+        "clause_risk:data_security#ec7aa769c42b4b5c89af5d1d36270be4"
+      ],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 4,
+        "true_positive": 1,
+        "false_positive": 3,
+        "false_negative": 0,
+        "precision": 0.25,
+        "recall": 1.0,
+        "f1": 0.4,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "weak-acceptance-clause",
+      "title": "验收条款内容不充分",
+      "predicted_findings": [
+        {
+          "finding_id": "62f9c50cd78c431db51c36d9ed242e06",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-acceptance-clause-clause-003",
+          "expected_clause": null,
+          "category": "acceptance",
+          "level": "high",
+          "reason": "第二条仅约定“验收事项由双方协商确定”，未明确验收标准、测试材料、验收期限、整改和复验程序以及书面确认方式。执行阶段如双方对验收事项无法达成一致，采购方将缺乏客观依据判断交付成果是否合格、拒绝不合格成果或要求整改，进而影响最终验收合格后的付款控制。",
+          "suggested_revision": "建议明确验收依据（如需求规格说明书、测试用例、验收标准）、验收程序和期限、采购方书面确认形式，以及不合格时的整改期限和复验机制；同时约定如双方无法补充协商一致，应以采购方合理验收标准或第三方测试结果为准，并明确验收不合格时不得支付相应款项且不得自动视为验收通过。",
+          "evidence_ids": [
+            "mock-8d8ff5c08e9977a8d982d6de"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "1566fc2371e6403eb5c3354e7bc2f4d8",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-acceptance-clause-clause-005",
+          "expected_clause": null,
+          "category": "liability",
+          "level": "high",
+          "reason": "该违约责任条款仅概括表述乙方延期交付或质量缺陷时“承担违约责任和赔偿责任”及甲方有权解除合同，但未约定违约金或赔偿计算方式、质量缺陷整改期限、解除合同的具体条件以及解除后已付款项退还安排。一旦乙方延期或交付缺陷，甲方难以量化索赔并追回已支付的50%款项，且解除权缺乏可操作触发条件。",
+          "suggested_revision": "补充延期交付的每日违约金比例或固定违约金、质量缺陷的整改与复验期限、甲方单方解除的具体情形，以及解除后乙方应在若干日内退还已付款项并承担甲方直接损失的明确条款。",
+          "evidence_ids": [
+            "mock-2861fb5f571b5537507b33ba"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "ab4a7ce694e0409bb03cfa250aee91de",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-acceptance-clause-clause-006",
+          "expected_clause": null,
+          "category": "support",
+          "level": "medium",
+          "reason": "该条仅声明“明确故障响应、修复时间及服务期满后的文档移交”，但未实际约定故障等级、响应时间、修复时限、可用性指标或文档移交清单和时间。实际发生故障时，甲方无法要求乙方在约定期限内响应和修复，服务退出时资料移交也缺乏执行标准。",
+          "suggested_revision": "明确故障等级及对应响应/修复时限（如P1故障2小时内响应、24小时内修复），约定逾期未修复的救济措施，并列出服务期满应移交的文档、数据和系统权限清单及移交时间。",
+          "evidence_ids": [
+            "mock-cf2238f9ee370f607f0b10e8"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "f19cfc8501c24d479c30b07710abf4e9",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-acceptance-clause-clause-007",
+          "expected_clause": null,
+          "category": "data_security",
+          "level": "medium",
+          "reason": "现有数据安全条款仅概括性约定乙方承担数据安全和保密义务、限制数据访问并在合同结束后返还或删除数据，未明确设备运行数据、用户账号和生产信息的处理目的、最小访问权限、保存期限、返还删除期限与验证方式、安全事件报告时限及分包方责任。采购方难以在发生超范围留存、泄露或分包处理时及时追究和止损。",
+          "suggested_revision": "建议在数据安全条款中明确数据类型和处理范围，要求乙方按最小权限访问；约定具体保存期限、合同结束后返还或删除数据的时限及可验证方式；要求发生数据安全事件后24小时内书面通知采购方并采取补救措施；未经采购方书面同意不得分包，确需分包时应由分包方承担同等数据安全义务并保持乙方连带责任。",
+          "evidence_ids": [
+            "mock-af800b18ed246eee9f016068"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:acceptance",
+          "finding_id": "62f9c50cd78c431db51c36d9ed242e06",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [
+        "clause_risk:liability#1566fc2371e6403eb5c3354e7bc2f4d8",
+        "clause_risk:support#ab4a7ce694e0409bb03cfa250aee91de",
+        "clause_risk:data_security#f19cfc8501c24d479c30b07710abf4e9"
+      ],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 4,
+        "true_positive": 1,
+        "false_positive": 3,
+        "false_negative": 0,
+        "precision": 0.25,
+        "recall": 1.0,
+        "f1": 0.4,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "negated-acceptance-safe",
+      "title": "否定默认验收",
+      "predicted_findings": [
+        {
+          "finding_id": "b6994d52e1ad4e90b6c0aecf7ef9f6e7",
+          "finding_kind": "clause_risk",
+          "clause_id": "negated-acceptance-safe-clause-005",
+          "expected_clause": null,
+          "category": "liability",
+          "level": "medium",
+          "reason": "该条款仅笼统约定乙方延期交付或质量缺陷时承担违约责任和赔偿责任、甲方有权解除合同，但未明确违约金计算方式、赔偿范围、解除条件以及解除后的退款和费用处理。触发条件为乙方延期或质量缺陷且双方对责任范围、解除和退款发生争议时，采购方难以快速获得可执行的救济。",
+          "suggested_revision": "补充具体违约责任：按逾期天数计算违约金并设置上限；明确质量缺陷的修复、赔偿范围；列明甲方单方解除的具体情形；要求解除后按未交付或不合格部分退还已付款项，并赔偿甲方直接损失。",
+          "evidence_ids": [
+            "mock-2861fb5f571b5537507b33ba"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "f151a4f05b2a4697b93dfc72d2accf8d",
+          "finding_kind": "clause_risk",
+          "clause_id": "negated-acceptance-safe-clause-006",
+          "expected_clause": null,
+          "category": "support",
+          "level": "medium",
+          "reason": "该条款仅说明提供一年质保期和运维服务并“明确”故障响应、修复时间及文档移交，但未写明故障等级、响应时限、修复时限、服务退出过渡安排和移交文档清单。触发故障或合同期满时，采购方缺少可量化的执行标准和服务退出保障。",
+          "suggested_revision": "补充服务等级协议，按故障等级约定响应时间和修复时间，并明确质保期维护范围、服务退出过渡期、源代码及文档移交清单，以及未达服务标准的扣款或赔偿机制。",
+          "evidence_ids": [
+            "mock-cf2238f9ee370f607f0b10e8"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "7320f2e9ed664296aef54c6d2c9f23dc",
+          "finding_kind": "clause_risk",
+          "clause_id": "negated-acceptance-safe-clause-007",
+          "expected_clause": null,
+          "category": "data_security",
+          "level": "high",
+          "reason": "第六条仅原则性表述乙方承担数据安全和保密义务、限制数据访问范围并在合同结束后返还或删除数据，但未明确供应商处理设备运行数据、用户账号和生产信息的具体目的、最小权限、保存期限、安全事件报告时限以及对分包方的数据安全约束。供应商一旦超范围处理数据、延迟报告安全事件或通过分包方接触数据，采购方缺乏可执行的合同依据进行监督和追责。",
+          "suggested_revision": "建议将该条细化为：供应商仅可为合同目的访问和处理设备运行数据、用户账号及生产信息；明确允许访问的数据类别、人员范围和最小权限；约定具体保存期限；合同终止或服务期满后返还数据并出具删除证明；发生数据安全事件后约定时限内书面通知采购方；引入分包方须经采购方事先书面同意并承担同等数据安全义务。",
+          "evidence_ids": [
+            "mock-af800b18ed246eee9f016068"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [],
+      "missing_expected": [],
+      "unexpected_predictions": [
+        "clause_risk:liability#b6994d52e1ad4e90b6c0aecf7ef9f6e7",
+        "clause_risk:support#f151a4f05b2a4697b93dfc72d2accf8d",
+        "clause_risk:data_security#7320f2e9ed664296aef54c6d2c9f23dc"
+      ],
+      "metrics": {
+        "expected_count": 0,
+        "predicted_count": 3,
+        "true_positive": 0,
+        "false_positive": 3,
+        "false_negative": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "level_accuracy": null,
+        "location_accuracy": null,
+        "citation_coverage": null,
+        "source_matched_rate": null
+      }
+    },
+    {
+      "case_id": "missing-support-only",
+      "title": "仅缺运维服务条款",
+      "predicted_findings": [
+        {
+          "finding_id": "6603e61644f44fb9b5a74aed8519a61d",
+          "finding_kind": "clause_risk",
+          "clause_id": "missing-support-only-clause-005",
+          "expected_clause": null,
+          "category": "liability",
+          "level": "medium",
+          "reason": "该条款仅声明乙方延期交付或存在质量缺陷时承担违约责任和赔偿责任，但未约定违约金计算方式、赔偿范围、退款安排，也未列明甲方解除合同的具体触发条件。发生延期或质量缺陷时，甲方难以主张明确、可量化的赔偿，解除权也可能因标准模糊而难以执行。",
+          "suggested_revision": "明确延期交付按日或按里程碑计算违约金，约定质量缺陷的修复、扣款或赔偿标准；列明甲方可单方解除合同的具体情形；解除后乙方应在约定期限内退还已付款项并承担相关费用。",
+          "evidence_ids": [
+            "mock-2861fb5f571b5537507b33ba"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "31476e64acbf443f981241f91893b849",
+          "finding_kind": "missing_clause",
+          "clause_id": null,
+          "expected_clause": "合同应约定质保期限、故障等级、响应时间、修复时限、服务退出和资料移交安排。",
+          "category": "support",
+          "level": "high",
+          "reason": "合同仅在付款条款中提及“质保期满”但未设置质保和运维支持条款，未约定质保期限、故障响应与修复时限，也未约定服务期满后的数据、文档和系统资料移交。软件验收后若出现故障或需要退出服务，甲方将缺乏明确服务标准和交接依据。",
+          "suggested_revision": "增加质保与支持条款，明确质保起止时间、故障分级及响应/修复时限、服务可用性要求；约定服务期满或合同解除后的源代码、文档、数据移交范围和时限，以及供应商配合义务。",
+          "evidence_ids": [
+            "mock-cf2238f9ee370f607f0b10e8"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "efa097e30d954adeb6c2106ecc96d0e1",
+          "finding_kind": "clause_risk",
+          "clause_id": "missing-support-only-clause-006",
+          "expected_clause": null,
+          "category": "data_security",
+          "level": "medium",
+          "reason": "第五条仅以原则性表述要求乙方承担数据安全和保密义务、限制数据访问范围并在合同结束后返还或删除数据，但未明确设备运行数据、用户账号和生产信息等数据范围，也未约定最小必要访问权限、保存期限、删除或返还的具体程序与证明、安全事件报告时限以及分包方数据安全责任。供应商一旦超范围使用、未及时删除或发生数据泄露，采购方将缺乏可执行的合同依据证明违约并追责。",
+          "suggested_revision": "在数据安全条款中补充：数据范围定义，明确设备运行数据、用户账号和生产信息；要求乙方仅基于履行合同目的、按最小权限和最短必要期限处理数据；约定访问权限管理、加密存储和传输、访问日志留存；发生数据安全事件后应在约定时限内书面通知采购方；未经采购方书面同意不得分包，分包方须承担同等数据安全义务；合同终止后应在约定期限内返还或删除全部数据并提供书面删除证明，并明确违约责任。",
+          "evidence_ids": [
+            "mock-af800b18ed246eee9f016068"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "missing_clause:support",
+          "finding_id": "31476e64acbf443f981241f91893b849",
+          "expected_level": "medium",
+          "predicted_level": "high",
+          "level_matched": false,
+          "location_matched": null,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [
+        "clause_risk:liability#6603e61644f44fb9b5a74aed8519a61d",
+        "clause_risk:data_security#efa097e30d954adeb6c2106ecc96d0e1"
+      ],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 3,
+        "true_positive": 1,
+        "false_positive": 2,
+        "false_negative": 0,
+        "precision": 0.3333,
+        "recall": 1.0,
+        "f1": 0.5,
+        "level_accuracy": 0.0,
+        "location_accuracy": null,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "missing-ip-only",
+      "title": "仅缺知识产权条款",
+      "predicted_findings": [
+        {
+          "finding_id": "8bb11952955d4455b4cba2fadbe0169b",
+          "finding_kind": "clause_risk",
+          "clause_id": "missing-ip-only-clause-003",
+          "expected_clause": null,
+          "category": "acceptance",
+          "level": "medium",
+          "reason": "第二条验收条款仅约定“双方按照测试标准完成测试”，但合同全文未明确测试标准的具体内容、测试材料或验收通过准则，也未约定乙方整改和复验的期限。采购方缺乏可执行、可核验的验收依据，乙方可能以标准不清为由拖延整改或交付不符合采购方需求的成果，导致验收争议和项目延期。",
+          "suggested_revision": "在合同附件中明确测试标准、测试用例、验收通过准则，并约定乙方整改期限和复验程序；明确未按期限完成整改的违约责任，以及未经双方书面验收报告不得视为最终验收合格。",
+          "evidence_ids": [
+            "mock-8d8ff5c08e9977a8d982d6de"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "6e92c4e45b464b6bbdc2d2d22c005f61",
+          "finding_kind": "missing_clause",
+          "clause_id": null,
+          "expected_clause": "合同应增加知识产权条款，明确许可软件、定制开发成果、源代码及接口文档的知识产权和使用权归属、许可范围，并约定第三方知识产权侵权时由供应商承担抗辩和赔偿责任。",
+          "category": "intellectual_property",
+          "level": "high",
+          "reason": "合同为软件采购，但全文未约定源代码、定制成果或接口文档的权利归属，也未约定第三方知识产权侵权责任。采购方可能无法合法使用、修改或二次开发，在发生第三方侵权索赔时需自行承担抗辩和赔偿。",
+          "suggested_revision": "增加知识产权专条：明确采购方获得软件使用许可及定制成果、接口文档的完整使用权；约定供应商保证交付物不侵犯第三方权利，并在发生第三方侵权索赔时承担抗辩、和解及赔偿责任；明确侵权情况下的退款、替换或其他救济安排。",
+          "evidence_ids": [
+            "mock-9173b594e53bd151b097713e"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "d660b76cdfeb42ddb844fd92c7e594c0",
+          "finding_kind": "clause_risk",
+          "clause_id": "missing-ip-only-clause-004",
+          "expected_clause": null,
+          "category": "liability",
+          "level": "medium",
+          "reason": "违约责任条款仅笼统约定延期或质量缺陷时承担违约责任和赔偿责任、采购方有权解除合同，但未约定违约金计算方式、赔偿范围、解除权触发条件和解除后退款安排。采购方在履约异常时难以有效追责并收回已付款项。",
+          "suggested_revision": "补充具体违约责任：按延期天数约定违约金比例或固定金额；将质量缺陷情形与修复、降价、退货或退款、解除合同挂钩；列明解除合同的具体情形以及解除后已付款项的退还范围和时限。",
+          "evidence_ids": [
+            "mock-2861fb5f571b5537507b33ba"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "3a591c4b97e14b9d9036a4eab08dc39f",
+          "finding_kind": "clause_risk",
+          "clause_id": "missing-ip-only-clause-005",
+          "expected_clause": null,
+          "category": "support",
+          "level": "medium",
+          "reason": "运维服务条款仅声明要明确故障响应、修复时间及服务期满后的文档移交，但未实际约定响应时限、修复时限、服务级别或退出交接标准。服务出现故障时，采购方缺乏可执行的时效要求和违约责任依据。",
+          "suggested_revision": "在合同中明确质保期内的服务级别：按故障等级约定响应和修复时限、可用性指标、升级机制，以及无法按期修复时的替代方案；并明确服务期满前供应商应移交全部技术文档、配置信息和运维资料。",
+          "evidence_ids": [
+            "mock-cf2238f9ee370f607f0b10e8"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "b5362c2d1eeb431aba3fa954777f0801",
+          "finding_kind": "clause_risk",
+          "clause_id": "missing-ip-only-clause-006",
+          "expected_clause": null,
+          "category": "data_security",
+          "level": "high",
+          "reason": "第五条仅作原则性表述，未明确乙方处理设备运行数据、用户账号和生产信息时的具体目的、范围、最小访问权限、保存期限、删除或返还方式及证明、安全事件报告时限和分包方责任。当供应商因部署、运维或质保接触上述数据，或服务期结束后未彻底删除数据，或发生数据泄露、超范围使用、转委托第三方处理时，采购方难以依据合同及时制止、核查和追责。",
+          "suggested_revision": "建议将第五条细化为：明确受保护数据类别和处理目的，限定仅为合同履行所必需的最小访问权限；约定保存期限、到期后的删除或返还程序及书面删除证明；要求发生数据泄露或未授权访问时在约定时限内书面报告采购方；禁止未经采购方书面同意将数据处理分包，分包方须承担同等义务且供应商承担连带责任；并增加采购方审计权和违约责任。",
+          "evidence_ids": [
+            "mock-af800b18ed246eee9f016068"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "missing_clause:intellectual_property",
+          "finding_id": "6e92c4e45b464b6bbdc2d2d22c005f61",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": null,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [
+        "clause_risk:acceptance#8bb11952955d4455b4cba2fadbe0169b",
+        "clause_risk:liability#d660b76cdfeb42ddb844fd92c7e594c0",
+        "clause_risk:support#3a591c4b97e14b9d9036a4eab08dc39f",
+        "clause_risk:data_security#b5362c2d1eeb431aba3fa954777f0801"
+      ],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 5,
+        "true_positive": 1,
+        "false_positive": 4,
+        "false_negative": 0,
+        "precision": 0.2,
+        "recall": 1.0,
+        "f1": 0.3333,
+        "level_accuracy": 1.0,
+        "location_accuracy": null,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "multi-payment-acceptance",
+      "title": "付款与验收双风险",
+      "predicted_findings": [
+        {
+          "finding_id": "4ce8bcb095484c1eb0ca50021c8aa8f2",
+          "finding_kind": "clause_risk",
+          "clause_id": "multi-payment-acceptance-clause-002",
+          "expected_clause": null,
+          "category": "payment",
+          "level": "high",
+          "reason": "该条款约定合同签订后五日内甲方支付全部合同款，付款未与需求确认、阶段交付或最终验收结果挂钩，也未保留尾款或质保金。一旦乙方未履约、交付不合格或项目中断，甲方已支付全部价款，追款和谈判地位严重受损。",
+          "suggested_revision": "将付款拆分为预付款、里程碑款、验收合格后支付尾款，并保留不低于合同总价5%-10%的质保金；明确各阶段付款前提和交付/验收证明，未经审批不得预付全部合同款。",
+          "evidence_ids": [
+            "mock-c8571d8be22f742104baf273"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "fafe96e6ccd8409cafc6cb7696283ddd",
+          "finding_kind": "clause_risk",
+          "clause_id": "multi-payment-acceptance-clause-003",
+          "expected_clause": null,
+          "category": "acceptance",
+          "level": "high",
+          "reason": "该条款以系统上线三日后甲方未提出异议即视为验收合格，属于沉默/期限届满自动通过。采购方可能因未及时提出异议而被迫接受存在缺陷的系统，且条款未约定测试标准、整改期限、复验程序或书面验收确认。",
+          "suggested_revision": "删除沉默验收条款，改为双方书面确认；明确验收标准、测试用例、缺陷等级、整改期限和复验程序，并约定采购方在未签署书面验收确认前系统不视为验收合格。",
+          "evidence_ids": [
+            "mock-8d8ff5c08e9977a8d982d6de"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "e38ba36ac0ae42a182b2a446f07ce8f2",
+          "finding_kind": "clause_risk",
+          "clause_id": "multi-payment-acceptance-clause-005",
+          "expected_clause": null,
+          "category": "liability",
+          "level": "medium",
+          "reason": "该条款仅笼统约定乙方延期交付或存在质量缺陷时承担违约责任、赔偿责任且甲方有权解除合同，但未约定违约触发条件、质量缺陷认定标准、违约金或赔偿计算方式、解除权行使条件以及解除后的退款和恢复原状安排。采购方在发生延期或质量缺陷时难以快速计算和主张赔偿，解除后的款项追回也缺乏明确依据。",
+          "suggested_revision": "补充具体违约责任：明确延期交付的宽限期和违约金计算标准（如每逾期一日按合同总价一定比例计付），约定质量缺陷的修复或替换期限和复验程序；列明甲方可单方解除合同的具体情形，并约定解除后乙方应返还已付款项、承担已发生损失及费用。",
+          "evidence_ids": [
+            "mock-2861fb5f571b5537507b33ba"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "e334bb9e5f474038be1c513fd7496595",
+          "finding_kind": "clause_risk",
+          "clause_id": "multi-payment-acceptance-clause-006",
+          "expected_clause": null,
+          "category": "support",
+          "level": "medium",
+          "reason": "该条款虽约定一年质保期和运维服务，并提及故障响应、修复时间及服务期满后的文档移交，但未给出可执行的故障等级、响应时限、修复时限、支持时段、文档移交清单和移交期限。实际发生系统故障时，采购方缺少可量化的服务水平标准来追究乙方责任。",
+          "suggested_revision": "在运维服务条款中增加可量化的SLA：按故障等级约定响应时间和修复时间，明确服务可用性、支持时段、未达标时的服务费扣减或补偿，以及服务期满前乙方应移交的文档清单、格式和移交完成时限。",
+          "evidence_ids": [
+            "mock-cf2238f9ee370f607f0b10e8"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "ff5a515703ae4db38be41c6d4e8f9c36",
+          "finding_kind": "clause_risk",
+          "clause_id": "multi-payment-acceptance-clause-007",
+          "expected_clause": null,
+          "category": "data_security",
+          "level": "medium",
+          "reason": "第六条仅原则性要求乙方承担数据安全和保密义务、限制数据访问范围并在合同结束后返还或删除数据，未明确数据处理目的、最小权限范围、保存期限、返还或删除的具体时限和方式、安全事件报告时限，也未约定分包方数据安全责任。设备监测平台涉及设备运行数据、用户账号和生产信息，触发条件为乙方实际处理上述数据时超范围使用、超期留存或发生泄露，采购方难以及时发现、追责和采取补救措施，存在数据合规和业务损失风险。",
+          "suggested_revision": "建议将数据安全条款细化为可执行义务：明确乙方可处理的数据类型、目的和最小权限；约定各类数据的保存期限及合同终止后返还或删除的时限、方式和确认机制；要求乙方在发现或疑似数据泄露、网络攻击等安全事件后24小时内书面通知甲方，并配合调查、取证和整改；未经甲方事先书面同意不得分包数据处理活动，并约定乙方对分包方数据安全行为承担连带责任。",
+          "evidence_ids": [
+            "mock-af800b18ed246eee9f016068"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:payment",
+          "finding_id": "4ce8bcb095484c1eb0ca50021c8aa8f2",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        },
+        {
+          "match_key": "clause_risk:acceptance",
+          "finding_id": "fafe96e6ccd8409cafc6cb7696283ddd",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [
+        "clause_risk:liability#e38ba36ac0ae42a182b2a446f07ce8f2",
+        "clause_risk:support#e334bb9e5f474038be1c513fd7496595",
+        "clause_risk:data_security#ff5a515703ae4db38be41c6d4e8f9c36"
+      ],
+      "metrics": {
+        "expected_count": 2,
+        "predicted_count": 5,
+        "true_positive": 2,
+        "false_positive": 3,
+        "false_negative": 0,
+        "precision": 0.4,
+        "recall": 1.0,
+        "f1": 0.5714,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "tech-service-multi-risk",
+      "title": "技术服务合同双风险",
+      "predicted_findings": [
+        {
+          "finding_id": "848a121c29444f808fc95a0a422b6fcf",
+          "finding_kind": "clause_risk",
+          "clause_id": "tech-service-multi-risk-clause-002",
+          "expected_clause": null,
+          "category": "payment",
+          "level": "high",
+          "reason": "该条款约定合同签订后五日内甲方支付全部服务费用，付款未与交付、测试、整改或最终验收节点挂钩，也未保留尾款或质保金。若乙方未履约或交付质量不合格，采购方已丧失以付款制约履行的主要手段，追索成本和风险较高。",
+          "suggested_revision": "将付款结构调整为有条件的分期支付，例如预付款不超过合同总价的合理比例，阶段款与交付或验收里程碑挂钩，最终验收合格后支付尾款，并留存不低于合同总价一定比例的质保金至质保期满后支付。",
+          "evidence_ids": [
+            "mock-c8571d8be22f742104baf273"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "e2b6af9af57b4b658d1832a67bc086d3",
+          "finding_kind": "clause_risk",
+          "clause_id": "tech-service-multi-risk-clause-003",
+          "expected_clause": null,
+          "category": "acceptance",
+          "level": "low",
+          "reason": "验收条款虽然要求测试、整改、复验和书面验收，但未明确具体测试标准、测试材料、整改期限和复验时限。实际执行中可能因标准不明确而产生争议，或使整改、复验缺乏时间约束，对采购方验收进度和质量控制不利。",
+          "suggested_revision": "补充可客观核验的测试标准、测试材料清单、整改期限及复验时限，并明确只有双方签署书面验收报告后才视为验收合格；未通过验收时不得自动视为通过。",
+          "evidence_ids": [
+            "mock-8d8ff5c08e9977a8d982d6de"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "15d33f8ef5c3440398ff7ef0a8f72657",
+          "finding_kind": "clause_risk",
+          "clause_id": "tech-service-multi-risk-clause-005",
+          "expected_clause": null,
+          "category": "liability",
+          "level": "high",
+          "reason": "第五条仅概括约定延期交付或质量缺陷时乙方承担违约责任和赔偿责任、甲方有权解除合同，但未约定违约金或赔偿的计算方式、整改或补救期限、解除合同的具体触发条件以及合同解除后的预付款退还安排。在第二条要求签约后五日内支付全部服务费的情况下，采购方发生此类问题时缺乏可执行的回款和损失补偿依据。",
+          "suggested_revision": "补充延期交付的按日违约金、质量缺陷的整改期限与复验程序、采购方可解除合同的具体情形，以及解除后乙方应退还已付款项并赔偿直接损失；同时明确赔偿范围、责任上限及知识产权侵权等除外责任。",
+          "evidence_ids": [
+            "mock-2861fb5f571b5537507b33ba"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "19e6377ca6314add8f4fa09fd703d0b3",
+          "finding_kind": "clause_risk",
+          "clause_id": "tech-service-multi-risk-clause-006",
+          "expected_clause": null,
+          "category": "support",
+          "level": "high",
+          "reason": "第六条仅表示“明确”故障响应、修复时间及服务期满后的文档移交，但未实际约定故障等级、响应时限、修复时限、未达标后果或移交资料清单。采购方在运维期内发生故障时难以依据合同要求乙方及时修复，服务期满后也可能因移交范围不清而影响后续运维。",
+          "suggested_revision": "补充具体服务水平条款：按故障等级明确响应时间和修复时限、可用性指标、未达标的服务扣款或补偿；并在服务期满前设置交接期，明确源代码、文档、配置、账号及数据的移交清单和验收方式。",
+          "evidence_ids": [
+            "mock-cf2238f9ee370f607f0b10e8"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "2a279cac42594ea5be729aa20d33a936",
+          "finding_kind": "missing_clause",
+          "clause_id": null,
+          "expected_clause": "合同应增设数据安全条款，明确供应商在处理设备运行数据、用户账号和生产信息时的具体目的、范围、最小必要访问权限、保存期限、服务期满或合同终止后的数据返还与彻底删除要求、安全事件报告时限，以及分包方接触数据时的同等安全义务和采购方追责机制。",
+          "category": "data_security",
+          "level": "high",
+          "reason": "合同为设备运维技术服务，供应商在质保和运维过程中很可能接触设备运行数据、用户账号及生产信息，但现有条款完全未约定数据处理目的、访问权限、保存期限、返还删除、安全事件报告或分包方责任。一旦发生数据滥用、泄露或服务结束后数据未删除，采购方无法依据合同要求供应商停止处理、通知、赔偿或追责，可能面临数据合规风险和业务损失。",
+          "suggested_revision": "增加专门的数据安全条款：供应商仅可为履行运维服务目的处理数据，并应遵循最小权限原则；未经采购方书面同意不得用于其他目的或向第三方披露；涉及分包方的须事先书面同意并承担连带责任；明确数据保存期限，合同终止或服务期满后按采购方要求返还或彻底删除全部数据；发生数据泄露或安全事件应在24小时内书面通知采购方，并说明影响、处置和补救措施；因供应商或其分包方原因造成数据泄露的，由供应商承担全部责任和损失。",
+          "evidence_ids": [
+            "mock-af800b18ed246eee9f016068"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:payment",
+          "finding_id": "848a121c29444f808fc95a0a422b6fcf",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        },
+        {
+          "match_key": "missing_clause:data_security",
+          "finding_id": "2a279cac42594ea5be729aa20d33a936",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": null,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [
+        "clause_risk:acceptance#e2b6af9af57b4b658d1832a67bc086d3",
+        "clause_risk:liability#15d33f8ef5c3440398ff7ef0a8f72657",
+        "clause_risk:support#19e6377ca6314add8f4fa09fd703d0b3"
+      ],
+      "metrics": {
+        "expected_count": 2,
+        "predicted_count": 5,
+        "true_positive": 2,
+        "false_positive": 3,
+        "false_negative": 0,
+        "precision": 0.4,
+        "recall": 1.0,
+        "f1": 0.5714,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "data-service-contract",
+      "title": "数据服务合同数据安全不充分",
+      "predicted_findings": [
+        {
+          "finding_id": "e45ad3f661da4ca48acd46ba4e5af40a",
+          "finding_kind": "clause_risk",
+          "clause_id": "data-service-contract-clause-003",
+          "expected_clause": null,
+          "category": "acceptance",
+          "level": "medium",
+          "reason": "第二条虽提及测试标准、整改、复验和书面验收报告，但未在合同中具体约定测试标准内容、测试材料、整改期限和复验程序。若乙方交付成果是否达标发生争议，采购方难以依据客观标准主张验收不通过或要求限期整改，可能被迫接受不合格成果，并影响后续付款条件的判断。",
+          "suggested_revision": "在合同附件中明确测试标准、测试用例或材料、整改期限及复验程序；约定验收未通过时乙方应在约定期限内完成整改并重新申请验收，复验仍不合格的，甲方有权拒收、暂扣或追回相应阶段款项。",
+          "evidence_ids": [
+            "mock-8d8ff5c08e9977a8d982d6de"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "bf1da8a28a674b54881c261472fc5343",
+          "finding_kind": "clause_risk",
+          "clause_id": "data-service-contract-clause-005",
+          "expected_clause": null,
+          "category": "liability",
+          "level": "high",
+          "reason": "该条款仅笼统约定乙方延期交付或存在质量缺陷时承担违约责任和赔偿责任，甲方有权解除合同，但未约定违约金计算方式、赔偿范围、退款机制、解除合同的具体触发条件和补救程序。采购方在发生延期或质量缺陷时缺乏可执行的救济标准。",
+          "suggested_revision": "建议补充：延期交付按日计算的违约金比例及上限；质量缺陷的修复、更换、减价或退款机制；赔偿范围及责任限制例外；甲方解除合同的具体情形、书面通知和补救期，以及解除后的费用结算和已付款项退还安排。",
+          "evidence_ids": [
+            "mock-2861fb5f571b5537507b33ba"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "8ec11c744e3c4abcb6648858b0999b85",
+          "finding_kind": "clause_risk",
+          "clause_id": "data-service-contract-clause-006",
+          "expected_clause": null,
+          "category": "support",
+          "level": "high",
+          "reason": "条款仅表述为“明确故障响应、修复时间及服务期满后的文档移交”，但合同并未实际约定故障等级、响应和修复时限、逾期后果或移交文档范围。采购方在运维服务不达标时难以依据合同约束供应商。",
+          "suggested_revision": "建议明确运维服务等级：故障分级及对应响应时间、修复时限、未达标时的服务补偿或扣款；并约定质保期满后的源代码、配置文档、操作手册、数据及账户权限移交清单和交接验收要求。",
+          "evidence_ids": [
+            "mock-cf2238f9ee370f607f0b10e8"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "00f5642948b74230b1cdd2323289385b",
+          "finding_kind": "clause_risk",
+          "clause_id": "data-service-contract-clause-007",
+          "expected_clause": null,
+          "category": "data_security",
+          "level": "high",
+          "reason": "该条仅要求乙方“注意保护甲方数据”，并将具体措施留待双方协商，未明确数据处理范围、访问权限、最小权限原则、保存期限、返还删除要求、安全事件报告时限及分包方责任。供应商一旦接触设备运行数据、用户账号或生产信息，采购方缺乏可执行的合同约束，难以在数据被超范围使用、长期留存或泄露时及时追责。",
+          "suggested_revision": "明确乙方处理数据的目的仅限于履行合同，列出涉及的数据类别和访问人员范围并遵循最小权限原则；约定数据保存期限、服务结束或合同终止后的返还或删除义务及书面证明要求；约定安全事件发生后的固定通知时限和补救责任；未经采购方事先书面同意不得将数据处理分包给第三方，分包方应承担同等数据安全义务，乙方承担连带责任。",
+          "evidence_ids": [
+            "mock-af800b18ed246eee9f016068"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:data_security",
+          "finding_id": "00f5642948b74230b1cdd2323289385b",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [
+        "clause_risk:acceptance#e45ad3f661da4ca48acd46ba4e5af40a",
+        "clause_risk:liability#bf1da8a28a674b54881c261472fc5343",
+        "clause_risk:support#8ec11c744e3c4abcb6648858b0999b85"
+      ],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 4,
+        "true_positive": 1,
+        "false_positive": 3,
+        "false_negative": 0,
+        "precision": 0.25,
+        "recall": 1.0,
+        "f1": 0.4,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "low-support-gap",
+      "title": "运维服务响应时限缺失",
+      "predicted_findings": [
+        {
+          "finding_id": "935047dbabf240f6975c69843afdec2b",
+          "finding_kind": "clause_risk",
+          "clause_id": "low-support-gap-clause-006",
+          "expected_clause": null,
+          "category": "support",
+          "level": "medium",
+          "reason": "该条款仅约定一年质保期，故障响应时间和修复时间均为“另行约定”，未形成可执行的服务水平标准。质保期内发生系统故障时，采购方无法依据合同要求供应商在明确时限内响应和修复，可能导致业务长期中断。",
+          "suggested_revision": "明确故障等级、响应时限、修复时限、可用性指标和未达标救济措施，避免将关键服务水平条款留待另行约定。",
+          "evidence_ids": [
+            "mock-cf2238f9ee370f607f0b10e8"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "2f5b6684eb5b44b39006a6a3a8ac2bb5",
+          "finding_kind": "missing_clause",
+          "clause_id": null,
+          "expected_clause": "合同应约定质保期届满或服务终止前后的资料、文档、配置、账号权限、数据镜像及知识转移要求，确保采购方具备独立运维或平滑切换条件。",
+          "category": "support",
+          "level": "medium",
+          "reason": "完整合同未实质覆盖服务退出和资料移交安排。质保期届满后，供应商可能不提供后续支持，采购方若未取得完整的部署文档、配置说明、运维手册或系统权限，将难以接管系统或更换服务商。",
+          "suggested_revision": "增加服务退出条款，要求供应商在服务终止前完成技术资料、源代码、配置文件、测试数据、账号权限的移交，并安排必要的知识转移和过渡期支持。",
+          "evidence_ids": [
+            "mock-cf2238f9ee370f607f0b10e8"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "98b114479cb44d1683855d408ecb2e7a",
+          "finding_kind": "clause_risk",
+          "clause_id": "low-support-gap-clause-005",
+          "expected_clause": null,
+          "category": "liability",
+          "level": "medium",
+          "reason": "该条款仅笼统约定延期交付或质量缺陷时承担违约责任和赔偿责任、甲方有权解除合同，但未明确违约金计算方式、赔偿范围、解除条件及解除后已付款项返还或退款。触发违约时，采购方难以快速执行救济，可能陷入对损失范围和解除程序的争议。",
+          "suggested_revision": "补充延期交付按日违约金、质量缺陷修复和赔偿标准、可解除合同的具体情形，以及解除后已付款返还、直接损失赔偿和费用分担等条款。",
+          "evidence_ids": [
+            "mock-2861fb5f571b5537507b33ba"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "7122255a755b46c08658484b33bd61e6",
+          "finding_kind": "clause_risk",
+          "clause_id": "low-support-gap-clause-007",
+          "expected_clause": null,
+          "category": "data_security",
+          "level": "medium",
+          "reason": "第六条数据安全条款仅有原则性表述，未明确数据处理目的、范围、最小权限、保存期限、返还删除方式与期限、安全事件报告时限及分包方责任。供应商接触设备运行数据、用户账号和生产信息时，采购方难以执行审计、追责和违约认定。",
+          "suggested_revision": "补充可执行的数据安全义务：列明数据类别与处理目的，限定访问权限和最小必要范围，约定保存期限及合同终止后的返还/删除方式和时限，设定安全事件报告时限与通知内容，要求分包方承担同等数据安全义务，并明确违约责任。",
+          "evidence_ids": [
+            "mock-af800b18ed246eee9f016068"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:support",
+          "finding_id": "935047dbabf240f6975c69843afdec2b",
+          "expected_level": "low",
+          "predicted_level": "medium",
+          "level_matched": false,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [
+        "missing_clause:support#2f5b6684eb5b44b39006a6a3a8ac2bb5",
+        "clause_risk:liability#98b114479cb44d1683855d408ecb2e7a",
+        "clause_risk:data_security#7122255a755b46c08658484b33bd61e6"
+      ],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 4,
+        "true_positive": 1,
+        "false_positive": 3,
+        "false_negative": 0,
+        "precision": 0.25,
+        "recall": 1.0,
+        "f1": 0.4,
+        "level_accuracy": 0.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "missing-liability-support",
+      "title": "缺违约责任与运维服务条款",
+      "predicted_findings": [
+        {
+          "finding_id": "7300b116d6c344b69d071d17913d88dc",
+          "finding_kind": "missing_clause",
+          "clause_id": null,
+          "expected_clause": "合同应设置违约与解除条款，明确延期交付、质量缺陷、数据泄露、知识产权侵权等情形的违约责任，包括违约金或赔偿计算方式、采购方解除合同的具体条件以及退款或恢复安排。",
+          "category": "liability",
+          "level": "high",
+          "reason": "现有条款仅涉及付款、验收、知识产权和数据安全，未对延期交付、质量缺陷、损害赔偿、解除和退款作出任何约定。一旦乙方交付延迟或整改后仍不达标，采购方缺乏明确的违约金、赔偿、解除权及退款依据，追责和止损能力被显著削弱。",
+          "suggested_revision": "新增违约责任与解除条款，列明可触发的违约情形，设置按延期天数计算的违约金或替代赔偿机制；约定质量缺陷造成甲方损失时乙方应承担赔偿责任；明确甲方在重大违约、限期内未整改或无法通过验收等情形下有权解除合同并要求退款、恢复费用，同时合理设置责任上限及其除外情形。",
+          "evidence_ids": [
+            "mock-2861fb5f571b5537507b33ba"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "0993088ce5354af1a24faf29095bbd17",
+          "finding_kind": "missing_clause",
+          "clause_id": null,
+          "expected_clause": "合同应增加质保与运维支持条款，明确质保期限、故障等级、响应时间和修复时间，以及服务期结束后数据、文档和系统权限的移交安排。",
+          "category": "support",
+          "level": "high",
+          "reason": "合同仅约定质保期满支付尾款，但未定义质保期起止、故障分级、响应和修复时限、售后支持方式，也未约定服务退出时的资料和系统移交。系统上线后若发生故障或服务终止，采购方无法要求供应商在特定期限内修复或完成交接，可能导致业务中断和运维失控。",
+          "suggested_revision": "增加质保与运维条款，明确免费质保期限及起算点，按故障严重程度约定响应和修复时限；约定未达到服务水平的扣款、延长质保或采购方解除权；要求质保期或服务期结束前供应商完成源代码、接口文档、配置说明、数据及账号权限的完整移交。",
+          "evidence_ids": [
+            "mock-cf2238f9ee370f607f0b10e8"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "0b2887d1b3aa444898cd7bfade2c1493",
+          "finding_kind": "clause_risk",
+          "clause_id": "missing-liability-support-clause-005",
+          "expected_clause": null,
+          "category": "data_security",
+          "level": "medium",
+          "reason": "第四条仅笼统约定乙方承担数据安全和保密义务、限制数据访问范围并返还或删除数据，但未明确设备运行数据、用户账号和生产信息的使用目的、访问权限、最小必要范围、保存期限、删除或返还方式与时限、安全事件报告时限及分包方责任。供应商实际处理敏感生产信息时，采购方缺乏可执行的数据安全约束，发生超范围使用、超期留存或泄露时难以追究具体违约。",
+          "suggested_revision": "明确数据范围包括设备运行数据、用户账号和生产信息；限定供应商仅可为履行合同目的处理数据，遵循最小权限；约定访问控制措施、保存期限、合同结束后的返还或不可恢复删除方式和时限；增加安全事件通知时限、补救义务和违约责任；要求供应商对其分包方承担同等数据安全义务。",
+          "evidence_ids": [
+            "mock-af800b18ed246eee9f016068"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "missing_clause:liability",
+          "finding_id": "7300b116d6c344b69d071d17913d88dc",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": null,
+          "has_citation": true,
+          "citation_source_matched": true
+        },
+        {
+          "match_key": "missing_clause:support",
+          "finding_id": "0993088ce5354af1a24faf29095bbd17",
+          "expected_level": "medium",
+          "predicted_level": "high",
+          "level_matched": false,
+          "location_matched": null,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [
+        "clause_risk:data_security#0b2887d1b3aa444898cd7bfade2c1493"
+      ],
+      "metrics": {
+        "expected_count": 2,
+        "predicted_count": 3,
+        "true_positive": 2,
+        "false_positive": 1,
+        "false_negative": 0,
+        "precision": 0.6667,
+        "recall": 1.0,
+        "f1": 0.8,
+        "level_accuracy": 0.5,
+        "location_accuracy": null,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    }
+  ],
+  "aggregate_metrics": {
+    "expected_count": 26,
+    "predicted_count": 103,
+    "true_positive": 26,
+    "false_positive": 77,
+    "false_negative": 0,
+    "precision": 0.2524,
+    "recall": 1.0,
+    "f1": 0.4031,
+    "level_accuracy": 0.8077,
+    "location_accuracy": 1.0,
+    "citation_coverage": 1.0,
+    "source_matched_rate": 1.0
+  }
+}
