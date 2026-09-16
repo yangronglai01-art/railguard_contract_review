@@ -551,6 +551,8 @@ data/runtime/evaluations/deepseek-v4-pro-v1.1-report.json
 
 ### 阶段C：合同领域微调模型
 
+微调前的数据隔离规则记录在 `data/evaluation/dataset-governance-v1.json`。现有21例已经参与提示词开发和阶段A/B分析，被冻结为开发基准集，不得作为阶段C最终无偏指标。训练集、验证集和held-out测试集必须使用独立案例ID，并通过自动互斥校验。
+
 领域微调使用DeepSeek开放权重模型，在独立GPU环境中执行监督微调，采用LoRA或QLoRA方式训练。
 
 微调完成后，通过支持JSON Schema的OpenAI兼容推理服务部署。以下为部署后的配置示例，推理服务需单独建设：

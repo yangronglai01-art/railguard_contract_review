@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0.0",
+  "partitions": [
+    {
+      "partition_id": "contract-review-development-v1",
+      "role": "development_benchmark",
+      "status": "frozen",
+      "dataset_path": "data/evaluation/contract-review-v1.json",
+      "dataset_sha256": "ee4cde5ec5356f1a34e45cf2d8ead4b1c7d4f03d4ea6754efeb331526ce188ae",
+      "case_ids": [
+        "demo-six-risks", "complete-safe-contract", "literal-payment-risk",
+        "literal-acceptance-risk", "paraphrased-payment-risk",
+        "negated-payment-safe", "weak-intellectual-property",
+        "weak-data-security", "weak-support-clause", "weak-liability-clause",
+        "paraphrased-acceptance-risk", "weak-payment-clause",
+        "weak-acceptance-clause", "negated-acceptance-safe",
+        "missing-support-only", "missing-ip-only", "multi-payment-acceptance",
+        "tech-service-multi-risk", "data-service-contract", "low-support-gap",
+        "missing-liability-support"
+      ],
+      "used_for_prompt_tuning": true,
+      "eligible_for_final_metrics": false,
+      "notes": "已用于规则、DeepSeek基线和prompt v2开发，只能作为开发基准。"
+    },
+    {
+      "partition_id": "contract-review-sft-train-v1",
+      "role": "sft_train",
+      "status": "planned",
+      "dataset_path": "data/training/sft-train-v1.json",
+      "case_ids": [],
+      "notes": "待独立构造和标注，不得复制开发基准案例。"
+    },
+    {
+      "partition_id": "contract-review-sft-validation-v1",
+      "role": "sft_validation",
+      "status": "planned",
+      "dataset_path": "data/training/sft-validation-v1.json",
+      "case_ids": [],
+      "notes": "用于训练期间选择checkpoint和超参数。"
+    },
+    {
+      "partition_id": "contract-review-held-out-test-v1",
+      "role": "held_out_test",
+      "status": "planned",
+      "dataset_path": "data/evaluation/held-out-test-v1.json",
+      "case_ids": [],
+      "eligible_for_final_metrics": true,
+      "notes": "冻结前不得用于提示词调优、训练或错误分析。"
+    }
+  ]
+}
