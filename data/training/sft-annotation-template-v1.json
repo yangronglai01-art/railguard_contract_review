@@ -1,0 +1,28 @@
+{
+  "example_id": "replace-with-stable-id",
+  "split": "sft_train",
+  "agent_name": "commercial_risk_agent",
+  "source": {
+    "origin": "synthetic",
+    "created_by": "replace-with-annotator-id",
+    "license_or_authorization": "project-owned-synthetic-data",
+    "deidentified": true
+  },
+  "contract": {
+    "contract_id": "replace-with-contract-id",
+    "filename": "replace-with-filename.txt",
+    "full_text": "replace-with-contract-text",
+    "clauses": []
+  },
+  "evidence_by_clause": {},
+  "contract_evidence": [],
+  "target": {
+    "findings": []
+  },
+  "quality": {
+    "annotator": "replace-with-annotator-id",
+    "reviewer": "replace-with-reviewer-id",
+    "review_status": "draft",
+    "notes": ""
+  }
+}
