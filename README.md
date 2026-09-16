@@ -602,6 +602,8 @@ DeepSeek云API模型与领域微调模型之间的结果用于比较不同模型
 
 ### 开发检查
 
+GitHub Actions会在推送到 `main` 或创建Pull Request时使用Python 3.11执行Ruff、全量测试和Docker镜像构建。CI固定使用离线 `mock` 模式，不读取真实模型密钥，也不会产生外部模型调用费用。
+
 执行Ruff：
 
 ```powershell
