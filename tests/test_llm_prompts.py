@@ -115,6 +115,7 @@ def test_system_prompt_contains_role_and_security_boundaries() -> None:
     assert "不能猜测、改写或拼接" in prompt
     assert "clause_risk" in prompt
     assert "missing_clause" in prompt
+    assert "CITATION_CONSTRAINTS" in prompt
     assert "payment, acceptance" in prompt
     assert PROMPT_VERSION in prompt
 
@@ -174,6 +175,17 @@ def test_user_payload_preserves_contract_and_evidence_scope() -> None:
     assert evidence_data["contract_evidence"][0][
         "evidence_id"
     ] == "evidence-support-01"
+
+    constraints = payload["CITATION_CONSTRAINTS"]
+    assert constraints[
+        "clause_risk_allowed_evidence_ids"
+    ][payment_clause.clause_id] == [
+        "evidence-payment-01",
+        "evidence-support-01",
+    ]
+    assert constraints[
+        "missing_clause_allowed_evidence_ids"
+    ] == ["evidence-support-01"]
 
 
 def test_user_prompt_keeps_injection_text_inside_json_data() -> None:

@@ -79,13 +79,13 @@ async def test_mock_rag_respects_top_k_and_stable_order() -> None:
     assert len(first_result) == 2
     assert len(second_result) == 2
 
-    # evidence_id每次都会重新生成，因此只比较稳定的业务字段。
+    # 同一知识片段使用稳定ID，便于跨检索范围校验引用。
     first_signature = [
-        (item.document_id, item.source, item.score)
+        (item.evidence_id, item.document_id, item.source, item.score)
         for item in first_result
     ]
     second_signature = [
-        (item.document_id, item.source, item.score)
+        (item.evidence_id, item.document_id, item.source, item.score)
         for item in second_result
     ]
 

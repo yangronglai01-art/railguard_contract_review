@@ -376,6 +376,9 @@ async def test_analyzer_filters_evidence_from_another_category() -> None:
 
     assert len(findings) == 1
     assert findings[0].evidence_ids == []
+    assert findings[0].rejected_evidence_ids == [
+        "evidence-payment-01"
+    ]
 
 
 async def test_analyzer_rejects_duplicate_findings() -> None:

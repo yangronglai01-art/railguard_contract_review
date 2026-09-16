@@ -14,7 +14,7 @@ from railguard.models.schemas import (
 )
 
 # 提示词版本会写入后续评测元数据。
-PROMPT_VERSION = "contract-risk-v1"
+PROMPT_VERSION = "contract-risk-v2"
 
 
 @dataclass(frozen=True, slots=True)
@@ -117,9 +117,12 @@ def build_system_prompt(
         "4. missing_clause仅在完整合同没有实质覆盖该事项时"
         "使用，clause_id返回null，并说明expected_clause。"
         "已有空洞条款应使用clause_risk。\n"
-        "5. evidence只是候选依据，不自动证明结论。只引用"
-        "与风险直接相关且位于允许范围内的真实evidence_id；"
-        "没有支持证据时返回空evidence_ids。\n"
+        "5. evidence只是候选依据，不自动证明结论。必须按照"
+        "CITATION_CONSTRAINTS中的白名单逐字选择evidence_id；"
+        "clause_risk使用对应clause_id的白名单，missing_clause"
+        "使用missing_clause_allowed_evidence_ids。还必须保证证据"
+        "metadata.category与风险category一致。没有支持证据时返回"
+        "空evidence_ids。\n"
         "6. reason应说明对采购方的损害和触发条件；"
         "suggested_revision应给出可执行的采购方保护措施。\n"
         "7. 没有范围内风险时，显式返回空findings列表。\n\n"
@@ -142,6 +145,18 @@ def evidence_payload(
         "score": evidence.score,
         "metadata": evidence.metadata,
     }
+
+
+def _unique_evidence_ids(
+    evidence_items: Sequence[Evidence],
+) -> list[str]:
+    """按输入顺序返回不重复的证据ID白名单。"""
+    return list(
+        dict.fromkeys(
+            evidence.evidence_id
+            for evidence in evidence_items
+        )
+    )
 
 
 def build_user_payload(
@@ -178,6 +193,21 @@ def build_user_payload(
         }
         for clause in contract.clauses
     ]
+    contract_evidence_ids = _unique_evidence_ids(
+        contract_evidence
+    )
+    clause_risk_allowlist = {
+        clause.clause_id: _unique_evidence_ids(
+            tuple(
+                evidence_by_clause.get(
+                    clause.clause_id,
+                    (),
+                )
+            )
+            + tuple(contract_evidence)
+        )
+        for clause in contract.clauses
+    }
 
     return {
         "review_context": {
@@ -196,6 +226,14 @@ def build_user_payload(
                 evidence_payload(evidence)
                 for evidence in contract_evidence
             ],
+        },
+        "CITATION_CONSTRAINTS": {
+            "clause_risk_allowed_evidence_ids": (
+                clause_risk_allowlist
+            ),
+            "missing_clause_allowed_evidence_ids": (
+                contract_evidence_ids
+            ),
         },
     }
 

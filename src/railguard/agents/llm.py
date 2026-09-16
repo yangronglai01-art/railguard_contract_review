@@ -294,24 +294,20 @@ class LlmRiskAnalyzer:
             contract_evidence=contract_evidence,
         )
 
-        # 过滤证据引用：丢弃不存在、越界或类别不匹配的ID，并去重。
-        # 单条幻觉引用不废弃整个风险发现；引用质量由后续
-        # verify_citations节点统一标记为source_matched或unsupported。
+        # 保留被拒绝的引用ID，使模型幻觉在不中断整单审核时
+        # 仍然能够被后续节点、接口和人工审核完整追溯。
         filtered_evidence_ids: list[str] = []
+        rejected_evidence_ids: list[str] = []
 
         for evidence_id in candidate.evidence_ids:
-            if evidence_id in filtered_evidence_ids:
-                continue
-
             evidence = allowed_evidence.get(evidence_id)
 
-            if evidence is None:
-                continue
-
             if (
-                evidence.metadata.get("category")
+                evidence is None
+                or evidence.metadata.get("category")
                 != candidate.category
             ):
+                rejected_evidence_ids.append(evidence_id)
                 continue
 
             filtered_evidence_ids.append(evidence_id)
@@ -328,6 +324,7 @@ class LlmRiskAnalyzer:
                 candidate.suggested_revision.strip()
             ),
             evidence_ids=filtered_evidence_ids,
+            rejected_evidence_ids=rejected_evidence_ids,
         )
 
     @staticmethod

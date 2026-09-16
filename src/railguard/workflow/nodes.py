@@ -21,6 +21,9 @@ from railguard.workflow.state import (
     ReviewState,
 )
 
+# 引用校验策略版本写入正式评测元数据。
+CITATION_VALIDATOR_VERSION = "citation-validator-v2"
+
 
 class WorkflowProtocolError(RuntimeError):
     """审核流程收到不符合内部协议的数据。"""
@@ -257,39 +260,47 @@ class ReviewNodes:
                 finding=finding,
             )
 
-            # 过滤证据引用：丢弃未知、越界、类别不匹配或重复的ID。
-            # 引用验证的目标是标记引用质量，而不是因单条幻觉引用
-            # 废弃整个风险发现。
+            # 过滤无效引用但保留被拒绝ID，兼顾服务韧性和审计。
             valid_evidence_ids: list[str] = []
+            rejected_evidence_ids = list(
+                dict.fromkeys(finding.rejected_evidence_ids)
+            )
+
+            seen_evidence_ids = set(rejected_evidence_ids)
 
             for evidence_id in finding.evidence_ids:
-                if evidence_id in valid_evidence_ids:
+                if evidence_id in seen_evidence_ids:
+                    rejected_evidence_ids.append(evidence_id)
                     continue
 
+                seen_evidence_ids.add(evidence_id)
                 evidence = allowed_evidence.get(evidence_id)
 
-                if evidence is None:
-                    continue
-
                 if (
-                    evidence.metadata.get("category")
+                    evidence is None
+                    or evidence.metadata.get("category")
                     != finding.category
                 ):
+                    rejected_evidence_ids.append(evidence_id)
                     continue
 
                 valid_evidence_ids.append(evidence_id)
 
-            citation_status = (
-                "source_matched"
-                if valid_evidence_ids
-                else "unsupported"
-            )
+            if valid_evidence_ids and rejected_evidence_ids:
+                citation_status = "partially_matched"
+            elif valid_evidence_ids:
+                citation_status = "source_matched"
+            else:
+                citation_status = "unsupported"
 
             verified_findings.append(
                 finding.model_copy(
                     update={
                         "citation_status": citation_status,
                         "evidence_ids": valid_evidence_ids,
+                        "rejected_evidence_ids": (
+                            rejected_evidence_ids
+                        ),
                     }
                 )
             )

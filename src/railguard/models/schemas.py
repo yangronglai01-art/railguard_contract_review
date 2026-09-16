@@ -222,8 +222,12 @@ class RiskFinding(SchemaModel):
     # 建议替换或补充的合同文本。
     suggested_revision: str | None = None
 
-    # 支撑本项风险判断的RAG证据片段ID。
+    # 通过引用验证、能够支撑本项风险的RAG证据片段ID。
     evidence_ids: list[str] = Field(default_factory=list)
+
+    # 模型曾返回但未通过范围或类别校验的证据ID。
+    # 保留这些ID用于审计模型幻觉，不将其作为有效证据展示。
+    rejected_evidence_ids: list[str] = Field(default_factory=list)
 
     # 引用状态：
     #
@@ -233,6 +237,9 @@ class RiskFinding(SchemaModel):
     # source_matched：
     #     引用ID和证据原文可以匹配，但不表示法律适用必然正确。
     #
+    # partially_matched：
+    #     至少一项引用合法，但模型还返回了被拒绝的引用ID。
+    #
     # unsupported：
     #     找不到能够支持当前结论的证据。
     #
@@ -241,6 +248,7 @@ class RiskFinding(SchemaModel):
     citation_status: Literal[
         "pending",
         "source_matched",
+        "partially_matched",
         "unsupported",
         "not_required",
     ] = "pending"

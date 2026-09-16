@@ -48,6 +48,7 @@ CATEGORY_LABELS = {
 CITATION_LABELS = {
     "pending": "等待验证",
     "source_matched": "来源已匹配",
+    "partially_matched": "部分引用被拒绝",
     "unsupported": "证据不足",
     "not_required": "无需外部引用",
 }
@@ -448,6 +449,16 @@ def render_finding(
             "引用状态："
             f"{CITATION_LABELS.get(citation_status, citation_status)}"
         )
+
+        rejected_evidence_ids = finding.get(
+            "rejected_evidence_ids",
+            [],
+        )
+        if rejected_evidence_ids:
+            st.warning(
+                "模型返回了未通过校验的证据ID："
+                + "、".join(rejected_evidence_ids)
+            )
 
         render_evidence(
             finding.get("evidence_ids", []),

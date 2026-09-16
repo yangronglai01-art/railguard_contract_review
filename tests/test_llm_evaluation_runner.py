@@ -129,6 +129,7 @@ async def test_llm_evaluation_reuses_all_dataset_cases() -> None:
         "model_provider": "openai",
         "model_name": "contract-base-model",
         "prompt_version": "contract-risk-v1",
+        "validator_version": "citation-validator-v2",
     }
     assert len(report.case_results) == 21
     assert report.aggregate_metrics.expected_count == 26
@@ -243,6 +244,7 @@ async def test_rules_baseline_records_reproducible_metadata() -> None:
         "model_provider": "mock",
         "model_name": "deterministic_rules",
         "prompt_version": "not_applicable",
+        "validator_version": "citation-validator-v2",
     }
     assert metrics.true_positive == 13
     assert metrics.false_positive == 2

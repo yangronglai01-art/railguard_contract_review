@@ -129,6 +129,52 @@ class InvalidClauseAnalyzer:
         ]
 
 
+class PartiallyInvalidCitationAnalyzer:
+    """同时返回合法和越权证据ID的测试风险Agent。"""
+
+    name = "partially_invalid_citation_agent"
+
+    async def analyze(
+        self,
+        *,
+        contract: ContractDocument,
+        evidence_by_clause: Mapping[
+            str,
+            Sequence[Evidence],
+        ],
+        contract_evidence: Sequence[Evidence],
+    ) -> list[RiskFinding]:
+        """构造一条部分匹配引用，验证审计信息不会丢失。"""
+        del contract_evidence
+
+        payment_clause = next(
+            clause
+            for clause in contract.clauses
+            if "付款" in clause.title
+        )
+        valid_evidence = next(
+            evidence
+            for evidence in evidence_by_clause[
+                payment_clause.clause_id
+            ]
+            if evidence.metadata.get("category") == "payment"
+        )
+
+        return [
+            RiskFinding(
+                finding_kind="clause_risk",
+                clause_id=payment_clause.clause_id,
+                category="payment",
+                level="high",
+                reason="付款安排缺少与验收结果的约束。",
+                evidence_ids=[
+                    valid_evidence.evidence_id,
+                    "hallucinated-evidence-id",
+                ],
+            )
+        ]
+
+
 async def test_complete_contract_finishes_without_interrupt() -> None:
     """验证没有风险时跳过人工审核并直接完成。"""
     graph = build_review_graph(
@@ -251,3 +297,36 @@ async def test_analyzer_cannot_reference_unknown_clause() -> None:
                 "contract": create_demo_contract(),
             }
         )
+
+
+async def test_partial_citation_match_preserves_rejected_ids() -> None:
+    """验证合法引用可继续使用，同时记录越权引用供人工审计。"""
+    graph = build_review_graph(
+        retriever=create_retriever(),
+        commercial_analyzer=PartiallyInvalidCitationAnalyzer(),
+        checkpointer=InMemorySaver(),
+    )
+
+    result = await graph.ainvoke(
+        {
+            "review_id": "review-partial-citation",
+            "contract": create_demo_contract(),
+        },
+        config={
+            "configurable": {
+                "thread_id": "review-partial-citation",
+            }
+        },
+    )
+
+    finding = next(
+        finding
+        for finding in result["findings"]
+        if finding.reason == "付款安排缺少与验收结果的约束。"
+    )
+
+    assert finding.citation_status == "partially_matched"
+    assert len(finding.evidence_ids) == 1
+    assert finding.rejected_evidence_ids == [
+        "hallucinated-evidence-id"
+    ]

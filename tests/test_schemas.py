@@ -65,6 +65,7 @@ def test_missing_clause_does_not_require_a_source_anchor() -> None:
 
     # 新风险尚未经过引用验证，初始状态应为pending。
     assert finding.citation_status == "pending"
+    assert finding.rejected_evidence_ids == []
 
 
 def test_existing_clause_risk_requires_a_source_anchor() -> None:

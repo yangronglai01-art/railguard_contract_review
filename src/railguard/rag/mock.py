@@ -4,6 +4,7 @@ Mock检索器读取演示知识库，根据人工配置的关键词进行确定�
 它用于本地演示和自动化测试，不模拟真实的向量相似度检索。
 """
 
+from hashlib import sha256
 from pathlib import Path
 from typing import Self
 
@@ -169,7 +170,17 @@ class MockRagRetriever:
         }
         metadata["retrieval_mode"] = "mock"
 
+        identity = (
+            f"{hit.document_id}\x1f{hit.source}\x1f"
+            f"{hit.content}"
+        )
+        evidence_id = (
+            "mock-"
+            + sha256(identity.encode("utf-8")).hexdigest()[:24]
+        )
+
         return Evidence(
+            evidence_id=evidence_id,
             document_id=hit.document_id,
             title=hit.title,
             content=hit.content,

@@ -21,6 +21,17 @@ RailGuard AI 是一个面向生产制造企业采购方的多 Agent 合同审核
 
 企业、合同、审核规则和业务数据均为虚构或合成内容。本项目参考制造业公开业务模式，不代表与任何真实企业存在合作或授权关系。
 
+## 设计参考与原创性说明
+
+RailGuard代码为独立实现，以下开源项目用于架构和产品思路参考：
+
+- [ClauseIQ](https://github.com/Pulkitgupta17/ClauseIQ)：多Agent合同分析、检索、风险识别、引用验证和评测思路。
+- [Box Contract Review Agent](https://github.com/box-community/contract-review-agent)：合同审核工作台、结构化报告和人工批准/退回/拒绝交互。
+- [LangChain ADLC Workshop](https://github.com/langchain-samples/langchain-adlc-workshop)：构建、追踪、评测、部署、监控和持续改进方法。
+- [LangGraph](https://github.com/langchain-ai/langgraph)：状态图、并行节点、人工中断和checkpoint恢复技术基础。
+
+这些链接表示设计参考，不表示复制其代码。引入外部代码前必须单独核对对应许可证。
+
 ## 当前功能
 
 - DOCX和文本型PDF合同上传
@@ -390,7 +401,7 @@ data/evaluation/contract-review-v1.json
 默认报告输出到：
 
 ```text
-data/runtime/evaluations/rules-v1-report.json
+data/runtime/evaluations/rules-v1.1-report.json
 ```
 
 当前规则基线结果：
@@ -431,7 +442,7 @@ MODEL_MAX_RETRIES=2
 MODEL_MAX_INPUT_CHARS=120000
 ```
 
-DeepSeek模式使用Responses API，通过 `text.format` 发送命名JSON Schema。本地使用完整JSON解析，并继续校验必填字段、风险分类、条款ID和证据引用权限。
+DeepSeek模式使用Responses API，通过 `text.format` 发送命名JSON Schema。prompt v2向模型提供机器可读引用白名单；本地继续校验必填字段、风险分类、条款ID和证据引用权限，并保留所有被拒绝的引用ID用于审计。
 
 协议参考：[DeepSeek Responses API](https://api-docs.deepseek.com/api/create-response/)。
 
@@ -449,18 +460,30 @@ DeepSeek模式使用Responses API，通过 `text.format` 发送命名JSON Schema
 运行DeepSeek模型评测：
 
 ```powershell
-& ".\.venv\Scripts\python.exe" -m railguard.evaluation --target llm --system-name deepseek_base_llm --output data/runtime/evaluations/deepseek-v4-pro-v1-report.json
+& ".\.venv\Scripts\python.exe" -m railguard.evaluation --target llm --system-name deepseek_base_llm --output data/runtime/evaluations/deepseek-v4-pro-v1.1-report.json
 ```
 
 21个案例分别调用商务、法务和数据安全三个Agent，因此完整评测预计产生63次模型调用。发生临时故障时，SDK重试可能增加实际请求次数。
 
+先运行单个案例验证协议：
+
+```powershell
+& ".\.venv\Scripts\python.exe" -m railguard.evaluation --target llm --system-name deepseek_base_llm --case-id demo-six-risks --output data/runtime/evaluations/deepseek-v4-pro-v1.1-report.json
+```
+
+每完成一个案例，报告都会原子写入磁盘。中断后使用相同实验配置恢复：
+
+```powershell
+& ".\.venv\Scripts\python.exe" -m railguard.evaluation --target llm --system-name deepseek_base_llm --resume --output data/runtime/evaluations/deepseek-v4-pro-v1.1-report.json
+```
+
 报告保存到：
 
 ```text
-data/runtime/evaluations/deepseek-v4-pro-v1-report.json
+data/runtime/evaluations/deepseek-v4-pro-v1.1-report.json
 ```
 
-当前DeepSeek通用模型结果：
+历史探索结果（旧版11例、prompt v1和citation validator v1）：
 
 | 指标 | 结果 |
 |---|---:|
@@ -477,7 +500,7 @@ data/runtime/evaluations/deepseek-v4-pro-v1-report.json
 | 已匹配风险引用覆盖率 | 100.00% |
 | 已匹配风险来源匹配率 | 100.00% |
 
-与规则基线对比：
+与同一旧版11例规则基线对比：
 
 | 指标 | 规则基线 | DeepSeek通用模型 |
 |---|---:|---:|
@@ -491,6 +514,7 @@ data/runtime/evaluations/deepseek-v4-pro-v1-report.json
 - 精确率仅 21.21%：11 份合同产生 66 条风险，其中 52 条为误报，存在明显过度报警
 - 通用大模型倾向“宁滥勿缺”，对完整安全条款和否定表达仍会报风险
 - 这正是阶段C领域微调的动机：在保持高召回的同时提升精确率
+- 该报告不能代表当前21例、prompt v2和validator v2的正式阶段B结果
 
 修改 `.env` 后需要重新启动本机后端；Docker部署需要重新创建API容器，使环境变量生效。
 
@@ -533,7 +557,8 @@ DeepSeek云API模型与领域微调模型之间的结果用于比较不同模型
 - `system_name`
 - `model_provider`
 - `model_name`
-- `prompt_version`
+- `prompt_version` 和 `validator_version`
+- Git commit、工作区状态、数据集哈希和RAG语料哈希
 - 数据集名称和版本
 - 每个案例的预测结果和匹配明细
 - 总体精确率、召回率、F1、等级、定位和引用指标
@@ -580,11 +605,11 @@ Starlette产生的一项AnyIO弃用警告来自第三方依赖。
 
 ### 引用验证代表什么
 
-每项风险引用的证据都会经过存在性、来源范围和风险类别三重校验。无效的幻觉引用会被过滤并标记为 `unsupported`，而不会因为单条错误引用废弃整个风险发现。`source_matched` 表示风险引用的证据ID、来源范围和风险分类全部匹配。法律规则的适用性和最终审核决定由专业人员确认。
+每项风险引用的证据都会经过存在性、来源范围和风险类别三重校验。无效引用不会中断整单审核，但会完整保存在 `rejected_evidence_ids` 中。全部引用合法时标记为 `source_matched`；同时存在合法和被拒绝引用时标记为 `partially_matched`；没有合法引用时标记为 `unsupported`。法律规则的适用性和最终审核决定由专业人员确认。
 
 ## 当前限制
 
-- 已完成阶段A规则基线和阶段B DeepSeek通用模型的21份案例正式离线评测，以及三个模型Agent、人工中断和checkpoint恢复的完整审核闭环
+- 已完成阶段A的21例规则基线；阶段B已有11例历史探索结果，21例prompt v2正式评测尚未运行；三个模型Agent、人工中断和checkpoint恢复闭环已验证
 - 尚未完成领域监督微调训练和阶段C正式评测
 - 评测集为21份合成合同和26项标签，规模仍然偏小，且为合成数据
 - Mock知识库内容为合成数据
@@ -596,9 +621,10 @@ Starlette产生的一项AnyIO弃用警告来自第三方依赖。
 
 ## 后续计划
 
-1. 基于阶段B的52条误报分析，构建针对性的监督微调训练集（负例采样与难例挖掘）。
-2. 选择开放权重底座，生成未微调模型的领域基线。
-3. 完成合同领域微调，并对比同一底座微调前后的结果。
-4. 扩充人工标注数据，并升级到严格条款级匹配指标。
-5. 接入真实RAG服务，记录知识库版本和语料哈希。
-6. 增加OCR、身份认证、审计日志、监控告警和备份策略。
+1. 在21例固定数据集上完成阶段B prompt v2正式评测并保存可追溯报告。
+2. 从阶段B误报总结难例模式，另建与最终测试集隔离的训练集和开发集，避免评测泄漏。
+3. 选择开放权重底座，生成未微调模型的领域基线。
+4. 完成合同领域微调，并在冻结的held-out测试集上对比同一底座微调前后的结果。
+5. 扩充人工标注数据，并升级到严格条款级匹配指标。
+6. 接入真实RAG服务，记录知识库版本和语料哈希。
+7. 增加OCR、身份认证、审计日志、监控告警和备份策略。

@@ -94,13 +94,13 @@ def test_parser_keeps_rules_default_and_selects_output_paths() -> None:
         rules_arguments
     ) == Path(
         "data/runtime/evaluations/"
-        "rules-v1-report.json"
+        "rules-v1.1-report.json"
     )
     assert cli_module.resolve_output_path(
         llm_arguments
     ) == Path(
         "data/runtime/evaluations/"
-        "base-llm-v1-report.json"
+        "base-llm-v1.1-report.json"
     )
     assert cli_module.resolve_output_path(
         explicit_arguments
@@ -291,10 +291,20 @@ async def test_llm_cli_uses_config_and_saves_safe_report(
     )
 
     assert report.system_name == system_name
-    assert report.system_metadata == {
-        "model_provider": model_provider,
-        "model_name": model_name,
-        "prompt_version": "contract-risk-v1",
+    assert report.system_metadata["model_provider"] == model_provider
+    assert report.system_metadata["model_name"] == model_name
+    assert report.system_metadata["prompt_version"] == (
+        "contract-risk-v2"
+    )
+    assert report.system_metadata["validator_version"] == (
+        "citation-validator-v2"
+    )
+    assert len(report.system_metadata["dataset_sha256"]) == 64
+    assert len(report.system_metadata["rag_corpus_sha256"]) == 64
+    assert report.system_metadata["git_commit"]
+    assert report.system_metadata["worktree_dirty"] in {
+        "true",
+        "false",
     }
 
     # 报告元数据只记录实验条件，不写入访问凭证和网关地址。
