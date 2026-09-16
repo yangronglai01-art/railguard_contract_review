@@ -1,5 +1,6 @@
 """大模型供应商客户端和三个专业风险Agent的创建工厂。"""
 
+import asyncio
 import json
 from collections.abc import Sequence
 from dataclasses import dataclass
@@ -42,8 +43,13 @@ class RiskAnalyzerSet:
 class _DeepSeekAnalysisInvoker:
     """使用DeepSeek Responses协议返回风险分析JSON的调用器。"""
 
-    def __init__(self, chat_model: ChatOpenAI) -> None:
-        """绑定输出Schema并创建本地文本解析器。"""
+    def __init__(
+        self,
+        chat_model: ChatOpenAI,
+        *,
+        response_max_retries: int,
+    ) -> None:
+        """绑定输出Schema并配置响应协议重试次数。"""
         # Responses协议使用text.format，而不是Chat Completions的
         # response_format；Schema来自现有Pydantic业务模型。
         # 只发送DeepSeek公开文档定义的type、name和schema字段。
@@ -57,24 +63,31 @@ class _DeepSeekAnalysisInvoker:
             }
         )
         self._parser = StrOutputParser()
+        self._response_max_retries = response_max_retries
 
     async def ainvoke(
         self,
         messages: Sequence[BaseMessage],
     ) -> object:
         """调用模型、解析JSON，并区分网络故障和响应格式错误。"""
-        # 服务连接和请求异常由上层LlmRiskAnalyzer统一处理。
-        response = await self._model.ainvoke(messages)
+        for attempt in range(self._response_max_retries + 1):
+            # 服务连接和请求异常继续交给SDK自身的重试策略。
+            response = await self._model.ainvoke(messages)
 
-        try:
-            # 文本解析器支持Responses返回的文本内容块。
-            # json.loads要求完整合法的JSON，不自动修复截断结果。
-            return json.loads(self._parser.invoke(response))
-        except (json.JSONDecodeError, TypeError) as exc:
-            # 空响应或非法JSON属于响应错误，不能误报为服务不可用。
-            raise LlmResponseError(
-                "DeepSeek returned an invalid JSON response"
-            ) from exc
+            try:
+                # json.loads要求完整合法JSON，不自动修复截断结果。
+                return json.loads(self._parser.invoke(response))
+            except (json.JSONDecodeError, TypeError) as exc:
+                if attempt >= self._response_max_retries:
+                    # 空响应或非法JSON属于响应错误，不能误报为不可用。
+                    raise LlmResponseError(
+                        "DeepSeek returned an invalid JSON response"
+                    ) from exc
+
+                # 对协议瞬时故障做短退避，避免立即重复冲击服务。
+                await asyncio.sleep(min(2**attempt, 4))
+
+        raise AssertionError("unreachable response retry state")
 
 
 def _normalize_model_arguments(
@@ -241,6 +254,9 @@ def create_deepseek_risk_analyzers(
     # JSON解析完成后，LlmRiskAnalyzer仍会严格验证必填字段、
     # 风险分类、条款定位和证据引用权限。
     return _create_analyzer_set(
-        invoker=_DeepSeekAnalysisInvoker(chat_model),
+        invoker=_DeepSeekAnalysisInvoker(
+            chat_model,
+            response_max_retries=max_retries,
+        ),
         max_input_chars=max_input_chars,
     )

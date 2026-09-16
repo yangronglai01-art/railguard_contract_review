@@ -3,6 +3,7 @@
 import json
 from collections.abc import Sequence
 from typing import ClassVar, Self
+from unittest.mock import AsyncMock
 
 import httpx
 import pytest
@@ -39,6 +40,14 @@ class FakeChatOpenAI:
         str | list[str | dict]
     ] = '{"findings": []}'
 
+    # 可选的连续响应，用于验证协议失败后的再次调用。
+    response_sequence: ClassVar[
+        list[str | list[str | dict]]
+    ] = []
+
+    # 记录模型实际调用次数。
+    invocation_count: ClassVar[int] = 0
+
     # 用于模拟模型服务调用失败。
     invocation_error: ClassVar[
         Exception | None
@@ -60,8 +69,15 @@ class FakeChatOpenAI:
         """返回模拟模型消息，或抛出预设的服务调用异常。"""
         del messages
 
+        type(self).invocation_count += 1
+
         if self.invocation_error is not None:
             raise self.invocation_error
+
+        if self.response_sequence:
+            return AIMessage(
+                content=self.response_sequence.pop(0)
+            )
 
         return AIMessage(content=self.response_content)
 
@@ -74,6 +90,8 @@ def fake_chat_openai(
     FakeChatOpenAI.created_kwargs = None
     FakeChatOpenAI.bound_kwargs = None
     FakeChatOpenAI.response_content = '{"findings": []}'
+    FakeChatOpenAI.response_sequence = []
+    FakeChatOpenAI.invocation_count = 0
     FakeChatOpenAI.invocation_error = None
 
     monkeypatch.setattr(
@@ -163,6 +181,7 @@ async def test_text_content_blocks_are_parsed(
     analyzers = create_deepseek_risk_analyzers(
         model_name="deepseek-v4-pro",
         api_key="deepseek-test-key",
+        max_retries=0,
     )
 
     findings = await analyzers.commercial.analyze(
@@ -192,6 +211,7 @@ async def test_invalid_json_is_reported_as_response_error(
     analyzers = create_deepseek_risk_analyzers(
         model_name="deepseek-v4-pro",
         api_key="deepseek-test-key",
+        max_retries=0,
     )
 
     with pytest.raises(
@@ -203,6 +223,34 @@ async def test_invalid_json_is_reported_as_response_error(
             evidence_by_clause={},
             contract_evidence=[],
         )
+
+
+async def test_invalid_json_is_retried_with_backoff(
+    fake_chat_openai: type[FakeChatOpenAI],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """验证瞬时空响应会退避重试并接受后续合法JSON。"""
+    fake_chat_openai.response_sequence = [
+        "",
+        '{"findings": []}',
+    ]
+    sleep = AsyncMock()
+    monkeypatch.setattr(provider_module.asyncio, "sleep", sleep)
+    analyzers = create_deepseek_risk_analyzers(
+        model_name="deepseek-v4-pro",
+        api_key="deepseek-test-key",
+        max_retries=1,
+    )
+
+    findings = await analyzers.commercial.analyze(
+        contract=create_test_contract(),
+        evidence_by_clause={},
+        contract_evidence=[],
+    )
+
+    assert findings == []
+    assert fake_chat_openai.invocation_count == 2
+    sleep.assert_awaited_once_with(1)
 
 
 async def test_valid_json_still_requires_business_schema(

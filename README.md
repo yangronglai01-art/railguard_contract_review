@@ -447,6 +447,8 @@ MODEL_MAX_INPUT_CHARS=120000
 
 DeepSeek模式使用Responses API，通过 `text.format` 发送命名JSON Schema。prompt v2向模型提供机器可读引用白名单；本地继续校验必填字段、风险分类、条款ID和证据引用权限，并保留所有被拒绝的引用ID用于审计。
 
+`MODEL_MAX_RETRIES` 同时作为SDK临时连接故障和DeepSeek空响应/非法JSON的最大重试次数。响应协议重试采用短指数退避；超过次数后仍返回结构化响应错误，供服务层和评测断点恢复处理。
+
 协议参考：[DeepSeek Responses API](https://api-docs.deepseek.com/api/create-response/)。
 
 
