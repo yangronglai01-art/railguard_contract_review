@@ -183,6 +183,39 @@ def test_level_and_location_are_scored_separately() -> None:
     ]
 
 
+def test_missing_clause_is_excluded_from_location_accuracy() -> None:
+    """验证缺失条款建议的同义措辞不计入原文定位指标。"""
+    contract = create_contract()
+    missing_only_case = EvaluationCase(
+        case_id="missing-security",
+        title="缺失数据安全条款",
+        filename=contract.filename,
+        contract_text=contract.full_text,
+        expected_findings=[
+            ExpectedFinding(
+                category="data_security",
+                finding_kind="missing_clause",
+                level="high",
+                expected_clause_contains="数据安全",
+            )
+        ],
+    )
+    semantically_equivalent = create_security_finding()
+    semantically_equivalent.expected_clause = (
+        "供应商应承担信息保护、访问控制和数据删除义务。"
+    )
+
+    result = evaluate_case(
+        evaluation_case=missing_only_case,
+        contract=contract,
+        predicted_findings=[semantically_equivalent],
+    )
+
+    assert result.metrics.true_positive == 1
+    assert result.matches[0].location_matched is None
+    assert result.metrics.location_accuracy is None
+
+
 def test_duplicate_prediction_is_counted_as_false_positive() -> None:
     """验证两个同类预测只能与一项人工标签匹配一次。"""
     contract = create_contract()

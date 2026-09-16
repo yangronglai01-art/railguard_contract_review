@@ -6,6 +6,7 @@ from pathlib import Path
 from langgraph.checkpoint.memory import InMemorySaver
 
 from railguard.evaluation.metrics import (
+    EVALUATION_METRICS_VERSION,
     build_evaluation_report,
     evaluate_case,
 )
@@ -234,6 +235,7 @@ async def run_rules_evaluation(
             "model_name": "deterministic_rules",
             "prompt_version": "not_applicable",
             "validator_version": CITATION_VALIDATOR_VERSION,
+            "metrics_version": EVALUATION_METRICS_VERSION,
             **dict(experiment_metadata or {}),
         },
         case_ids=case_ids,
@@ -263,6 +265,7 @@ async def run_llm_evaluation(
         "model_name": model_name.strip(),
         "prompt_version": prompt_version.strip(),
         "validator_version": CITATION_VALIDATOR_VERSION,
+        "metrics_version": EVALUATION_METRICS_VERSION,
         **dict(experiment_metadata or {}),
     }
     if any(not value.strip() for value in metadata.values()):

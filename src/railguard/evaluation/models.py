@@ -182,8 +182,8 @@ class FindingMatch(SchemaModel):
     # 风险等级是否与人工标注一致。
     level_matched: bool
 
-    # 条款原文或缺失条款名称是否匹配。
-    location_matched: bool
+    # 已有条款风险的原文位置是否匹配；缺失条款不适用。
+    location_matched: bool | None
 
     # 风险是否至少引用了一项证据。
     has_citation: bool

@@ -17,6 +17,9 @@ from railguard.models.schemas import (
     RiskFinding,
 )
 
+# 指标版本用于区分缺失条款定位口径调整前后的报告。
+EVALUATION_METRICS_VERSION = "evaluation-metrics-v2"
+
 
 def normalize_text(text: str) -> str:
     """统一大小写并移除空白，降低格式差异对匹配的影响。"""
@@ -36,8 +39,12 @@ def location_matches(
     expected: ExpectedFinding,
     predicted: RiskFinding,
     clause_by_id: dict[str, str],
-) -> bool:
-    """检查预测风险是否能够定位到人工标注的原文位置。"""
+) -> bool | None:
+    """检查已有条款风险是否定位到人工标注的原文位置。
+
+    缺失条款在合同原文中没有可定位位置，因此返回None，
+    避免把建议条款的同义措辞误算成原文定位错误。
+    """
     if expected.finding_kind == "clause_risk":
         clause_id = predicted.clause_id
 
@@ -56,13 +63,7 @@ def location_matches(
             in normalize_text(clause_text)
         )
 
-    expected_clause = expected.expected_clause_contains or ""
-    predicted_clause = predicted.expected_clause or ""
-
-    return (
-        normalize_text(expected_clause)
-        in normalize_text(predicted_clause)
-    )
+    return None
 
 
 def divide_or_zero(
@@ -147,10 +148,13 @@ def build_metrics(
         ),
         location_accuracy=optional_rate(
             sum(
-                match.location_matched
+                match.location_matched is True
                 for match in matches
             ),
-            true_positive,
+            sum(
+                match.location_matched is not None
+                for match in matches
+            ),
         ),
         citation_coverage=optional_rate(
             sum(
@@ -196,7 +200,8 @@ def select_prediction(
                 expected=expected,
                 predicted=predictions[index],
                 clause_by_id=clause_by_id,
-            ),
+            )
+            is True,
             predictions[index].level
             == expected.level,
             -index,

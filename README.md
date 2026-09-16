@@ -560,7 +560,7 @@ DeepSeek云API模型与领域微调模型之间的结果用于比较不同模型
 - `system_name`
 - `model_provider`
 - `model_name`
-- `prompt_version` 和 `validator_version`
+- `prompt_version`、`validator_version` 和 `metrics_version`
 - Git commit、工作区状态、数据集哈希和RAG语料哈希
 - 数据集名称和版本
 - 每个案例的预测结果和匹配明细
@@ -568,7 +568,7 @@ DeepSeek云API模型与领域微调模型之间的结果用于比较不同模型
 
 报告不保存API密钥或模型网关地址。运行报告属于本地评测产物。
 
-当前精确率、召回率和F1使用 `finding_kind:category` 进行一对一匹配，表示风险类别识别指标。是否定位到正确条款由原文定位准确率单独计算，当前F1不属于严格的条款级F1。
+当前精确率、召回率和F1使用 `finding_kind:category` 进行一对一匹配，表示风险类别识别指标。原文定位准确率只统计 `clause_risk` 是否定位到包含人工标注片段的真实合同条款；`missing_clause` 在原文中没有可定位位置，因此不进入该指标分母。当前F1不属于严格的条款级F1。
 
 `source_matched` 表示证据ID、检索范围和风险分类一致，不表示证据已经证明法律结论正确。
 
