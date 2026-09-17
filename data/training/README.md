@@ -2,6 +2,10 @@
 
 本目录用于阶段C监督微调的数据准备。当前只提交规范和空白模板，不包含训练样本，也不启动训练。
 
+可执行校验位于 `src/railguard/training/models.py`，JSONL读取和训练消息导出位于
+`src/railguard/training/exporter.py`。导出器直接复用线上系统提示词、用户输入构造器和
+结构化输出模型；只有已复核、已去标识且通过职责与证据约束的记录能够导出。
+
 ## 数据隔离
 
 - `data/evaluation/contract-review-v1.json` 的21例已经用于提示词开发和阶段A/B分析，只能作为开发基准。
