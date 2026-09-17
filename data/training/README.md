@@ -6,6 +6,14 @@
 `src/railguard/training/exporter.py`。导出器直接复用线上系统提示词、用户输入构造器和
 结构化输出模型；只有已复核、已去标识且通过职责与证据约束的记录能够导出。
 
+```powershell
+python -m railguard.training validate --input data/training/annotations.jsonl
+python -m railguard.training export --input data/training/annotations.jsonl `
+  --split sft_train --output data/runtime/training/sft-train-messages.jsonl
+```
+
+导出文件属于运行时产物，不应提交到Git；终端摘要只显示计数和路径，不回显合同正文。
+
 ## 数据隔离
 
 - `data/evaluation/contract-review-v1.json` 的21例已经用于提示词开发和阶段A/B分析，只能作为开发基准。
