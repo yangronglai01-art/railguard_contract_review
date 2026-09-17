@@ -1,0 +1,82 @@
+{
+  "hits": [
+    {
+      "document_id": "demo-baus-procurement-guide-v1",
+      "title": "高端装备制造信息化采购合同审查指引（合成演示数据）",
+      "content": "ERP、MES、QMS、质量追溯或试验数据平台采购合同，应将付款与需求确认、接口联调、数据迁移、试运行和最终验收结果挂钩。除经审批的合理预付款外，不应在核心功能交付和验收前支付全部合同价款，并应保留质保金或尾款。",
+      "source": "第四条 付款与里程碑",
+      "score": null,
+      "metadata": {
+        "category": "payment",
+        "document_type": "synthetic_demo_policy",
+        "version": "baus-demo-1",
+        "keywords": "付款,合同款,预付款,里程碑,尾款,质保金,验收"
+      }
+    },
+    {
+      "document_id": "demo-baus-procurement-guide-v1",
+      "title": "高端装备制造信息化采购合同审查指引（合成演示数据）",
+      "content": "验收条款应明确功能清单、ERP与MES及QMS接口、批次追溯、压力流量温度和泄漏试验数据、报表准确性、数据迁移结果、整改期限和复验程序。不得仅以系统上线、试运行经过一定时间或采购方未提出异议视为验收合格。",
+      "source": "第六条 验收与复验",
+      "score": null,
+      "metadata": {
+        "category": "acceptance",
+        "document_type": "synthetic_demo_policy",
+        "version": "baus-demo-1",
+        "keywords": "验收,异议,上线,试运行,测试,整改,复验,合格,追溯"
+      }
+    },
+    {
+      "document_id": "demo-baus-procurement-guide-v1",
+      "title": "高端装备制造信息化采购合同审查指引（合成演示数据）",
+      "content": "合同应明确定制功能源代码、接口文档、数据模型、报表模板、部署脚本和二次开发成果的知识产权及使用权归属，并列明第三方软件许可；供应商应对未经授权使用第三方成果造成的侵权承担责任。",
+      "source": "第八条 知识产权与交付物",
+      "score": null,
+      "metadata": {
+        "category": "intellectual_property",
+        "document_type": "synthetic_demo_policy",
+        "version": "baus-demo-1",
+        "keywords": "知识产权,著作权,源代码,定制开发,接口文档,数据模型,第三方,侵权"
+      }
+    },
+    {
+      "document_id": "demo-baus-security-guide-v1",
+      "title": "供应商远程运维与生产数据安全规范（合成演示数据）",
+      "content": "供应商接触生产订单、工艺参数、设备运行数据、试验数据、用户账号或图纸资料时，应限定处理目的和数据范围，采用最小权限及限时账号，记录远程运维操作，并约定保存期限、返还删除要求、分包限制和安全事件报告时限。",
+      "source": "第三条 生产数据处理要求",
+      "score": null,
+      "metadata": {
+        "category": "data_security",
+        "document_type": "synthetic_demo_policy",
+        "version": "baus-demo-1",
+        "keywords": "数据,账号,安全,保密,权限,删除,泄露,生产,工艺,远程运维"
+      }
+    },
+    {
+      "document_id": "demo-baus-procurement-guide-v1",
+      "title": "高端装备制造信息化采购合同审查指引（合成演示数据）",
+      "content": "合同应明确质保期限、故障等级、响应时间、修复时间、生产中断应急措施、备份恢复、知识转移，以及服务期结束后的账号、数据、技术文档和运维工具移交安排。",
+      "source": "第十条 运维、质保与退出",
+      "score": null,
+      "metadata": {
+        "category": "support",
+        "document_type": "synthetic_demo_policy",
+        "version": "baus-demo-1",
+        "keywords": "维护,运维,质保,故障,响应,修复,服务期,移交,生产中断"
+      }
+    },
+    {
+      "document_id": "demo-baus-procurement-guide-v1",
+      "title": "高端装备制造信息化采购合同审查指引（合成演示数据）",
+      "content": "合同应明确延期交付、质量缺陷、接口失败、数据迁移错误、生产数据泄露和知识产权侵权的违约责任，并约定整改、赔偿、退款以及采购方解除合同的具体条件。",
+      "source": "第十二条 违约、赔偿与解除",
+      "score": null,
+      "metadata": {
+        "category": "liability",
+        "document_type": "synthetic_demo_policy",
+        "version": "baus-demo-1",
+        "keywords": "违约,赔偿,解除,延期,缺陷,责任,泄露,侵权,接口,数据迁移"
+      }
+    }
+  ]
+}

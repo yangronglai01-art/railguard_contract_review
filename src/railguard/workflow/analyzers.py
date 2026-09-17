@@ -294,8 +294,8 @@ class DemoSecurityRiskAnalyzer:
     ) -> list[RiskFinding]:
         """检查合同是否约定供应商的数据安全义务。
 
-        当前项目面向设备监测平台采购，因此供应商可能接触
-        设备运行数据、账号和生产信息。
+        当前项目面向高端装备制造企业的信息化与系统集成采购，
+        供应商可能接触设备运行数据、工艺参数、账号和生产信息。
         """
         if _contains_any(
             contract.full_text,

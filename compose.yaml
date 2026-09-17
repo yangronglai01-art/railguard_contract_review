@@ -28,7 +28,7 @@ services:
       RAG_BASE_URL: "${DOCKER_RAG_BASE_URL:-http://host.docker.internal:8001}"
       RAG_API_KEY: "${RAG_API_KEY:-}"
       RAG_TIMEOUT_SECONDS: "${RAG_TIMEOUT_SECONDS:-10}"
-      RAG_MOCK_CORPUS_PATH: "/app/data/demo/rag-corpus.json"
+      RAG_MOCK_CORPUS_PATH: "/app/data/demo/rag-corpus-baus-v1.json"
 
       DATABASE_PATH: "/app/data/runtime/railguard.db"
       CHECKPOINT_PATH: "/app/data/runtime/review-checkpoints.sqlite3"

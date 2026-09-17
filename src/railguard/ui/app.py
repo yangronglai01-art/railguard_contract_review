@@ -178,13 +178,16 @@ def render_sidebar(client: RailGuardApiClient) -> None:
     """展示系统说明、后端地址和连接检查入口。"""
     with st.sidebar:
         st.title("RailGuard")
-        st.caption("采购方合同风险审核工作台")
+        st.caption(
+            "宁波鲍斯能源装备 · 合同风险审核工作台"
+        )
 
         st.divider()
         st.write("当前演示范围")
         st.markdown(
             """
-            - 软件采购与技术服务合同
+            - 软件、ERP、MES与QMS实施合同
+            - 生产设备、系统集成与运维服务合同
             - 商务、法务和数据安全Agent
             - RAG证据引用与来源验证
             - 人工确认、驳回和修改决定
@@ -219,7 +222,8 @@ def render_header() -> None:
     """展示审核工作台标题和业务说明。"""
     st.title("合同智能审核工作台")
     st.write(
-        "上传采购合同，由三个专业Agent并行识别风险，"
+        "面向高端装备制造企业的采购合同，"
+        "由三个专业Agent并行识别风险，"
         "再由人工审核人确认最终处理结果。"
     )
 

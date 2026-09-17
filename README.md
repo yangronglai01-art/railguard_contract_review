@@ -8,7 +8,7 @@ RailGuard AI 是一个面向生产制造企业采购方的多 Agent 合同审核
 
 ## 业务背景
 
-系统服务于虚构企业“河北恒岳轨道装备有限公司”，以采购方立场审核设备监测平台软件采购与技术服务合同。
+系统采用“宁波鲍斯能源装备股份有限公司”的虚构企业设定，以采购方立场审核软件采购、ERP/MES/QMS实施、生产设备、系统集成、运维服务及数据托管合同。
 
 演示重点包括：
 
@@ -19,7 +19,9 @@ RailGuard AI 是一个面向生产制造企业采购方的多 Agent 合同审核
 - 每项风险能否定位到合同原文并关联知识库证据
 - 人工审核人能否保留或驳回单项风险
 
-企业、合同、审核规则和业务数据均为虚构或合成内容。本项目参考制造业公开业务模式，不代表与任何真实企业存在合作或授权关系。
+企业组织、合同、审核规则和业务数据均为虚构或合成内容。业务背景参考宁波压缩机、真空设备、液压元件和高端装备制造行业的公开信息，不代表与任何真实企业存在合作、授权或项目关系。
+
+演示企业约有1000～2000名员工、多个生产基地和20人数字化部门，其中4人AI应用专项组负责合同审核、企业知识库和智能问数。RailGuard是该两年AI平台规划中的合同智能审核子项目，技术名称和代码包名称保持不变。
 
 ## 设计参考与原创性说明
 
@@ -144,8 +146,10 @@ risk_agent     risk_agent       risk_agent
 railguard-contract-review/
 ├── data/
 │   └── demo/
-│       ├── rag-corpus.json
-│       └── software-purchase-demo.docx
+│       ├── rag-corpus-baus-v1.json
+│       ├── baus-quality-traceability-demo.docx
+│       ├── rag-corpus.json                  # 冻结评测复现资产
+│       └── software-purchase-demo.docx       # 冻结评测复现资产
 ├── src/railguard/
 │   ├── api/            # FastAPI接口及依赖管理
 │   ├── models/         # 合同、条款、证据和风险模型
@@ -293,7 +297,7 @@ DOCKER_RAG_BASE_URL=http://host.docker.internal:8001
 当 `RAG_MODE=http` 时，`DOCKER_RAG_BASE_URL` 表示API容器访问外部RAG服务的地址。
 
 1. 打开Streamlit人工审核工作台。
-2. 上传 `data/demo/software-purchase-demo.docx`。
+2. 上传 `data/demo/baus-quality-traceability-demo.docx`。
 3. 查看解析后的合同条款和原文位置。
 4. 启动多Agent审核。
 5. 查看三个Agent产生的风险、修改建议和RAG证据。
@@ -301,7 +305,9 @@ DOCKER_RAG_BASE_URL=http://host.docker.internal:8001
 7. 选择整体通过、退回修改或拒绝合同。
 8. 提交决定并查看最终审核摘要。
 
-当前演示合同会稳定产生付款、验收、知识产权、违约责任、运维服务和数据安全等风险，便于重复演示完整流程。
+当前演示合同以生产质量追溯与试验数据管理平台采购为背景，会稳定产生付款、验收、知识产权、违约责任、运维服务和生产数据安全等风险，便于重复演示完整流程。
+
+新的企业演示默认使用 `rag-corpus-baus-v1.json`。原有 `rag-corpus.json` 和 `software-purchase-demo.docx` 继续保留，用于复现已经冻结的离线评测基线；本次场景适配不修改 `data/evaluation/` 中的数据集和正式报告。
 
 ## API接口
 
@@ -337,10 +343,10 @@ data/runtime/review-checkpoints.sqlite3
 
 ```dotenv
 RAG_MODE=mock
-RAG_MOCK_CORPUS_PATH=data/demo/rag-corpus.json
+RAG_MOCK_CORPUS_PATH=data/demo/rag-corpus-baus-v1.json
 ```
 
-该模式使用合成审核规则，结果稳定，适合开发、自动化测试和面试演示。
+该模式使用适配高端装备制造采购场景的合成审核规则，结果稳定，适合开发、自动化测试和面试演示。
 
 ### 外部HTTP模式
 

@@ -76,7 +76,7 @@ class Settings(BaseSettings):
 
     # 本地Mock模式使用的演示知识库文件。
     rag_mock_corpus_path: Path = Path(
-        "data/demo/rag-corpus.json"
+        "data/demo/rag-corpus-baus-v1.json"
     )
 
     # 保存合同资料的SQLite业务数据库路径。
