@@ -8,6 +8,7 @@ from pydantic import Field, model_validator
 from railguard.evaluation.provenance import sha256_file
 from railguard.evaluation.runner import load_evaluation_dataset
 from railguard.models.schemas import SchemaModel
+from railguard.training.exporter import load_sft_annotations
 
 PartitionRole = Literal[
     "development_benchmark",
@@ -16,6 +17,7 @@ PartitionRole = Literal[
     "held_out_test",
 ]
 PartitionStatus = Literal["frozen", "planned"]
+DatasetFormat = Literal["evaluation_json", "sft_jsonl"]
 
 
 class DatasetPartition(SchemaModel):
@@ -24,6 +26,7 @@ class DatasetPartition(SchemaModel):
     partition_id: str = Field(min_length=1)
     role: PartitionRole
     status: PartitionStatus
+    data_format: DatasetFormat = "evaluation_json"
     dataset_path: str = Field(min_length=1)
     dataset_sha256: str | None = None
     case_ids: list[str] = Field(default_factory=list)
@@ -94,7 +97,18 @@ def verify_frozen_partition(
     if sha256_file(dataset_path) != partition.dataset_sha256:
         raise ValueError("frozen dataset sha256 does not match")
 
-    dataset = load_evaluation_dataset(dataset_path)
-    case_ids = [case.case_id for case in dataset.cases]
+    if partition.data_format == "evaluation_json":
+        dataset = load_evaluation_dataset(dataset_path)
+        case_ids = [case.case_id for case in dataset.cases]
+    else:
+        annotations = load_sft_annotations(dataset_path)
+        expected_split = partition.role
+        if expected_split not in {"sft_train", "sft_validation"}:
+            raise ValueError("SFT JSONL requires an SFT partition role")
+        for annotation in annotations:
+            annotation.require_training_ready()
+            if annotation.split != expected_split:
+                raise ValueError("SFT annotation split does not match partition")
+        case_ids = [annotation.example_id for annotation in annotations]
     if case_ids != partition.case_ids:
         raise ValueError("frozen dataset case_ids do not match")

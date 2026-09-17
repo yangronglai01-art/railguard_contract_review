@@ -20,6 +20,7 @@ python -m railguard.training export --input data/training/annotations.jsonl `
 - SFT训练集、SFT验证集和最终held-out测试集必须使用全新的合同案例和稳定案例ID。
 - 加载器会同时校验合同ID和合同正文SHA256；仅更换ID不能绕过训练集与验证集的内容防泄漏门禁。
 - 分区身份以 `data/evaluation/dataset-governance-v1.json` 为准；任何案例ID不得跨分区重复。
+- 治理清单使用 `data_format` 区分评测JSON与SFT JSONL；冻结SFT分区时会同时验证文件哈希、样本顺序、审批状态和记录内split。
 - held-out测试集冻结后，不得用于训练、提示词修改、错误分析或checkpoint选择。
 
 ## 一条标注记录

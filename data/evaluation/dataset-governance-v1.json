@@ -1,10 +1,11 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "partitions": [
     {
       "partition_id": "contract-review-development-v1",
       "role": "development_benchmark",
       "status": "frozen",
+      "data_format": "evaluation_json",
       "dataset_path": "data/evaluation/contract-review-v1.json",
       "dataset_sha256": "ee4cde5ec5356f1a34e45cf2d8ead4b1c7d4f03d4ea6754efeb331526ce188ae",
       "case_ids": [
@@ -26,7 +27,8 @@
       "partition_id": "contract-review-sft-train-v1",
       "role": "sft_train",
       "status": "planned",
-      "dataset_path": "data/training/sft-train-v1.json",
+      "data_format": "sft_jsonl",
+      "dataset_path": "data/training/sft-train-v1.jsonl",
       "case_ids": [],
       "notes": "待独立构造和标注，不得复制开发基准案例。"
     },
@@ -34,7 +36,8 @@
       "partition_id": "contract-review-sft-validation-v1",
       "role": "sft_validation",
       "status": "planned",
-      "dataset_path": "data/training/sft-validation-v1.json",
+      "data_format": "sft_jsonl",
+      "dataset_path": "data/training/sft-validation-v1.jsonl",
       "case_ids": [],
       "notes": "用于训练期间选择checkpoint和超参数。"
     },
@@ -42,6 +45,7 @@
       "partition_id": "contract-review-held-out-test-v1",
       "role": "held_out_test",
       "status": "planned",
+      "data_format": "evaluation_json",
       "dataset_path": "data/evaluation/held-out-test-v1.json",
       "case_ids": [],
       "eligible_for_final_metrics": true,
