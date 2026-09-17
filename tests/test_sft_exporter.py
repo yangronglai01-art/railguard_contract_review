@@ -74,6 +74,49 @@ def test_loader_reports_invalid_line_number(tmp_path: Path) -> None:
         load_sft_annotations(path)
 
 
+def test_loader_rejects_contract_content_across_splits(
+    tmp_path: Path,
+) -> None:
+    """验证更换ID不能掩盖训练集与验证集的合同正文泄漏。"""
+    training = create_annotation().model_dump()
+    validation = create_annotation().model_dump()
+    validation["example_id"] = "sft-safe-validation-001"
+    validation["contract"]["contract_id"] = "renamed-contract"
+    validation["split"] = "sft_validation"
+    path = tmp_path / "leaked-content.jsonl"
+    path.write_text(
+        "\n".join(
+            json.dumps(item, ensure_ascii=False)
+            for item in (training, validation)
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="content appears in multiple splits"):
+        load_sft_annotations(path)
+
+
+def test_loader_rejects_inconsistent_contract_identity(
+    tmp_path: Path,
+) -> None:
+    """验证同一合同ID不能在同一分区指向不同正文。"""
+    first = create_annotation().model_dump()
+    second = create_annotation().model_dump()
+    second["example_id"] = "sft-safe-002"
+    second["contract"]["full_text"] = "另一份不同的合成合同正文。"
+    path = tmp_path / "inconsistent-contract.jsonl"
+    path.write_text(
+        "\n".join(
+            json.dumps(item, ensure_ascii=False)
+            for item in (first, second)
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="maps to different content"):
+        load_sft_annotations(path)
+
+
 def test_export_reuses_production_prompts_and_target() -> None:
     """验证训练消息复用线上提示词并保留结构化目标。"""
     annotation = create_annotation()

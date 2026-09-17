@@ -1,5 +1,6 @@
 """监督微调标注文件的读取和可追溯消息导出。"""
 
+from hashlib import sha256
 from pathlib import Path
 from typing import Literal
 
@@ -42,9 +43,12 @@ class SftExportRecord(SchemaModel):
 
 
 def load_sft_annotations(path: Path) -> list[SftAnnotation]:
-    """逐行读取JSONL标注，并拒绝空文件和重复样本ID。"""
+    """逐行读取JSONL标注，并拒绝重复ID和跨分区合同泄漏。"""
     annotations: list[SftAnnotation] = []
     seen_ids: set[str] = set()
+    fingerprint_by_contract_id: dict[str, str] = {}
+    split_by_contract_id: dict[str, str] = {}
+    split_by_fingerprint: dict[str, str] = {}
 
     for line_number, raw_line in enumerate(
         path.read_text(encoding="utf-8-sig").splitlines(),
@@ -62,7 +66,37 @@ def load_sft_annotations(path: Path) -> list[SftAnnotation]:
             raise ValueError(
                 f"duplicate SFT example_id: {annotation.example_id}"
             )
+
+        contract_id = annotation.contract.contract_id
+        fingerprint = sha256(
+            annotation.contract.full_text.encode("utf-8")
+        ).hexdigest()
+        known_fingerprint = fingerprint_by_contract_id.get(contract_id)
+        if known_fingerprint is not None and known_fingerprint != fingerprint:
+            raise ValueError(
+                f"contract_id maps to different content: {contract_id}"
+            )
+
+        known_contract_split = split_by_contract_id.get(contract_id)
+        if (
+            known_contract_split is not None
+            and known_contract_split != annotation.split
+        ):
+            raise ValueError(
+                f"contract_id appears in multiple splits: {contract_id}"
+            )
+
+        known_content_split = split_by_fingerprint.get(fingerprint)
+        if (
+            known_content_split is not None
+            and known_content_split != annotation.split
+        ):
+            raise ValueError("contract content appears in multiple splits")
+
         seen_ids.add(annotation.example_id)
+        fingerprint_by_contract_id[contract_id] = fingerprint
+        split_by_contract_id[contract_id] = annotation.split
+        split_by_fingerprint[fingerprint] = annotation.split
         annotations.append(annotation)
 
     if not annotations:
