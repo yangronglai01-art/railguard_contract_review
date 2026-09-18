@@ -123,7 +123,7 @@ def test_export_reuses_production_prompts_and_target() -> None:
     record = build_sft_export_record(annotation)
 
     assert record.example_id == annotation.example_id
-    assert record.prompt_version == "contract-risk-v2"
+    assert record.prompt_version == "contract-risk-v3"
     assert [message.role for message in record.messages] == [
         "system",
         "user",

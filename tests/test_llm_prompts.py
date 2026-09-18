@@ -118,6 +118,10 @@ def test_system_prompt_contains_role_and_security_boundaries() -> None:
     assert "CITATION_CONSTRAINTS" in prompt
     assert "payment, acceptance" in prompt
     assert PROMPT_VERSION in prompt
+    assert "精确率优先" in prompt
+    assert "最低合格线" in prompt
+    assert "存在疑问时不报告" in prompt
+    assert "每个允许分类最多输出一项" in prompt
 
 
 def test_user_payload_preserves_contract_and_evidence_scope() -> None:

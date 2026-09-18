@@ -294,11 +294,14 @@ async def test_llm_cli_uses_config_and_saves_safe_report(
     assert report.system_metadata["model_provider"] == model_provider
     assert report.system_metadata["model_name"] == model_name
     assert report.system_metadata["prompt_version"] == (
-        "contract-risk-v2"
+        "contract-risk-v3"
     )
     assert report.system_metadata["validator_version"] == (
         "citation-validator-v2"
     )
+    assert report.system_metadata[
+        "precision_guardrail_version"
+    ] == "precision-guardrail-v1"
     assert len(report.system_metadata["dataset_sha256"]) == 64
     assert len(report.system_metadata["rag_corpus_sha256"]) == 64
     assert report.system_metadata["git_commit"]

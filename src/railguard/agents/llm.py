@@ -13,6 +13,10 @@ from langchain_core.messages import (
 )
 from pydantic import ValidationError
 
+from railguard.agents.guardrails import (
+    calibrated_risk_level,
+    risk_candidate_is_eligible,
+)
 from railguard.agents.models import (
     LlmRiskAnalysis,
     LlmRiskCandidate,
@@ -188,12 +192,35 @@ class LlmRiskAnalyzer:
 
             seen_candidates.add(candidate_key)
 
+            # 先执行既有协议校验，越权分类、伪造ID和非法引用
+            # 仍然必须报错，精确率护栏不能掩盖协议违规。
+            validated_finding = self._validate_and_convert_candidate(
+                candidate=candidate,
+                valid_clause_ids=valid_clause_ids,
+                evidence_by_clause=evidence_by_clause,
+                contract_evidence=contract_evidence,
+            )
+
+            # 本地护栏使用明确的最低合格线抑制最佳实践型误报。
+            # 被过滤的候选项没有进入业务结果，也不会中断整单审核。
+            if not risk_candidate_is_eligible(
+                contract=contract,
+                finding_kind=candidate.finding_kind,
+                clause_id=candidate.clause_id,
+                category=candidate.category,
+            ):
+                continue
+
             findings.append(
-                self._validate_and_convert_candidate(
-                    candidate=candidate,
-                    valid_clause_ids=valid_clause_ids,
-                    evidence_by_clause=evidence_by_clause,
-                    contract_evidence=contract_evidence,
+                validated_finding.model_copy(
+                    update={
+                        "level": calibrated_risk_level(
+                            contract=contract,
+                            finding_kind=candidate.finding_kind,
+                            clause_id=candidate.clause_id,
+                            category=candidate.category,
+                        )
+                    }
                 )
             )
 

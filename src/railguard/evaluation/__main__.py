@@ -4,6 +4,9 @@ import argparse
 import asyncio
 from pathlib import Path
 
+from railguard.agents.guardrails import (
+    PRECISION_GUARDRAIL_VERSION,
+)
 from railguard.agents.prompts import PROMPT_VERSION
 from railguard.agents.provider import (
     create_deepseek_risk_analyzers,
@@ -199,6 +202,9 @@ async def run_llm_target(
         "model_max_retries": str(active_settings.model_max_retries),
         "model_max_input_chars": str(
             active_settings.model_max_input_chars
+        ),
+        "precision_guardrail_version": (
+            PRECISION_GUARDRAIL_VERSION
         ),
         **git_metadata(Path.cwd()),
     }
