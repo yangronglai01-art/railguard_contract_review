@@ -1,0 +1,665 @@
+{
+  "dataset_name": "railguard-contract-review-held-out",
+  "version": "1.0.0",
+  "description": "采购方视角的软件采购与技术服务合同合成评测集（held-out 最终测试集），覆盖六类风险、完整负例、否定表达与多风险组合，用于最终无偏评测，不参与提示词调优或训练。",
+  "cases": [
+    {
+      "case_id": "ho-safe-mes-platform",
+      "title": "制造执行系统完整合同",
+      "filename": "ho-safe-mes-platform.txt",
+      "contract_text": "制造执行系统软件采购合同\n\n第一条 付款方式\n\n合同签订后支付20%，系统上线后支付30%，最终验收合格并经双方书面确认后支付45%，质保期满支付5%。\n\n第二条 验收\n\n双方依据招标文件确定的功能清单逐项测试，验收合格后由双方签署书面验收报告。\n\n第三条 知识产权\n\n系统源代码、设计文档及开发成果的知识产权归甲方所有，乙方保证不侵犯第三方权利并承担侵权责任。\n\n第四条 违约责任\n\n乙方延期交付或质量不符合约定的，承担违约责任并赔偿甲方损失，甲方有权解除合同。\n\n第五条 运维服务\n\n乙方提供两年质保期和运维服务，明确故障响应时间、修复时间及质保期满后的资料移交义务。\n\n第六条 数据安全\n\n乙方对甲方生产数据承担保密义务，采取访问控制措施，合同终止后按要求返还或销毁数据。",
+      "expected_findings": [],
+      "tags": [
+        "negative",
+        "complete",
+        "safe"
+      ],
+      "notes": "完整制造执行系统合同上的误报衡量，覆盖六类条款。"
+    },
+    {
+      "case_id": "ho-full-prepay-traceability",
+      "title": "质量追溯平台全额预付",
+      "filename": "ho-full-prepay-traceability.txt",
+      "contract_text": "生产质量追溯平台采购合同\n\n第一条 项目内容\n\n乙方为甲方建设生产质量追溯平台，实现生产批次和质量数据的采集与追溯。\n\n第二条 付款方式\n\n合同生效后十日内，甲方一次性付清全部合同价款，乙方收到全款后开始实施。\n\n第三条 验收\n\n系统上线后由双方共同测试，验收合格后签署书面验收报告。",
+      "expected_findings": [
+        {
+          "category": "payment",
+          "finding_kind": "clause_risk",
+          "level": "high",
+          "source_text_contains": "一次性付清全部合同价款",
+          "expected_clause_contains": null,
+          "annotation_note": "交付前一次性付清全部合同价款。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "literal",
+        "single-risk"
+      ],
+      "notes": "全额预付款在质量追溯平台场景下的识别。"
+    },
+    {
+      "case_id": "ho-silent-acceptance-energy",
+      "title": "能源管理平台沉默验收",
+      "filename": "ho-silent-acceptance-energy.txt",
+      "contract_text": "能源管理平台采购合同\n\n第一条 项目内容\n\n乙方为甲方建设能源管理平台，实现能耗数据采集与分析。\n\n第二条 验收\n\n系统上线十五日后，甲方未提出书面异议的，视为验收通过。\n\n第三条 付款方式\n\n验收通过后甲方支付全部合同价款。",
+      "expected_findings": [
+        {
+          "category": "acceptance",
+          "finding_kind": "clause_risk",
+          "level": "high",
+          "source_text_contains": "未提出书面异议的，视为验收通过",
+          "expected_clause_contains": null,
+          "annotation_note": "采购方沉默视为验收通过。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "literal",
+        "single-risk"
+      ],
+      "notes": "沉默验收在能源管理平台场景下的识别。"
+    },
+    {
+      "case_id": "ho-ip-ownership-negotiated",
+      "title": "试验数据平台知识产权归属待协商",
+      "filename": "ho-ip-ownership-negotiated.txt",
+      "contract_text": "试验数据管理平台开发合同\n\n第一条 项目内容\n\n乙方为甲方开发试验数据管理平台，实现试验数据的采集、存储与分析。\n\n第二条 知识产权\n\n系统软件著作权的归属由双方另行签订补充协议予以明确。\n\n第三条 付款方式\n\n合同签订后支付30%，验收合格后支付70%。",
+      "expected_findings": [
+        {
+          "category": "intellectual_property",
+          "finding_kind": "clause_risk",
+          "level": "high",
+          "source_text_contains": "由双方另行签订补充协议予以明确",
+          "expected_clause_contains": null,
+          "annotation_note": "软件著作权归属留待另行协商。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "weak-clause",
+        "single-risk"
+      ],
+      "notes": "知识产权归属留待协商的识别。"
+    },
+    {
+      "case_id": "ho-liability-legal-only",
+      "title": "维保合同违约责任空洞",
+      "filename": "ho-liability-legal-only.txt",
+      "contract_text": "生产设备维保服务合同\n\n第一条 服务内容\n\n乙方为甲方生产设备提供日常巡检、保养和故障维修服务。\n\n第二条 违约责任\n\n任何一方违反本合同约定的，依法承担相应法律责任。\n\n第三条 付款方式\n\n甲方按月支付维保服务费。",
+      "expected_findings": [
+        {
+          "category": "liability",
+          "finding_kind": "clause_risk",
+          "level": "high",
+          "source_text_contains": "依法承担相应法律责任",
+          "expected_clause_contains": null,
+          "annotation_note": "违约责任条款空洞，仅表述为依法承担责任。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "weak-clause",
+        "single-risk"
+      ],
+      "notes": "违约责任空洞条款的识别。"
+    },
+    {
+      "case_id": "ho-support-missing-collection",
+      "title": "数据采集系统缺运维条款",
+      "filename": "ho-support-missing-collection.txt",
+      "contract_text": "生产数据采集系统采购合同\n\n第一条 项目内容\n\n乙方为甲方建设生产数据采集系统，采集设备运行参数。\n\n第二条 付款方式\n\n合同签订后支付40%，验收合格后支付60%。\n\n第三条 验收\n\n双方依据功能清单验收并签署书面验收报告。\n\n第四条 数据安全\n\n乙方对采集的生产数据承担保密义务。",
+      "expected_findings": [
+        {
+          "category": "support",
+          "finding_kind": "missing_clause",
+          "level": "medium",
+          "source_text_contains": null,
+          "expected_clause_contains": "运维服务",
+          "annotation_note": "未约定质保和运维服务。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "missing-clause",
+        "single-risk"
+      ],
+      "notes": "缺运维条款在数据采集系统场景下的识别。"
+    },
+    {
+      "case_id": "ho-data-security-missing-traceability",
+      "title": "质量追溯平台缺数据安全条款",
+      "filename": "ho-data-security-missing-traceability.txt",
+      "contract_text": "生产质量追溯平台开发合同\n\n第一条 项目内容\n\n乙方为甲方开发生产质量追溯平台，采集并存储生产批次、工艺参数等数据。\n\n第二条 付款方式\n\n合同签订后支付50%，验收合格后支付50%。\n\n第三条 验收\n\n双方依据测试标准验收并签署书面验收报告。",
+      "expected_findings": [
+        {
+          "category": "data_security",
+          "finding_kind": "missing_clause",
+          "level": "high",
+          "source_text_contains": null,
+          "expected_clause_contains": "数据安全",
+          "annotation_note": "处理生产数据但未约定供应商数据安全义务。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "missing-clause",
+        "single-risk"
+      ],
+      "notes": "处理生产数据却缺数据安全条款的识别。"
+    },
+    {
+      "case_id": "ho-multi-payment-weak-liability",
+      "title": "付款与违约双弱条款",
+      "filename": "ho-multi-payment-weak-liability.txt",
+      "contract_text": "生产设备监控系统采购合同\n\n第一条 项目内容\n\n乙方为甲方建设生产设备监控系统。\n\n第二条 付款方式\n\n合同价款及支付节点由双方根据项目实施进度协商确定。\n\n第三条 违约责任\n\n违反本合同的，按国家有关法律法规处理。",
+      "expected_findings": [
+        {
+          "category": "payment",
+          "finding_kind": "clause_risk",
+          "level": "high",
+          "source_text_contains": "协商确定",
+          "expected_clause_contains": null,
+          "annotation_note": "付款安排留待协商确定。"
+        },
+        {
+          "category": "liability",
+          "finding_kind": "clause_risk",
+          "level": "high",
+          "source_text_contains": "按国家有关法律法规处理",
+          "expected_clause_contains": null,
+          "annotation_note": "违约责任空洞，仅表述为依法处理。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "weak-clause",
+        "multi-risk"
+      ],
+      "notes": "付款与违约双弱条款的组合识别。"
+    },
+    {
+      "case_id": "ho-multi-acceptance-missing-support",
+      "title": "沉默验收与缺运维条款",
+      "filename": "ho-multi-acceptance-missing-support.txt",
+      "contract_text": "能源监测系统采购合同\n\n第一条 项目内容\n\n乙方为甲方建设能源监测系统。\n\n第二条 验收\n\n系统上线一个月内，甲方未提出异议的，视为验收合格。\n\n第三条 付款方式\n\n验收合格后甲方支付全部合同价款。",
+      "expected_findings": [
+        {
+          "category": "acceptance",
+          "finding_kind": "clause_risk",
+          "level": "high",
+          "source_text_contains": "未提出异议的，视为验收合格",
+          "expected_clause_contains": null,
+          "annotation_note": "采购方沉默视为验收合格。"
+        },
+        {
+          "category": "support",
+          "finding_kind": "missing_clause",
+          "level": "medium",
+          "source_text_contains": null,
+          "expected_clause_contains": "运维服务",
+          "annotation_note": "未约定质保和运维服务。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "multi-risk"
+      ],
+      "notes": "沉默验收与缺运维条款的组合识别。"
+    },
+    {
+      "case_id": "ho-complete-safe-equipment",
+      "title": "维保及升级服务完整合同",
+      "filename": "ho-complete-safe-equipment.txt",
+      "contract_text": "生产设备维保及软件升级服务合同\n\n第一条 付款方式\n\n合同签订后支付20%，剩余款项在服务期内按月支付。\n\n第二条 验收\n\n乙方完成服务后，双方依据服务清单逐项确认并签署书面确认单。\n\n第三条 知识产权\n\n乙方开发的软件升级成果归甲方所有，乙方承担第三方侵权责任。\n\n第四条 违约责任\n\n乙方未按约定提供服务的，承担违约责任并赔偿甲方损失。\n\n第五条 运维服务\n\n乙方提供一年质保期，明确故障响应和修复时限。\n\n第六条 数据安全\n\n乙方对甲方设备数据保密，采取访问控制措施，合同结束后返还或删除数据。",
+      "expected_findings": [],
+      "tags": [
+        "negative",
+        "complete",
+        "safe"
+      ],
+      "notes": "完整维保及升级服务合同上的误报衡量。"
+    },
+    {
+      "case_id": "ho-weak-support-low",
+      "title": "运维低等级弱条款",
+      "filename": "ho-weak-support-low.txt",
+      "contract_text": "设备联网监控软件采购合同\n\n第一条 项目内容\n\n乙方为甲方建设设备联网监控软件。\n\n第二条 运维服务\n\n乙方提供一年质保期，质保期内的具体响应和修复时间由双方另行约定。\n\n第三条 付款方式\n\n合同签订后支付30%，验收合格后支付70%。",
+      "expected_findings": [
+        {
+          "category": "support",
+          "finding_kind": "clause_risk",
+          "level": "low",
+          "source_text_contains": "由双方另行约定",
+          "expected_clause_contains": null,
+          "annotation_note": "有质保期但响应和修复时限留待协商。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "weak-clause",
+        "single-risk",
+        "low-level"
+      ],
+      "notes": "运维低等级弱条款的识别。"
+    },
+    {
+      "case_id": "ho-multi-data-weak-ip-missing",
+      "title": "数据安全弱条款与知识产权缺失",
+      "filename": "ho-multi-data-weak-ip-missing.txt",
+      "contract_text": "产品质量数据分析平台开发合同\n\n第一条 项目内容\n\n乙方为甲方开发产品质量数据分析平台。\n\n第二条 数据安全\n\n乙方应注意甲方质量数据的保密，具体安全措施由双方后续协商。\n\n第三条 付款方式\n\n合同签订后支付50%，验收合格后支付50%。",
+      "expected_findings": [
+        {
+          "category": "data_security",
+          "finding_kind": "clause_risk",
+          "level": "high",
+          "source_text_contains": "具体安全措施由双方后续协商",
+          "expected_clause_contains": null,
+          "annotation_note": "数据安全义务原则性，具体措施留待协商。"
+        },
+        {
+          "category": "intellectual_property",
+          "finding_kind": "missing_clause",
+          "level": "high",
+          "source_text_contains": null,
+          "expected_clause_contains": "知识产权",
+          "annotation_note": "未约定软件著作权和成果归属。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "multi-risk"
+      ],
+      "notes": "数据安全弱条款与知识产权缺失的组合识别。"
+    },
+    {
+      "case_id": "ho-safe-wms",
+      "title": "仓储管理系统完整合同",
+      "filename": "ho-safe-wms.txt",
+      "contract_text": "仓储管理系统软件采购合同\n\n第一条 付款方式\n\n合同签订后支付30%，系统上线后支付40%，最终验收合格后支付30%。\n\n第二条 验收\n\n双方依据功能清单逐项测试，验收合格后签署书面验收报告。\n\n第三条 知识产权\n\n系统源代码及文档的知识产权归甲方所有，乙方承担第三方侵权责任。\n\n第四条 违约责任\n\n乙方延期交付或质量不合格的，承担违约责任并赔偿甲方损失。\n\n第五条 运维服务\n\n乙方提供一年质保期，明确故障响应和修复时限。\n\n第六条 数据安全\n\n乙方对甲方仓储数据保密，采取访问控制措施，合同终止后返还数据。",
+      "expected_findings": [],
+      "tags": [
+        "negative",
+        "complete",
+        "safe"
+      ],
+      "notes": "完整仓储管理系统合同上的误报衡量。"
+    },
+    {
+      "case_id": "ho-safe-lims",
+      "title": "实验室信息管理系统完整合同",
+      "filename": "ho-safe-lims.txt",
+      "contract_text": "实验室信息管理系统采购合同\n\n第一条 付款方式\n\n合同签订后支付20%，系统上线后支付30%，验收合格后支付50%。\n\n第二条 验收\n\n双方依据需求说明书逐项测试，验收合格后签署书面验收报告。\n\n第三条 知识产权\n\n系统著作权归甲方所有，乙方保证不侵犯第三方权利。\n\n第四条 违约责任\n\n乙方未按约定交付的，承担违约责任并赔偿损失。\n\n第五条 运维服务\n\n乙方提供两年质保期和运维服务，明确响应和修复时限。\n\n第六条 数据安全\n\n乙方对甲方检测数据承担保密义务，采取加密和访问控制措施。",
+      "expected_findings": [],
+      "tags": [
+        "negative",
+        "complete",
+        "safe"
+      ],
+      "notes": "完整实验室信息管理系统合同上的误报衡量。"
+    },
+    {
+      "case_id": "ho-safe-iiot",
+      "title": "工业物联网平台完整合同",
+      "filename": "ho-safe-iiot.txt",
+      "contract_text": "工业物联网数据平台采购合同\n\n第一条 付款方式\n\n合同签订后支付25%，平台上线后支付35%，验收合格后支付40%。\n\n第二条 验收\n\n双方依据技术规范逐项验收并签署书面验收报告。\n\n第三条 知识产权\n\n平台源代码及文档归甲方所有，乙方承担第三方侵权责任。\n\n第四条 违约责任\n\n乙方延期或质量不合格的，承担违约责任并赔偿甲方损失。\n\n第五条 运维服务\n\n乙方提供一年质保期，明确故障响应和修复时限。\n\n第六条 数据安全\n\n乙方对甲方设备数据保密，采取访问控制措施，合同终止后删除数据。",
+      "expected_findings": [],
+      "tags": [
+        "negative",
+        "complete",
+        "safe"
+      ],
+      "notes": "完整工业物联网平台合同上的误报衡量。"
+    },
+    {
+      "case_id": "ho-safe-scheduling",
+      "title": "生产排产系统完整合同",
+      "filename": "ho-safe-scheduling.txt",
+      "contract_text": "生产排产系统采购合同\n\n第一条 付款方式\n\n合同签订后支付30%，系统上线后支付30%，验收合格后支付40%。\n\n第二条 验收\n\n双方依据功能清单验收并签署书面验收报告。\n\n第三条 知识产权\n\n系统源代码及文档归甲方所有，乙方承担第三方侵权责任。\n\n第四条 违约责任\n\n乙方延期交付的，承担违约责任并赔偿甲方损失。\n\n第五条 运维服务\n\n乙方提供一年质保期，明确故障响应和修复时限。\n\n第六条 数据安全\n\n乙方对甲方排产数据保密，采取访问控制措施。",
+      "expected_findings": [],
+      "tags": [
+        "negative",
+        "complete",
+        "safe"
+      ],
+      "notes": "完整生产排产系统合同上的误报衡量。"
+    },
+    {
+      "case_id": "ho-full-prepay-iiot",
+      "title": "工业物联网平台全额预付",
+      "filename": "ho-full-prepay-iiot.txt",
+      "contract_text": "工业物联网数据平台采购合同\n\n第一条 项目内容\n\n乙方为甲方建设工业物联网数据平台，采集设备运行数据。\n\n第二条 付款方式\n\n合同签订当日，甲方支付全部合同款，乙方随后开始实施。\n\n第三条 验收\n\n平台上线后双方共同测试，验收合格后签署书面验收报告。",
+      "expected_findings": [
+        {
+          "category": "payment",
+          "finding_kind": "clause_risk",
+          "level": "high",
+          "source_text_contains": "支付全部合同款",
+          "expected_clause_contains": null,
+          "annotation_note": "交付前支付全部合同款。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "literal",
+        "single-risk"
+      ],
+      "notes": "全额预付款在工业物联网平台场景下的识别。"
+    },
+    {
+      "case_id": "ho-weak-payment-scheduling",
+      "title": "排产系统付款待协商",
+      "filename": "ho-weak-payment-scheduling.txt",
+      "contract_text": "生产排产系统采购合同\n\n第一条 项目内容\n\n乙方为甲方建设生产排产系统。\n\n第二条 付款方式\n\n合同价款的支付方式和时间由双方另行协商。\n\n第三条 验收\n\n双方依据功能清单验收并签署书面验收报告。",
+      "expected_findings": [
+        {
+          "category": "payment",
+          "finding_kind": "clause_risk",
+          "level": "high",
+          "source_text_contains": "由双方另行协商",
+          "expected_clause_contains": null,
+          "annotation_note": "付款方式和时间留待协商。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "weak-clause",
+        "single-risk"
+      ],
+      "notes": "付款安排留待协商的识别。"
+    },
+    {
+      "case_id": "ho-silent-acceptance-wms",
+      "title": "仓储系统沉默验收",
+      "filename": "ho-silent-acceptance-wms.txt",
+      "contract_text": "仓储管理系统软件采购合同\n\n第一条 项目内容\n\n乙方为甲方建设仓储管理系统。\n\n第二条 验收\n\n系统上线十日内，甲方未提出异议即视为验收合格。\n\n第三条 付款方式\n\n验收合格后甲方支付全部合同价款。",
+      "expected_findings": [
+        {
+          "category": "acceptance",
+          "finding_kind": "clause_risk",
+          "level": "high",
+          "source_text_contains": "未提出异议即视为验收合格",
+          "expected_clause_contains": null,
+          "annotation_note": "采购方沉默视为验收合格。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "literal",
+        "single-risk"
+      ],
+      "notes": "沉默验收在仓储系统场景下的识别。"
+    },
+    {
+      "case_id": "ho-weak-acceptance-lims",
+      "title": "实验室系统验收标准待协商",
+      "filename": "ho-weak-acceptance-lims.txt",
+      "contract_text": "实验室信息管理系统采购合同\n\n第一条 项目内容\n\n乙方为甲方建设实验室信息管理系统。\n\n第二条 验收\n\n系统验收标准和方式由双方另行约定。\n\n第三条 付款方式\n\n合同签订后支付30%，验收合格后支付70%。",
+      "expected_findings": [
+        {
+          "category": "acceptance",
+          "finding_kind": "clause_risk",
+          "level": "high",
+          "source_text_contains": "由双方另行约定",
+          "expected_clause_contains": null,
+          "annotation_note": "验收标准和方式留待协商。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "weak-clause",
+        "single-risk"
+      ],
+      "notes": "验收标准留待协商的识别。"
+    },
+    {
+      "case_id": "ho-ip-missing-scheduling",
+      "title": "排产系统缺知识产权条款",
+      "filename": "ho-ip-missing-scheduling.txt",
+      "contract_text": "生产排产系统采购合同\n\n第一条 项目内容\n\n乙方为甲方建设生产排产系统，优化生产计划排程。\n\n第二条 付款方式\n\n合同签订后支付40%，验收合格后支付60%。\n\n第三条 验收\n\n双方依据功能清单验收并签署书面验收报告。",
+      "expected_findings": [
+        {
+          "category": "intellectual_property",
+          "finding_kind": "missing_clause",
+          "level": "high",
+          "source_text_contains": null,
+          "expected_clause_contains": "知识产权",
+          "annotation_note": "未约定软件著作权和成果归属。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "missing-clause",
+        "single-risk"
+      ],
+      "notes": "缺知识产权条款在排产系统场景下的识别。"
+    },
+    {
+      "case_id": "ho-ip-weak-iiot",
+      "title": "工业物联网平台知识产权归属待定",
+      "filename": "ho-ip-weak-iiot.txt",
+      "contract_text": "工业物联网数据平台采购合同\n\n第一条 项目内容\n\n乙方为甲方建设工业物联网数据平台。\n\n第二条 知识产权\n\n平台软件著作权归属以双方签订的正式协议为准。\n\n第三条 付款方式\n\n合同签订后支付30%，验收合格后支付70%。",
+      "expected_findings": [
+        {
+          "category": "intellectual_property",
+          "finding_kind": "clause_risk",
+          "level": "high",
+          "source_text_contains": "以双方签订的正式协议为准",
+          "expected_clause_contains": null,
+          "annotation_note": "软件著作权归属留待另行协商。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "weak-clause",
+        "single-risk"
+      ],
+      "notes": "知识产权归属留待协商的识别。"
+    },
+    {
+      "case_id": "ho-liability-missing-wms",
+      "title": "仓储系统缺违约责任条款",
+      "filename": "ho-liability-missing-wms.txt",
+      "contract_text": "仓储管理系统软件采购合同\n\n第一条 项目内容\n\n乙方为甲方建设仓储管理系统。\n\n第二条 付款方式\n\n合同签订后支付30%，验收合格后支付70%。\n\n第三条 验收\n\n双方依据功能清单验收并签署书面验收报告。",
+      "expected_findings": [
+        {
+          "category": "liability",
+          "finding_kind": "missing_clause",
+          "level": "high",
+          "source_text_contains": null,
+          "expected_clause_contains": "违约责任",
+          "annotation_note": "未约定违约责任条款。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "missing-clause",
+        "single-risk"
+      ],
+      "notes": "缺违约责任条款在仓储系统场景下的识别。"
+    },
+    {
+      "case_id": "ho-liability-weak-lims",
+      "title": "实验室系统违约责任空洞",
+      "filename": "ho-liability-weak-lims.txt",
+      "contract_text": "实验室信息管理系统采购合同\n\n第一条 项目内容\n\n乙方为甲方建设实验室信息管理系统。\n\n第二条 违约责任\n\n双方违约时按照国家法律规定处理。\n\n第三条 付款方式\n\n合同签订后支付50%，验收合格后支付50%。",
+      "expected_findings": [
+        {
+          "category": "liability",
+          "finding_kind": "clause_risk",
+          "level": "high",
+          "source_text_contains": "按照国家法律规定处理",
+          "expected_clause_contains": null,
+          "annotation_note": "违约责任空洞，仅表述为依法处理。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "weak-clause",
+        "single-risk"
+      ],
+      "notes": "违约责任空洞条款的识别。"
+    },
+    {
+      "case_id": "ho-support-weak-iiot",
+      "title": "工业物联网平台运维待协商",
+      "filename": "ho-support-weak-iiot.txt",
+      "contract_text": "工业物联网数据平台采购合同\n\n第一条 项目内容\n\n乙方为甲方建设工业物联网数据平台。\n\n第二条 运维服务\n\n平台质保期内的运维服务内容由双方后续协商。\n\n第三条 付款方式\n\n合同签订后支付30%，验收合格后支付70%。",
+      "expected_findings": [
+        {
+          "category": "support",
+          "finding_kind": "clause_risk",
+          "level": "medium",
+          "source_text_contains": "由双方后续协商",
+          "expected_clause_contains": null,
+          "annotation_note": "运维服务内容留待协商。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "weak-clause",
+        "single-risk"
+      ],
+      "notes": "运维弱条款在工业物联网平台场景下的识别。"
+    },
+    {
+      "case_id": "ho-data-security-weak-scheduling",
+      "title": "排产系统数据安全原则性",
+      "filename": "ho-data-security-weak-scheduling.txt",
+      "contract_text": "生产排产系统采购合同\n\n第一条 项目内容\n\n乙方为甲方建设生产排产系统，处理生产订单和工艺数据。\n\n第二条 数据安全\n\n乙方应对甲方生产数据保密，具体防护措施另行商议。\n\n第三条 付款方式\n\n合同签订后支付50%，验收合格后支付50%。",
+      "expected_findings": [
+        {
+          "category": "data_security",
+          "finding_kind": "clause_risk",
+          "level": "high",
+          "source_text_contains": "具体防护措施另行商议",
+          "expected_clause_contains": null,
+          "annotation_note": "数据安全义务原则性，具体措施留待协商。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "weak-clause",
+        "single-risk"
+      ],
+      "notes": "数据安全弱条款在排产系统场景下的识别。"
+    },
+    {
+      "case_id": "ho-data-security-missing-lims",
+      "title": "实验室系统缺数据安全条款",
+      "filename": "ho-data-security-missing-lims.txt",
+      "contract_text": "实验室信息管理系统采购合同\n\n第一条 项目内容\n\n乙方为甲方建设实验室信息管理系统，存储检验检测数据。\n\n第二条 付款方式\n\n合同签订后支付40%，验收合格后支付60%。\n\n第三条 验收\n\n双方依据需求说明书验收并签署书面验收报告。",
+      "expected_findings": [
+        {
+          "category": "data_security",
+          "finding_kind": "missing_clause",
+          "level": "high",
+          "source_text_contains": null,
+          "expected_clause_contains": "数据安全",
+          "annotation_note": "处理检测数据但未约定供应商数据安全义务。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "missing-clause",
+        "single-risk"
+      ],
+      "notes": "缺数据安全条款在实验室系统场景下的识别。"
+    },
+    {
+      "case_id": "ho-multi-prepay-silent",
+      "title": "全额预付与沉默验收",
+      "filename": "ho-multi-prepay-silent.txt",
+      "contract_text": "设备远程运维平台采购合同\n\n第一条 项目内容\n\n乙方为甲方建设设备远程运维平台。\n\n第二条 付款方式\n\n合同签订后五日内甲方付清全部合同款。\n\n第三条 验收\n\n平台上线后甲方未在七日内提出异议的，视为验收通过。",
+      "expected_findings": [
+        {
+          "category": "payment",
+          "finding_kind": "clause_risk",
+          "level": "high",
+          "source_text_contains": "付清全部合同款",
+          "expected_clause_contains": null,
+          "annotation_note": "交付前付清全部合同款。"
+        },
+        {
+          "category": "acceptance",
+          "finding_kind": "clause_risk",
+          "level": "high",
+          "source_text_contains": "未在七日内提出异议的，视为验收通过",
+          "expected_clause_contains": null,
+          "annotation_note": "采购方沉默视为验收通过。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "multi-risk"
+      ],
+      "notes": "全额预付与沉默验收的组合识别。"
+    },
+    {
+      "case_id": "ho-multi-ip-liability-support",
+      "title": "违约空洞、知识产权与运维缺失",
+      "filename": "ho-multi-ip-liability-support.txt",
+      "contract_text": "环境监测系统采购合同\n\n第一条 项目内容\n\n乙方为甲方建设环境监测系统。\n\n第二条 违约责任\n\n违约方依法承担法律责任。\n\n第三条 付款方式\n\n合同签订后支付40%，验收合格后支付60%。",
+      "expected_findings": [
+        {
+          "category": "liability",
+          "finding_kind": "clause_risk",
+          "level": "high",
+          "source_text_contains": "依法承担法律责任",
+          "expected_clause_contains": null,
+          "annotation_note": "违约责任空洞，仅表述为依法承担责任。"
+        },
+        {
+          "category": "intellectual_property",
+          "finding_kind": "missing_clause",
+          "level": "high",
+          "source_text_contains": null,
+          "expected_clause_contains": "知识产权",
+          "annotation_note": "未约定软件著作权和成果归属。"
+        },
+        {
+          "category": "support",
+          "finding_kind": "missing_clause",
+          "level": "medium",
+          "source_text_contains": null,
+          "expected_clause_contains": "运维服务",
+          "annotation_note": "未约定质保和运维服务。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "multi-risk"
+      ],
+      "notes": "违约空洞与知识产权、运维缺失的组合识别。"
+    },
+    {
+      "case_id": "ho-multi-data-payment-weak",
+      "title": "数据安全与付款双弱条款",
+      "filename": "ho-multi-data-payment-weak.txt",
+      "contract_text": "设备故障诊断系统采购合同\n\n第一条 项目内容\n\n乙方为甲方建设设备故障诊断系统，采集设备振动和温度数据。\n\n第二条 数据安全\n\n乙方对设备数据承担保密义务，具体措施由双方另行商定。\n\n第三条 付款方式\n\n合同价款的支付安排由双方协商确定。",
+      "expected_findings": [
+        {
+          "category": "data_security",
+          "finding_kind": "clause_risk",
+          "level": "high",
+          "source_text_contains": "具体措施由双方另行商定",
+          "expected_clause_contains": null,
+          "annotation_note": "数据安全义务原则性，具体措施留待协商。"
+        },
+        {
+          "category": "payment",
+          "finding_kind": "clause_risk",
+          "level": "high",
+          "source_text_contains": "由双方协商确定",
+          "expected_clause_contains": null,
+          "annotation_note": "付款安排留待协商确定。"
+        }
+      ],
+      "tags": [
+        "positive",
+        "multi-risk"
+      ],
+      "notes": "数据安全与付款双弱条款的组合识别。"
+    }
+  ]
+}

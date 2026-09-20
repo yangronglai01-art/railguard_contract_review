@@ -1,6 +1,6 @@
 # RailGuard AI
 
-RailGuard AI 是一个面向生产制造企业采购方的多 Agent 合同审核演示项目。
+RailGuard AI 是一个面向生产制造企业采购方的多 Agent 合同审核项目。
 
 系统接收软件采购或技术服务合同，提取合同条款，通过 LangGraph 编排商务、法务和数据安全三个风险 Agent，结合 RAG 证据验证风险依据，并在流程暂停后等待人工审核人作出最终决定。
 
@@ -346,7 +346,7 @@ RAG_MODE=mock
 RAG_MOCK_CORPUS_PATH=data/demo/rag-corpus-baus-v1.json
 ```
 
-该模式使用适配高端装备制造采购场景的合成审核规则，结果稳定，适合开发、自动化测试和面试演示。
+该模式使用适配高端装备制造采购场景的合成审核规则，结果稳定，适合开发、自动化测试。
 
 ### 外部HTTP模式
 

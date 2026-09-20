@@ -148,3 +148,24 @@ def test_frozen_sft_partition_rejects_wrong_split(
 
     with pytest.raises(ValueError, match="split does not match"):
         verify_frozen_partition(partition, repository_root=tmp_path)
+
+
+def test_current_held_out_test_is_frozen_and_disjoint() -> None:
+    """验证held-out最终测试集已冻结，且与开发基准不相交。"""
+    manifest = load_governance_manifest(
+        Path("data/evaluation/dataset-governance-v1.json")
+    )
+    held_out = next(
+        p for p in manifest.partitions if p.role == "held_out_test"
+    )
+
+    assert held_out.status == "frozen"
+    assert held_out.used_for_prompt_tuning is False
+    assert held_out.eligible_for_final_metrics is True
+    assert len(held_out.case_ids) == 30
+    verify_frozen_partition(held_out, repository_root=Path.cwd())
+
+    dev = next(
+        p for p in manifest.partitions if p.role == "development_benchmark"
+    )
+    assert set(held_out.case_ids).isdisjoint(set(dev.case_ids))
