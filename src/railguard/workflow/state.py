@@ -177,3 +177,16 @@ class ReviewState(TypedDict, total=False):
     # 流程中产生的结构化错误。
     # add允许不同节点分别追加错误记录。
     errors: Annotated[list[WorkflowError], add]
+
+    # 审核任务启动时间（ISO8601 UTC）。
+    started_at_iso: str
+
+    # OpenTelemetry风格的追踪ID，关联同一次审核的全部日志。
+    trace_id: str
+
+    # 各节点执行耗时（秒），元素为(node_name, duration_seconds)。
+    # add表示并行节点返回的记录会被合并。
+    node_timings: Annotated[list[tuple[str, float]], add]
+
+    # 各Agent模型调用的重试次数，元素为(node_name, retry_count)。
+    retry_counts: Annotated[list[tuple[str, int]], add]

@@ -127,7 +127,18 @@ def test_review_api_starts_queries_and_resumes(
     )
 
     assert get_response.status_code == 200
-    assert get_response.json() == waiting
+
+    # elapsed_seconds随时间变化，不参与快照的精确相等比较。
+    def _without_elapsed(snapshot: dict) -> dict:
+        return {
+            key: value
+            for key, value in snapshot.items()
+            if key != "elapsed_seconds"
+        }
+
+    assert _without_elapsed(
+        get_response.json()
+    ) == _without_elapsed(waiting)
 
     # 未知风险ID应返回422，而且不能消耗人工审批中断。
     invalid_response = client.post(

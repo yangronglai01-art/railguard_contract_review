@@ -5,6 +5,8 @@ FastAPI路由不直接操作checkpoint或Command。
 """
 
 import asyncio
+import logging
+from datetime import UTC, datetime
 from typing import cast
 
 from langgraph.graph.state import CompiledStateGraph
@@ -23,6 +25,11 @@ from railguard.models.schemas import (
     RiskFinding,
     new_id,
 )
+from railguard.observability import (
+    new_trace_id,
+    now_iso,
+    percentile,
+)
 from railguard.rag.client import (
     RagProtocolError,
     RagRequestError,
@@ -30,12 +37,31 @@ from railguard.rag.client import (
     RagUnavailableError,
 )
 from railguard.workflow.nodes import WorkflowProtocolError
-from railguard.workflow.results import ReviewSnapshot
+from railguard.workflow.results import (
+    MonitoringSummary,
+    NodeLatencyStats,
+    ReviewSnapshot,
+)
 from railguard.workflow.state import (
     HumanReviewDecision,
     ReviewState,
     WorkflowError,
 )
+
+logger = logging.getLogger(__name__)
+
+# 各节点对应的审核进度权重（百分比）。
+_NODE_PROGRESS: dict[str, float] = {
+    "initialize_review": 10.0,
+    "retrieve_evidence": 25.0,
+    "commercial_risk_agent": 50.0,
+    "legal_risk_agent": 50.0,
+    "security_risk_agent": 50.0,
+    "aggregate_findings": 65.0,
+    "verify_citations": 80.0,
+    "human_review": 90.0,
+    "finalize_review": 100.0,
+}
 
 
 class ReviewServiceError(RuntimeError):
@@ -100,6 +126,8 @@ class ReviewService:
                 {
                     "review_id": review_id,
                     "contract": contract,
+                    "trace_id": new_trace_id(),
+                    "started_at_iso": now_iso(),
                 },
                 config=config,
             )
@@ -291,6 +319,13 @@ class ReviewService:
             else state.get("status", "created")
         )
 
+        started_at = state.get("started_at_iso")
+        trace_id = state.get("trace_id")
+        node_durations = cls._node_durations(state)
+        retry_stats = cls._retry_stats(state)
+        progress_percent = cls._progress_percent(completed_nodes)
+        elapsed_seconds = cls._elapsed_seconds(started_at)
+
         return ReviewSnapshot(
             review_id=state["review_id"],
             contract_id=contract.contract_id,
@@ -303,6 +338,175 @@ class ReviewService:
             completed_nodes=completed_nodes,
             errors=errors,
             final_summary=state.get("final_summary", ""),
+            started_at=started_at,
+            trace_id=trace_id,
+            progress_percent=progress_percent,
+            elapsed_seconds=elapsed_seconds,
+            node_durations=node_durations,
+            retry_stats=retry_stats,
+        )
+
+    @staticmethod
+    def _progress_percent(
+        completed_nodes: list[str],
+    ) -> float:
+        """根据已完成节点估算审核进度（0-100）。"""
+        if not completed_nodes:
+            return 0.0
+
+        return max(
+            (
+                _NODE_PROGRESS.get(name, 0.0)
+                for name in completed_nodes
+            ),
+            default=0.0,
+        )
+
+    @staticmethod
+    def _node_durations(
+        state: ReviewState,
+    ) -> dict[str, float]:
+        """把node_timings记录转换为节点到秒的映射。"""
+        durations: dict[str, float] = {}
+
+        for item in state.get("node_timings", []):
+            durations[str(item[0])] = float(item[1])
+
+        return durations
+
+    @staticmethod
+    def _retry_stats(
+        state: ReviewState,
+    ) -> dict[str, int]:
+        """把retry_counts记录转换为节点到次数的映射。"""
+        stats: dict[str, int] = {}
+
+        for item in state.get("retry_counts", []):
+            stats[str(item[0])] = int(item[1])
+
+        return stats
+
+    @staticmethod
+    def _elapsed_seconds(
+        started_at: str | None,
+    ) -> float | None:
+        """计算从启动到当前的耗时（秒），无法解析时返回None。"""
+        if not started_at:
+            return None
+
+        try:
+            started = datetime.fromisoformat(started_at)
+        except ValueError:
+            return None
+
+        return (
+            datetime.now(UTC) - started
+        ).total_seconds()
+
+    async def list_review_ids(self) -> list[str]:
+        """枚举checkpoint中全部审核任务的thread_id。"""
+        checkpointer = getattr(
+            self._graph,
+            "checkpointer",
+            None,
+        )
+        connection = getattr(checkpointer, "conn", None)
+
+        if connection is None:
+            return []
+
+        try:
+            cursor = await connection.execute(
+                "SELECT DISTINCT thread_id FROM checkpoints"
+            )
+            try:
+                rows = await cursor.fetchall()
+            finally:
+                await cursor.close()
+        except Exception:
+            logger.warning(
+                "failed to enumerate review checkpoints",
+                exc_info=True,
+            )
+            return []
+
+        return [str(row[0]) for row in rows]
+
+    async def list_reviews(self) -> list[ReviewSnapshot]:
+        """枚举并返回全部审核任务的当前快照。"""
+        review_ids = await self.list_review_ids()
+
+        snapshots: list[ReviewSnapshot] = []
+        for review_id in review_ids:
+            try:
+                snapshots.append(
+                    await self.get_review(review_id)
+                )
+            except ReviewNotFoundError:
+                continue
+
+        return snapshots
+
+    async def monitoring_summary(self) -> MonitoringSummary:
+        """汇总全部审核任务的进度、耗时和重试统计。"""
+        return self._aggregate_monitoring(
+            await self.list_reviews()
+        )
+
+    @staticmethod
+    def _aggregate_monitoring(
+        snapshots: list[ReviewSnapshot],
+    ) -> MonitoringSummary:
+        """从快照列表计算跨任务的监控汇总。"""
+        status_counts: dict[str, int] = {}
+        latency_samples: dict[str, list[float]] = {}
+        retry_stats: dict[str, int] = {}
+        failed_reviews = 0
+
+        for snapshot in snapshots:
+            status_counts[snapshot.status] = (
+                status_counts.get(snapshot.status, 0) + 1
+            )
+
+            if snapshot.status == "failed":
+                failed_reviews += 1
+
+            for node_name, seconds in (
+                snapshot.node_durations.items()
+            ):
+                latency_samples.setdefault(
+                    node_name,
+                    [],
+                ).append(seconds * 1000)
+
+            for node_name, retries in (
+                snapshot.retry_stats.items()
+            ):
+                retry_stats[node_name] = (
+                    retry_stats.get(node_name, 0) + retries
+                )
+
+        node_latency: dict[str, NodeLatencyStats] = {}
+        for node_name, samples in latency_samples.items():
+            p50 = percentile(samples, 0.50)
+            p95 = percentile(samples, 0.95)
+            p99 = percentile(samples, 0.99)
+            node_latency[node_name] = NodeLatencyStats(
+                count=len(samples),
+                avg_ms=round(sum(samples) / len(samples), 3),
+                p50_ms=round(p50, 3) if p50 is not None else None,
+                p95_ms=round(p95, 3) if p95 is not None else None,
+                p99_ms=round(p99, 3) if p99 is not None else None,
+                min_ms=round(min(samples), 3),
+                max_ms=round(max(samples), 3),
+            )
+
+        return MonitoringSummary(
+            total_reviews=len(snapshots),
+            failed_reviews=failed_reviews,
+            status_counts=status_counts,
+            node_latency=node_latency,
+            retry_stats=retry_stats,
         )
 
     @staticmethod

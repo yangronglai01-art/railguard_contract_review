@@ -1,9 +1,13 @@
 """RailGuard合同审核LangGraph构建函数。"""
 
+import time
+from collections.abc import Awaitable, Callable
+
 from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 
+from railguard.observability import emit_span
 from railguard.rag.client import RagRetriever
 from railguard.workflow.analyzers import (
     DemoCommercialRiskAnalyzer,
@@ -16,6 +20,33 @@ from railguard.workflow.nodes import (
     route_after_verification,
 )
 from railguard.workflow.state import ReviewState
+
+
+def _timed_node(
+    name: str,
+    node_fn: Callable[[ReviewState], Awaitable[dict[str, object]]],
+) -> Callable[[ReviewState], Awaitable[dict[str, object]]]:
+    """包装节点：记录执行耗时并输出结构化span日志。"""
+    async def wrapped(
+        state: ReviewState,
+    ) -> dict[str, object]:
+        start = time.perf_counter()
+        result = await node_fn(state)
+        duration_s = time.perf_counter() - start
+
+        result = dict(result)
+        result["node_timings"] = [(name, duration_s)]
+
+        emit_span(
+            name=name,
+            trace_id=str(state.get("trace_id", "")),
+            review_id=str(state.get("review_id", "")),
+            duration_ms=duration_s * 1000,
+        )
+        return result
+
+    wrapped.__name__ = getattr(node_fn, "__name__", name)
+    return wrapped
 
 
 def build_review_graph(
@@ -60,47 +91,23 @@ def build_review_graph(
     # ReviewState定义所有节点共享的数据结构。
     builder = StateGraph(ReviewState)
 
-    # 注册确定性准备与RAG检索节点。
-    builder.add_node(
+    # 注册全部审核节点，并统一附加耗时统计和结构化span日志。
+    node_names = (
         "initialize_review",
-        nodes.initialize_review,
-    )
-    builder.add_node(
         "retrieve_evidence",
-        nodes.retrieve_evidence,
-    )
-
-    # 注册三个职责独立的风险分析Agent。
-    builder.add_node(
         "commercial_risk_agent",
-        nodes.commercial_risk_agent,
-    )
-    builder.add_node(
         "legal_risk_agent",
-        nodes.legal_risk_agent,
-    )
-    builder.add_node(
         "security_risk_agent",
-        nodes.security_risk_agent,
-    )
-
-    # 注册风险汇总、引用验证和人工审批节点。
-    builder.add_node(
         "aggregate_findings",
-        nodes.aggregate_findings,
-    )
-    builder.add_node(
         "verify_citations",
-        nodes.verify_citations,
-    )
-    builder.add_node(
         "human_review",
-        nodes.human_review,
-    )
-    builder.add_node(
         "finalize_review",
-        nodes.finalize_review,
     )
+    for name in node_names:
+        builder.add_node(
+            name,
+            _timed_node(name, getattr(nodes, name)),
+        )
 
     # 合同先初始化，再完成全部RAG检索。
     builder.add_edge(START, "initialize_review")

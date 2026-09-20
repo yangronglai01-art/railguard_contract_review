@@ -14,7 +14,10 @@ from railguard.api.dependencies import (
     get_review_service,
 )
 from railguard.storage.contracts import ContractRepository
-from railguard.workflow.results import ReviewSnapshot
+from railguard.workflow.results import (
+    MonitoringSummary,
+    ReviewSnapshot,
+)
 from railguard.workflow.service import (
     ReviewConflictError,
     ReviewDecisionError,
@@ -54,6 +57,9 @@ def _execution_status_code(
             status.HTTP_500_INTERNAL_SERVER_ERROR
         ),
         "workflow_protocol_error": (
+            status.HTTP_500_INTERNAL_SERVER_ERROR
+        ),
+        "workflow_execution_failed": (
             status.HTTP_500_INTERNAL_SERVER_ERROR
         ),
     }
@@ -166,3 +172,32 @@ async def submit_review_decision(
         ) from exc
     except ReviewExecutionError as exc:
         _raise_execution_error(exc)
+
+
+@router.get(
+    "/reviews",
+    response_model=list[ReviewSnapshot],
+)
+async def list_reviews(
+    service: Annotated[
+        ReviewService,
+        Depends(get_review_service),
+    ],
+) -> list[ReviewSnapshot]:
+    """列出checkpoint中全部审核任务的当前快照。"""
+    return await service.list_reviews()
+
+
+@router.get(
+    "/monitoring/summary",
+    response_model=MonitoringSummary,
+    tags=["monitoring"],
+)
+async def get_monitoring_summary(
+    service: Annotated[
+        ReviewService,
+        Depends(get_review_service),
+    ],
+) -> MonitoringSummary:
+    """返回跨审核任务的进度、耗时和重试监控汇总。"""
+    return await service.monitoring_summary()

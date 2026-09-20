@@ -56,3 +56,45 @@ class ReviewSnapshot(SchemaModel):
 
     # 审核完成后生成的业务摘要。
     final_summary: str = ""
+
+    # 审核任务启动时间（ISO8601 UTC）；启动前为空。
+    started_at: str | None = None
+
+    # OpenTelemetry风格的追踪ID。
+    trace_id: str | None = None
+
+    # 审核进度百分比（0-100），根据已完成节点估算。
+    progress_percent: float = 0.0
+
+    # 从启动到当前快照的耗时（秒）。
+    elapsed_seconds: float | None = None
+
+    # 各节点执行耗时（秒），键为节点名。
+    node_durations: dict[str, float] = Field(default_factory=dict)
+
+    # 各Agent模型调用的重试次数，键为Agent名。
+    retry_stats: dict[str, int] = Field(default_factory=dict)
+
+
+class NodeLatencyStats(SchemaModel):
+    """单个节点的耗时统计（毫秒）。"""
+
+    count: int = 0
+    avg_ms: float | None = None
+    p50_ms: float | None = None
+    p95_ms: float | None = None
+    p99_ms: float | None = None
+    min_ms: float | None = None
+    max_ms: float | None = None
+
+
+class MonitoringSummary(SchemaModel):
+    """跨审核任务的监控汇总。"""
+
+    total_reviews: int = 0
+    failed_reviews: int = 0
+    status_counts: dict[str, int] = Field(default_factory=dict)
+    node_latency: dict[str, NodeLatencyStats] = Field(
+        default_factory=dict
+    )
+    retry_stats: dict[str, int] = Field(default_factory=dict)

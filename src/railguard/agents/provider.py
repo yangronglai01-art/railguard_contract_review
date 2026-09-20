@@ -21,6 +21,7 @@ from railguard.agents.prompts import (
     LEGAL_PROFILE,
     SECURITY_PROFILE,
 )
+from railguard.observability import record_model_retry
 
 # DeepSeek官方OpenAI兼容接口的根地址。
 DEFAULT_DEEPSEEK_BASE_URL = "https://api.deepseek.com"
@@ -83,6 +84,9 @@ class _DeepSeekAnalysisInvoker:
                     raise LlmResponseError(
                         "DeepSeek returned an invalid JSON response"
                     ) from exc
+
+                # 记录重试次数，用于监控端点的失败重试统计。
+                record_model_retry()
 
                 # 对协议瞬时故障做短退避，避免立即重复冲击服务。
                 await asyncio.sleep(min(2**attempt, 4))

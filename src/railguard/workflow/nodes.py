@@ -13,6 +13,10 @@ from railguard.models.schemas import (
     Evidence,
     RiskFinding,
 )
+from railguard.observability import (
+    emit_event,
+    take_model_retry_count,
+)
 from railguard.rag.client import RagRetriever
 from railguard.rag.models import RagSearchRequest
 from railguard.workflow.analyzers import RiskAnalyzer
@@ -53,6 +57,26 @@ class ReviewNodes:
         self._commercial_analyzer = commercial_analyzer
         self._legal_analyzer = legal_analyzer
         self._security_analyzer = security_analyzer
+
+    def _capture_agent_retries(
+        self,
+        *,
+        state: ReviewState,
+        agent_name: str,
+    ) -> list[tuple[str, int]]:
+        """读取并记录当前Agent本次分析的模型重试次数。"""
+        retry_count = take_model_retry_count()
+
+        if retry_count:
+            emit_event(
+                event="model_retry",
+                trace_id=str(state.get("trace_id", "")),
+                review_id=str(state.get("review_id", "")),
+                node=agent_name,
+                retries=retry_count,
+            )
+
+        return [(agent_name, retry_count)]
 
     async def initialize_review(
         self,
@@ -145,11 +169,17 @@ class ReviewNodes:
             ),
         )
 
+        retry_counts = self._capture_agent_retries(
+            state=state,
+            agent_name=self._commercial_analyzer.name,
+        )
+
         return {
             "commercial_findings": findings,
             "completed_nodes": [
                 self._commercial_analyzer.name
             ],
+            "retry_counts": retry_counts,
         }
 
     async def legal_risk_agent(
@@ -169,11 +199,17 @@ class ReviewNodes:
             ),
         )
 
+        retry_counts = self._capture_agent_retries(
+            state=state,
+            agent_name=self._legal_analyzer.name,
+        )
+
         return {
             "legal_findings": findings,
             "completed_nodes": [
                 self._legal_analyzer.name
             ],
+            "retry_counts": retry_counts,
         }
 
     async def security_risk_agent(
@@ -193,11 +229,17 @@ class ReviewNodes:
             ),
         )
 
+        retry_counts = self._capture_agent_retries(
+            state=state,
+            agent_name=self._security_analyzer.name,
+        )
+
         return {
             "security_findings": findings,
             "completed_nodes": [
                 self._security_analyzer.name
             ],
+            "retry_counts": retry_counts,
         }
 
     async def aggregate_findings(
