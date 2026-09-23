@@ -1,0 +1,1190 @@
+{
+  "system_name": "deepseek-v4-pro-prompt-v3",
+  "system_metadata": {
+    "model_provider": "deepseek",
+    "model_name": "deepseek-v4-pro",
+    "prompt_version": "contract-risk-v3",
+    "validator_version": "citation-validator-v2",
+    "metrics_version": "evaluation-metrics-v2",
+    "dataset_sha256": "ee4cde5ec5356f1a34e45cf2d8ead4b1c7d4f03d4ea6754efeb331526ce188ae",
+    "rag_corpus_sha256": "3c4f88d7b5238ab7faf9a553111ebbed48514edff2034e7cef7d19af58589fbd",
+    "model_timeout_seconds": "300.0",
+    "model_max_retries": "2",
+    "model_max_input_chars": "120000",
+    "precision_guardrail_version": "precision-guardrail-v1",
+    "git_commit": "unavailable",
+    "worktree_dirty": "unknown",
+    "source_git_commit": "73189d15e1132f401440f25958430f7f759d8efb",
+    "execution_mode": "resumable_host_and_container",
+    "host_seed_case_count": "9",
+    "container_completed_case_count": "12",
+    "transport_interruption_count": "3"
+  },
+  "dataset_name": "railguard-contract-review",
+  "dataset_version": "1.1.0",
+  "generated_at": "2026-09-23T07:09:14.702053Z",
+  "case_results": [
+    {
+      "case_id": "demo-six-risks",
+      "title": "演示合同六类风险",
+      "predicted_findings": [
+        {
+          "finding_id": "7da7aaeab146439a8c3266c3f3de4c9d",
+          "finding_kind": "clause_risk",
+          "clause_id": "demo-six-risks-clause-003",
+          "expected_clause": null,
+          "category": "payment",
+          "level": "high",
+          "reason": "该条款约定合同签订后五日内支付全部合同款，付款未与交付、验收或任何阶段性成果挂钩，导致采购方在未获得可验收成果前即支付全部价款、丧失付款制约手段。",
+          "suggested_revision": "将付款调整为与交付和验收挂钩的分期安排，例如合同签订后支付经审批的少量预付款，阶段交付或初验后支付部分款项，最终验收合格并收到发票后支付尾款，并保留一定比例质保款。",
+          "evidence_ids": [
+            "mock-c8571d8be22f742104baf273"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "88b35f2e8fd44e719a9ea2bbab378fc5",
+          "finding_kind": "clause_risk",
+          "clause_id": "demo-six-risks-clause-004",
+          "expected_clause": null,
+          "category": "acceptance",
+          "level": "high",
+          "reason": "该条款仅以系统上线三日后甲方未提出异议作为验收合格条件，属于期限届满或沉默自动验收，未约定测试标准、整改、复验和书面确认，采购方可能在系统存在未发现缺陷时被迫接受。",
+          "suggested_revision": "明确验收标准、测试条件、缺陷整改期限和复验程序，并约定验收结果以采购方书面确认为准；删除或修改上线三日后未提出异议即视为合格的自动通过条款。",
+          "evidence_ids": [
+            "mock-8d8ff5c08e9977a8d982d6de"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "f6e79849e3a7480580c2a82c3f08a92f",
+          "finding_kind": "missing_clause",
+          "clause_id": null,
+          "expected_clause": "合同应明确源代码、定制开发成果、接口文档等知识产权和使用权归属，并约定第三方组件引起侵权时由供应商承担相应责任。",
+          "category": "intellectual_property",
+          "level": "high",
+          "reason": "合同仅约定乙方为甲方建设设备监测平台，未明确源代码或定制开发成果的知识产权归属，也未约定第三方侵权责任。发生权属争议或第三方索赔时，甲方可能无法合法使用、修改或继续开发该平台。",
+          "suggested_revision": "增加知识产权条款，明确定制开发成果、源代码及文档的知识产权归甲方所有，并约定乙方保证交付物不侵犯第三方权利，侵权时由乙方承担全部责任并赔偿甲方损失。",
+          "evidence_ids": [
+            "mock-9173b594e53bd151b097713e"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "8ca7d3ed6f2c4770ab87a5f2efcab697",
+          "finding_kind": "missing_clause",
+          "clause_id": null,
+          "expected_clause": "合同应明确延期交付、质量缺陷、赔偿及采购方解除权等违约责任。",
+          "category": "liability",
+          "level": "high",
+          "reason": "合同未约定延期交付、质量缺陷、赔偿方式或甲方解除权。乙方交付不符合要求或严重延期时，甲方缺乏追责依据和退出机制，已支付价款可能失去制约。",
+          "suggested_revision": "增加违约责任与解除条款，明确延期交付和质量缺陷的违约责任、赔偿范围，以及甲方在重大违约时的解除权和已付款项退还安排。",
+          "evidence_ids": [
+            "mock-2861fb5f571b5537507b33ba"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "24600af20949457088a632af114da397",
+          "finding_kind": "missing_clause",
+          "clause_id": null,
+          "expected_clause": "合同应明确质保期限、故障响应时间、修复时间以及服务退出和资料移交安排。",
+          "category": "support",
+          "level": "medium",
+          "reason": "合同未约定质保期或运维响应、修复时限。系统上线后出现故障时，甲方无法要求乙方限期修复；服务期结束或退出时也缺乏文档和数据移交保障。",
+          "suggested_revision": "增加质保与运维条款，约定质保期限、故障响应和修复时限，并明确服务退出后的技术文档、数据及系统资料移交义务。",
+          "evidence_ids": [
+            "mock-cf2238f9ee370f607f0b10e8"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "380f154bea6b44889d2f9b5e249946f4",
+          "finding_kind": "missing_clause",
+          "clause_id": null,
+          "expected_clause": "应约定供应商处理设备运行数据、用户账号和生产信息时的数据安全或保密义务，限制访问范围和使用目的，并明确合同结束后返还或删除相关数据。",
+          "category": "data_security",
+          "level": "high",
+          "reason": "合同仅约定项目内容、付款和验收，未包含任何数据安全或保密义务，也未限制供应商访问设备运行数据、用户账号和生产信息的范围、保存期限或返还删除要求。供应商处理上述数据时缺乏合同约束，可能超范围使用、留存或泄露，采购方难以追责。",
+          "suggested_revision": "增加数据安全条款，明确供应商仅可为项目实施目的访问必要数据，限制访问范围和使用目的，约定合同结束后的数据返还或删除义务，并设置数据安全事件的通知和处置责任。",
+          "evidence_ids": [
+            "mock-af800b18ed246eee9f016068"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:payment",
+          "finding_id": "7da7aaeab146439a8c3266c3f3de4c9d",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        },
+        {
+          "match_key": "clause_risk:acceptance",
+          "finding_id": "88b35f2e8fd44e719a9ea2bbab378fc5",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        },
+        {
+          "match_key": "missing_clause:intellectual_property",
+          "finding_id": "f6e79849e3a7480580c2a82c3f08a92f",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": null,
+          "has_citation": true,
+          "citation_source_matched": true
+        },
+        {
+          "match_key": "missing_clause:liability",
+          "finding_id": "8ca7d3ed6f2c4770ab87a5f2efcab697",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": null,
+          "has_citation": true,
+          "citation_source_matched": true
+        },
+        {
+          "match_key": "missing_clause:support",
+          "finding_id": "24600af20949457088a632af114da397",
+          "expected_level": "medium",
+          "predicted_level": "medium",
+          "level_matched": true,
+          "location_matched": null,
+          "has_citation": true,
+          "citation_source_matched": true
+        },
+        {
+          "match_key": "missing_clause:data_security",
+          "finding_id": "380f154bea6b44889d2f9b5e249946f4",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": null,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 6,
+        "predicted_count": 6,
+        "true_positive": 6,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "complete-safe-contract",
+      "title": "关键条款完整合同",
+      "predicted_findings": [],
+      "matches": [],
+      "missing_expected": [],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 0,
+        "predicted_count": 0,
+        "true_positive": 0,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "level_accuracy": null,
+        "location_accuracy": null,
+        "citation_coverage": null,
+        "source_matched_rate": null
+      }
+    },
+    {
+      "case_id": "literal-payment-risk",
+      "title": "全额预付单一风险",
+      "predicted_findings": [
+        {
+          "finding_id": "61d6af0b566d454bbdd987250cbd13a6",
+          "finding_kind": "clause_risk",
+          "clause_id": "literal-payment-risk-clause-002",
+          "expected_clause": null,
+          "category": "payment",
+          "level": "high",
+          "reason": "该条款约定合同签订后五日内甲方支付全部合同款，付款未与交付、验收或质保挂钩。采购方在获得任何可验收成果前即支付全部价款，若乙方不交付、交付不合格或履约不能，采购方将丧失付款制约手段。",
+          "suggested_revision": "将付款改为分阶段支付：仅保留经审批的必要预付款，剩余款项与阶段交付和最终验收合格挂钩，并保留最终验收后的尾款或质保金；未通过验收不得支付对应款项。",
+          "evidence_ids": [
+            "mock-c8571d8be22f742104baf273"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:payment",
+          "finding_id": "61d6af0b566d454bbdd987250cbd13a6",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 1,
+        "true_positive": 1,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "literal-acceptance-risk",
+      "title": "默认验收单一风险",
+      "predicted_findings": [
+        {
+          "finding_id": "d83adc6875594cdfb0f3ab1e9a3794b1",
+          "finding_kind": "clause_risk",
+          "clause_id": "literal-acceptance-risk-clause-003",
+          "expected_clause": null,
+          "category": "acceptance",
+          "level": "high",
+          "reason": "该条款约定系统上线三日后甲方未提出异议即视为验收合格，构成期限届满和沉默自动验收。采购方即使发现质量问题或未完成测试，只要未能在三日极短期内提出异议，就会被视为验收通过，进而触发尾款支付并丧失以验收不合格为由要求整改或拒付的权利。",
+          "suggested_revision": "删除“上线三日后未提出异议视为验收合格”的自动验收机制，改为约定明确的验收标准、测试材料、整改期限和复验程序，并规定验收仅在甲方出具书面验收合格确认后生效。",
+          "evidence_ids": [
+            "mock-8d8ff5c08e9977a8d982d6de"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:acceptance",
+          "finding_id": "d83adc6875594cdfb0f3ab1e9a3794b1",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 1,
+        "true_positive": 1,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "paraphrased-payment-risk",
+      "title": "全额预付同义改写",
+      "predicted_findings": [
+        {
+          "finding_id": "bfad14d680784127b52f550d5c64e5e5",
+          "finding_kind": "clause_risk",
+          "clause_id": "paraphrased-payment-risk-clause-002",
+          "expected_clause": null,
+          "category": "payment",
+          "level": "high",
+          "reason": "合同约定双方盖章次日甲方即一次性支付合同价款总额的100%，乙方收到款项后才开始交付。付款与交付、验收及任何尾款或质保款完全脱钩；一旦乙方延迟交付、交付不合格或未履行，采购方已支付全部价款，丧失付款制约和补救谈判能力。",
+          "suggested_revision": "将付款与交付里程碑和最终验收结果挂钩，例如：按合同生效、交付并初验、最终验收合格等节点分期支付，并保留不低于合同总价10%的尾款或质保金，在最终验收合格且质保期届满无未决质量问题后支付。确需预付款的，应将比例控制在经审批的合理范围内，并配套退款或履约保障机制。",
+          "evidence_ids": [
+            "mock-c8571d8be22f742104baf273"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:payment",
+          "finding_id": "bfad14d680784127b52f550d5c64e5e5",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 1,
+        "true_positive": 1,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "negated-payment-safe",
+      "title": "全额预付否定表达",
+      "predicted_findings": [],
+      "matches": [],
+      "missing_expected": [],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 0,
+        "predicted_count": 0,
+        "true_positive": 0,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "level_accuracy": null,
+        "location_accuracy": null,
+        "citation_coverage": null,
+        "source_matched_rate": null
+      }
+    },
+    {
+      "case_id": "weak-intellectual-property",
+      "title": "知识产权内容不充分",
+      "predicted_findings": [
+        {
+          "finding_id": "209866035eb04f24a2228493eb5f63f8",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-intellectual-property-clause-004",
+          "expected_clause": null,
+          "category": "intellectual_property",
+          "level": "high",
+          "reason": "知识产权归属被完全留待另行协商，且明确协商不成不影响付款。采购方可能在已支付或继续付款后，仍无法获得源代码、定制开发成果和接口文档的明确权利归属，也无法据此主张第三方侵权责任，核心知识产权保护缺失。",
+          "suggested_revision": "删除“协商不成不影响付款”的表述；明确源代码、定制开发成果、接口文档等知识产权归采购方所有，或约定具体的使用权范围；同时约定第三方组件引起侵权时由乙方承担责任。",
+          "evidence_ids": [
+            "mock-9173b594e53bd151b097713e"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:intellectual_property",
+          "finding_id": "209866035eb04f24a2228493eb5f63f8",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 1,
+        "true_positive": 1,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "weak-data-security",
+      "title": "数据安全内容不充分",
+      "predicted_findings": [
+        {
+          "finding_id": "532ea1d8c45745d3869780a53d6ddd29",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-data-security-clause-007",
+          "expected_clause": null,
+          "category": "data_security",
+          "level": "high",
+          "reason": "第六条数据安全条款仅约定乙方承担保密义务，但将数据处理范围、保存期限和删除安排全部留待另行协商，采购方无法依据现有合同约束供应商的数据使用目的、留存时间及合同结束后的数据返还或删除，存在设备运行数据、用户账号和生产信息被超范围处理或长期留存的风险。",
+          "suggested_revision": "在合同中明确乙方处理数据的范围、目的、访问权限和最小必要原则；约定确定的保存期限及保存期届满或合同终止后返还、删除数据的义务；并增加安全事件报告义务，确保采购方对数据安全具备可执行约束。",
+          "evidence_ids": [
+            "mock-af800b18ed246eee9f016068"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:data_security",
+          "finding_id": "532ea1d8c45745d3869780a53d6ddd29",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 1,
+        "true_positive": 1,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "weak-support-clause",
+      "title": "运维服务内容不充分",
+      "predicted_findings": [
+        {
+          "finding_id": "9f062b026cb5455f879ce8c10183fe44",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-support-clause-clause-006",
+          "expected_clause": null,
+          "category": "support",
+          "level": "medium",
+          "reason": "运维服务条款将具体服务内容留待双方另行协商，未约定质保期限、故障响应时间或修复时限。采购方在软件交付后缺乏可强制执行的售后服务标准，发生故障时乙方可能拖延响应或修复，采购方也难以依据合同约束其服务退出和资料移交。",
+          "suggested_revision": "在合同中明确：质保期限（如验收合格后不少于12个月）、故障分级响应时间和修复时限、服务期届满前的服务退出安排，以及服务期结束后数据和文档的移交义务；具体服务内容应作为附件在签署时确定，不得仅约定另行协商。",
+          "evidence_ids": [
+            "mock-cf2238f9ee370f607f0b10e8"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:support",
+          "finding_id": "9f062b026cb5455f879ce8c10183fe44",
+          "expected_level": "medium",
+          "predicted_level": "medium",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 1,
+        "true_positive": 1,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "weak-liability-clause",
+      "title": "违约责任内容不充分",
+      "predicted_findings": [
+        {
+          "finding_id": "83b008303f794517b445f75aee63e087",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-liability-clause-clause-005",
+          "expected_clause": null,
+          "category": "liability",
+          "level": "high",
+          "reason": "第四条仅概括性约定“违约责任按照法律规定执行，其他事项由双方另行协商”，未在合同中直接明确延期交付、质量缺陷、赔偿、解除和退款等核心违约责任。采购方在供应商违约时难以依据本合同直接、明确地主张解除、赔偿或退款，关键救济条件被留待事后协商。",
+          "suggested_revision": "删除“其他事项由双方另行协商”，在本条中明确延期交付、质量缺陷等违约情形的责任承担方式、赔偿计算方式、采购方解除合同的具体条件，以及解除后的退款和费用返还安排。",
+          "evidence_ids": [
+            "mock-2861fb5f571b5537507b33ba"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:liability",
+          "finding_id": "83b008303f794517b445f75aee63e087",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 1,
+        "true_positive": 1,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "paraphrased-acceptance-risk",
+      "title": "默认验收同义改写",
+      "predicted_findings": [
+        {
+          "finding_id": "522977b5f839453a90369017c7aa9f84",
+          "finding_kind": "clause_risk",
+          "clause_id": "paraphrased-acceptance-risk-clause-003",
+          "expected_clause": null,
+          "category": "acceptance",
+          "level": "high",
+          "reason": "该条款约定平台上线满三个工作日且甲方未回复即自动通过验收，无需双方书面确认。采购方可能因内部审批或测试流程尚未完成而被动接受不合格系统，丧失要求整改、复验及拒付尾款的权利。",
+          "suggested_revision": "删除上线期限届满或沉默即自动验收的安排，改为乙方提交书面验收申请及测试报告，由甲方按照约定测试标准进行验收并出具书面确认；未通过验收的，应明确整改期限和复验程序，复验合格前不得视为验收通过，也不得触发尾款支付。",
+          "evidence_ids": [
+            "mock-8d8ff5c08e9977a8d982d6de"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:acceptance",
+          "finding_id": "522977b5f839453a90369017c7aa9f84",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 1,
+        "true_positive": 1,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "weak-payment-clause",
+      "title": "付款条款内容不充分",
+      "predicted_findings": [
+        {
+          "finding_id": "fcbe8619ddf14a1ba9017ed3fc09e5aa",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-payment-clause-clause-002",
+          "expected_clause": null,
+          "category": "payment",
+          "level": "high",
+          "reason": "付款方式仅约定由双方协商确定，核心付款安排完全留待后续协商，未将付款与交付、验收结果挂钩，也未保留验收后尾款或质保金。采购方可能在交付或验收前即被要求支付全部或高比例价款，在质量不合格或交付延迟时丧失付款制约。",
+          "suggested_revision": "明确分期付款安排，将款项与阶段交付和最终验收合格结果挂钩，并保留验收合格后支付的尾款或质保金；确需预付款的，应设置审批条件和金额上限。",
+          "evidence_ids": [
+            "mock-c8571d8be22f742104baf273"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:payment",
+          "finding_id": "fcbe8619ddf14a1ba9017ed3fc09e5aa",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 1,
+        "true_positive": 1,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "weak-acceptance-clause",
+      "title": "验收条款内容不充分",
+      "predicted_findings": [
+        {
+          "finding_id": "c64d6ab75ec642ea972b65514eaaa4f8",
+          "finding_kind": "clause_risk",
+          "clause_id": "weak-acceptance-clause-clause-003",
+          "expected_clause": null,
+          "category": "acceptance",
+          "level": "high",
+          "reason": "验收条款仅约定“验收事项由双方协商确定”，未约定验收标准、测试材料、整改期限、复验程序及书面确认机制，核心验收事项全部留待后续协商。若后续无法达成一致，采购方可能无法有效拒绝不合格交付或触发付款条件，导致付款与验收脱钩。",
+          "suggested_revision": "明确验收标准与测试用例、验收申请及材料提交要求、采购方书面验收确认方式、整改期限和复验程序；未经双方书面确认验收合格，不得支付最终验收款项。",
+          "evidence_ids": [
+            "mock-8d8ff5c08e9977a8d982d6de"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:acceptance",
+          "finding_id": "c64d6ab75ec642ea972b65514eaaa4f8",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 1,
+        "true_positive": 1,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "negated-acceptance-safe",
+      "title": "否定默认验收",
+      "predicted_findings": [],
+      "matches": [],
+      "missing_expected": [],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 0,
+        "predicted_count": 0,
+        "true_positive": 0,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "level_accuracy": null,
+        "location_accuracy": null,
+        "citation_coverage": null,
+        "source_matched_rate": null
+      }
+    },
+    {
+      "case_id": "missing-support-only",
+      "title": "仅缺运维服务条款",
+      "predicted_findings": [
+        {
+          "finding_id": "f35babb323734311a8d388cefb0c7905",
+          "finding_kind": "missing_clause",
+          "clause_id": null,
+          "expected_clause": "合同应明确质保期限、故障响应时间、修复时限、服务退出及资料移交安排。",
+          "category": "support",
+          "level": "medium",
+          "reason": "合同全文未约定质保期限、故障响应时间和修复时限，也未约定服务退出及资料移交安排。软件上线后如出现故障或供应商停止服务，采购方没有可执行的响应、修复和交接依据，可能无法及时恢复系统或取得必要文档与数据。",
+          "suggested_revision": "增加运维与质保条款，明确质保期起止时间、不同故障等级的响应和修复时限，并约定服务期结束或提前终止时的资料、文档、数据及系统移交义务和配合期限。",
+          "evidence_ids": [
+            "mock-cf2238f9ee370f607f0b10e8"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "missing_clause:support",
+          "finding_id": "f35babb323734311a8d388cefb0c7905",
+          "expected_level": "medium",
+          "predicted_level": "medium",
+          "level_matched": true,
+          "location_matched": null,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 1,
+        "true_positive": 1,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "level_accuracy": 1.0,
+        "location_accuracy": null,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "missing-ip-only",
+      "title": "仅缺知识产权条款",
+      "predicted_findings": [
+        {
+          "finding_id": "e37181dbb6a74b67a85ee80f565aa2ee",
+          "finding_kind": "missing_clause",
+          "clause_id": null,
+          "expected_clause": "合同应明确源代码、定制开发成果、接口文档等知识产权和使用权归属，并约定第三方组件引起侵权时由供应商承担相应责任。",
+          "category": "intellectual_property",
+          "level": "high",
+          "reason": "合同未实质约定软件源代码、定制开发成果及接口文档的权利归属，也未约定第三方知识产权侵权责任承担。采购方可能在支付全部价款后仍无法获得核心成果的完整权利，或因第三方组件侵权被追责而需自行承担损失。",
+          "suggested_revision": "增加知识产权条款，明确定制开发成果、源代码和接口文档的知识产权归采购方所有或许可采购方不受限制使用；对供应商自有或第三方组件授予采购方必要的使用许可；并约定因第三方知识产权侵权产生的索赔、损失和费用由供应商承担并负责抗辩。",
+          "evidence_ids": [
+            "mock-9173b594e53bd151b097713e"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "missing_clause:intellectual_property",
+          "finding_id": "e37181dbb6a74b67a85ee80f565aa2ee",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": null,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 1,
+        "true_positive": 1,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "level_accuracy": 1.0,
+        "location_accuracy": null,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "multi-payment-acceptance",
+      "title": "付款与验收双风险",
+      "predicted_findings": [
+        {
+          "finding_id": "c22201fcdb0f45a6b41fdca96b93cef4",
+          "finding_kind": "clause_risk",
+          "clause_id": "multi-payment-acceptance-clause-002",
+          "expected_clause": null,
+          "category": "payment",
+          "level": "high",
+          "reason": "合同签订后五日内甲方支付全部合同款，付款与交付、验收彻底脱钩；供应商在交付和验收前已取得全部价款，采购方丧失以付款制约履约、整改和验收的权利。",
+          "suggested_revision": "将付款与阶段交付及最终验收结果挂钩，设置合理预付款比例，并保留最终验收合格后支付的尾款或质保金。",
+          "evidence_ids": [
+            "mock-c8571d8be22f742104baf273"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "c3d5208b2d5740bb86e3372551b65ad6",
+          "finding_kind": "clause_risk",
+          "clause_id": "multi-payment-acceptance-clause-003",
+          "expected_clause": null,
+          "category": "acceptance",
+          "level": "high",
+          "reason": "系统上线三日后甲方未提出异议即视为验收合格，属于期限届满自动通过和沉默验收，缺少测试标准、整改、复验和书面确认；采购方可能因未及时识别隐蔽缺陷而丧失质量异议和整改权利。",
+          "suggested_revision": "明确验收标准、测试程序、缺陷整改期限和复验流程，并以书面确认作为验收合格条件；删除“未提出异议视为验收合格”的自动认定。",
+          "evidence_ids": [
+            "mock-8d8ff5c08e9977a8d982d6de"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:payment",
+          "finding_id": "c22201fcdb0f45a6b41fdca96b93cef4",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        },
+        {
+          "match_key": "clause_risk:acceptance",
+          "finding_id": "c3d5208b2d5740bb86e3372551b65ad6",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 2,
+        "predicted_count": 2,
+        "true_positive": 2,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "tech-service-multi-risk",
+      "title": "技术服务合同双风险",
+      "predicted_findings": [
+        {
+          "finding_id": "585ff0ff6be34e6893197241bfd7b6ba",
+          "finding_kind": "clause_risk",
+          "clause_id": "tech-service-multi-risk-clause-002",
+          "expected_clause": null,
+          "category": "payment",
+          "level": "high",
+          "reason": "付款条款约定合同签订后五日内甲方支付全部服务费用，未将付款与交付、测试、整改或最终验收结果挂钩。一旦乙方未履约或交付质量不合格，采购方已支付全部价款，丧失付款制约和追索谈判杠杆。",
+          "suggested_revision": "将付款改为分期支付：签约后可支付经审批的合理预付款，主要款项与交付、测试和整改里程碑挂钩，并保留不低于合同价款一定比例的尾款或质保金，待最终验收合格后支付。",
+          "evidence_ids": [
+            "mock-c8571d8be22f742104baf273"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "a96d8e58bcf14277bb9ff5a7f83ad705",
+          "finding_kind": "missing_clause",
+          "clause_id": null,
+          "expected_clause": "合同应约定供应商处理设备运行数据、用户账号和生产信息时的数据安全与保密义务，明确处理目的、最小必要访问范围、保存期限、合同终止或服务期满后的数据返还与删除要求、安全事件通知机制，以及分包方责任承担。",
+          "category": "data_security",
+          "level": "high",
+          "reason": "合同全文仅包含付款、验收、知识产权、违约责任和运维条款，未约定供应商接触设备运行数据、用户账号或生产信息时的数据安全或保密义务，也未限制访问范围或约定服务期满后返还、删除数据。采购方将敏感数据交由供应商处理后，一旦发生泄露、超范围留存或擅自访问，将缺乏明确的合同救济依据。",
+          "suggested_revision": "增加数据安全条款：供应商仅可为履行合同目的最小必要地访问和处理数据，并承担保密义务；未经采购方书面同意不得向第三方或分包方披露；合同终止或服务期满后应按采购方要求返还或删除全部数据并出具书面确认；发生数据安全事件应在约定期限内通知采购方；因分包方造成的违约由供应商承担连带责任。",
+          "evidence_ids": [
+            "mock-af800b18ed246eee9f016068"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:payment",
+          "finding_id": "585ff0ff6be34e6893197241bfd7b6ba",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        },
+        {
+          "match_key": "missing_clause:data_security",
+          "finding_id": "a96d8e58bcf14277bb9ff5a7f83ad705",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": null,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 2,
+        "predicted_count": 2,
+        "true_positive": 2,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "data-service-contract",
+      "title": "数据服务合同数据安全不充分",
+      "predicted_findings": [
+        {
+          "finding_id": "5131e31a12d748b6a10e0ce4378cdb26",
+          "finding_kind": "clause_risk",
+          "clause_id": "data-service-contract-clause-007",
+          "expected_clause": null,
+          "category": "data_security",
+          "level": "high",
+          "reason": "该条款仅要求乙方“注意保护甲方数据”，并将具体措施全部留待双方协商，未明确数据处理范围、访问权限、保存期限、返还删除等核心义务，缺乏可执行的保护措施。供应商接触设备运行数据、用户账号或生产信息时，采购方数据面临不受控处理风险。",
+          "suggested_revision": "明确乙方仅可在约定目的和最小必要范围内处理甲方设备运行数据、用户账号和生产信息，设置访问权限限制，约定合同结束后返还或删除全部数据，并将安全事件报告义务具体化。",
+          "evidence_ids": [
+            "mock-af800b18ed246eee9f016068"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:data_security",
+          "finding_id": "5131e31a12d748b6a10e0ce4378cdb26",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 1,
+        "true_positive": 1,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "low-support-gap",
+      "title": "运维服务响应时限缺失",
+      "predicted_findings": [
+        {
+          "finding_id": "7fe814ff358d4b5db20dd90b7514730c",
+          "finding_kind": "clause_risk",
+          "clause_id": "low-support-gap-clause-006",
+          "expected_clause": null,
+          "category": "support",
+          "level": "low",
+          "reason": "第五条仅约定一年质保期，但将故障响应和修复时间留待双方另行约定，导致质保期内供应商处理故障的时限缺乏合同约束。若系统发生故障，供应商可能拖延响应或修复，采购方难以依据明确标准主张违约责任或督促履约。",
+          "suggested_revision": "建议在合同中明确故障等级及对应的响应时间和修复时限，例如重大故障1小时内响应、4小时内修复，一般故障4小时内响应、24小时内修复；并约定未达时限时的违约责任或质保期顺延。",
+          "evidence_ids": [
+            "mock-cf2238f9ee370f607f0b10e8"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "clause_risk:support",
+          "finding_id": "7fe814ff358d4b5db20dd90b7514730c",
+          "expected_level": "low",
+          "predicted_level": "low",
+          "level_matched": true,
+          "location_matched": true,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 1,
+        "predicted_count": 1,
+        "true_positive": 1,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "level_accuracy": 1.0,
+        "location_accuracy": 1.0,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    },
+    {
+      "case_id": "missing-liability-support",
+      "title": "缺违约责任与运维服务条款",
+      "predicted_findings": [
+        {
+          "finding_id": "4a9f615b675f416ea61571e6977dd938",
+          "finding_kind": "missing_clause",
+          "clause_id": null,
+          "expected_clause": "合同应明确延期交付和质量缺陷的违约责任、损失赔偿、采购方解除合同及退款机制。",
+          "category": "liability",
+          "level": "high",
+          "reason": "完整合同未实质覆盖延期交付、质量缺陷、赔偿、解除和退款责任。一旦供应商延期交付或交付成果存在缺陷，采购方缺乏追究违约责任、获得赔偿或解除合同并要求退款的合同依据，可能陷入无法有效追责和退出的被动局面。",
+          "suggested_revision": "增补违约责任条款：约定延期交付和质量缺陷的违约责任及损失赔偿方式，并明确供应商重大违约时采购方有权解除合同、要求退还已付款项并索赔损失。",
+          "evidence_ids": [
+            "mock-2861fb5f571b5537507b33ba"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        },
+        {
+          "finding_id": "9110cc97077a40a680c732ae130ce205",
+          "finding_kind": "missing_clause",
+          "clause_id": null,
+          "expected_clause": "合同应明确质保期限、故障等级及响应时限、修复时限，以及服务期满后的数据、文档移交和服务退出安排。",
+          "category": "support",
+          "level": "medium",
+          "reason": "合同中仅付款条款提及质保期，但未约定质保期限、故障响应和修复时限，也未覆盖服务退出和资料移交。软件上线后发生故障时，采购方无法要求供应商在规定时间内响应和修复；服务期结束后也可能无法获得必要的资料移交和退出支持。",
+          "suggested_revision": "增补质保与运维条款：明确质保期限、分级故障响应和修复时限，并约定服务期满后的技术资料、数据移交及服务退出协助义务。",
+          "evidence_ids": [
+            "mock-cf2238f9ee370f607f0b10e8"
+          ],
+          "rejected_evidence_ids": [],
+          "citation_status": "source_matched"
+        }
+      ],
+      "matches": [
+        {
+          "match_key": "missing_clause:liability",
+          "finding_id": "4a9f615b675f416ea61571e6977dd938",
+          "expected_level": "high",
+          "predicted_level": "high",
+          "level_matched": true,
+          "location_matched": null,
+          "has_citation": true,
+          "citation_source_matched": true
+        },
+        {
+          "match_key": "missing_clause:support",
+          "finding_id": "9110cc97077a40a680c732ae130ce205",
+          "expected_level": "medium",
+          "predicted_level": "medium",
+          "level_matched": true,
+          "location_matched": null,
+          "has_citation": true,
+          "citation_source_matched": true
+        }
+      ],
+      "missing_expected": [],
+      "unexpected_predictions": [],
+      "metrics": {
+        "expected_count": 2,
+        "predicted_count": 2,
+        "true_positive": 2,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "level_accuracy": 1.0,
+        "location_accuracy": null,
+        "citation_coverage": 1.0,
+        "source_matched_rate": 1.0
+      }
+    }
+  ],
+  "aggregate_metrics": {
+    "expected_count": 26,
+    "predicted_count": 26,
+    "true_positive": 26,
+    "false_positive": 0,
+    "false_negative": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "level_accuracy": 1.0,
+    "location_accuracy": 1.0,
+    "citation_coverage": 1.0,
+    "source_matched_rate": 1.0
+  }
+}

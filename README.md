@@ -533,7 +533,7 @@ data/runtime/evaluations/deepseek-v4-pro-v1.1-report.json
 
 离线重放得到TP=26、FP=0、FN=0，精确率、召回率和F1均为100%。该结果只证明护栏能够处理已观察到的误报；由于21例开发基准已参与规则设计，不能作为最终泛化成绩，也不能代替模型重新推理。完整说明见 [基础模型质量优化报告](docs/model-optimization-v3-report.md)。
 
-2026-09-18已尝试运行Prompt v3的8例真实模型小评测，但DeepSeek返回HTTP 402 `Insufficient Balance`，未产生可用结果。余额恢复后必须先完成8例小评测，再完成21例真实开发评测；真实评测达到精确率70%、召回率85%、F1 75%后，才进入微调阶段。
+2026-09-23已完成Prompt v3的8例小评测和21例真实开发评测。21例结果为TP=26、FP=0、FN=0，精确率、召回率和F1均为100%，风险等级、原文定位、引用覆盖和来源匹配也均为100%。报告归档于 `data/evaluation/reports/deepseek-v4-pro-prompt-v3-21cases.json`。该结果通过开发阶段微调准入指标，但21例已参与提示词和护栏优化，不能作为最终泛化成绩；冻结held-out测试集不得在微调前用于继续调优。
 
 历史探索结果（旧版11例、prompt v1和citation validator v1）：
 
@@ -667,7 +667,7 @@ Starlette产生的一项AnyIO弃用警告来自第三方依赖。
 
 ## 当前限制
 
-- 已完成阶段A的21例规则基线、阶段B的21例DeepSeek prompt v2正式评测，以及prompt v3与Precision Guardrail v1离线优化；prompt v3真实复评因DeepSeek余额不足尚未完成
+- 已完成阶段A的21例规则基线、阶段B的21例DeepSeek prompt v2正式评测，以及prompt v3与Precision Guardrail v1优化；prompt v3真实21例开发评测已通过开发阶段准入指标
 - 尚未完成领域监督微调训练和阶段C正式评测
 - 评测集为21份合成合同和26项标签，规模仍然偏小，且为合成数据
 - Mock知识库内容为合成数据
@@ -679,9 +679,8 @@ Starlette产生的一项AnyIO弃用警告来自第三方依赖。
 
 ## 后续计划
 
-1. DeepSeek余额恢复后，先运行Prompt v3的8例小评测，再运行21例完整开发评测，确认精确率、召回率和F1达到微调准入门槛。
-2. 抽样审查被Precision Guardrail v1过滤的候选项，确认没有系统性漏检。
-3. 另建与开发基准和最终测试集隔离的训练集、验证集及held-out测试集，避免评测泄漏。
-4. 选择开放权重底座，先生成未微调模型的领域基线。
-5. 达到准入门槛后再执行LoRA或QLoRA监督微调，并在冻结held-out测试集上比较同一底座微调前后的结果。
-6. 接入真实RAG服务，并继续补充OCR、认证、审计、监控和备份能力。
+1. 抽样审查被Precision Guardrail v1过滤的候选项，确认没有系统性漏检。
+2. 构造并双人复核与开发基准、冻结held-out隔离的SFT训练集和验证集。
+3. 选择开放权重底座，先生成未微调模型的领域基线。
+4. 执行LoRA或QLoRA监督微调，并在冻结held-out测试集上比较同一底座微调前后的结果。
+5. 接入真实RAG服务，并继续补充OCR、认证、审计、监控和备份能力。
