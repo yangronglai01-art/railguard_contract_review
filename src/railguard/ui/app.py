@@ -69,12 +69,23 @@ def get_api_base_url() -> str:
     ).rstrip("/")
 
 
+def get_review_timeout_seconds() -> float:
+    """读取启动大模型审核时允许前端等待的秒数。"""
+    return float(
+        os.getenv(
+            "RAILGUARD_REVIEW_TIMEOUT_SECONDS",
+            "390",
+        )
+    )
+
+
 @st.cache_resource
 def get_api_client() -> RailGuardApiClient:
     """创建供整个Streamlit会话复用的HTTP API客户端。"""
     return RailGuardApiClient(
         base_url=get_api_base_url(),
         timeout_seconds=30.0,
+        review_timeout_seconds=get_review_timeout_seconds(),
     )
 
 

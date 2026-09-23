@@ -82,6 +82,7 @@ services:
 
     environment:
       RAILGUARD_API_BASE_URL: "http://api:8000"
+      RAILGUARD_REVIEW_TIMEOUT_SECONDS: "${RAILGUARD_REVIEW_TIMEOUT_SECONDS:-390}"
 
     ports:
       - "${RAILGUARD_UI_PORT:-8501}:8501"

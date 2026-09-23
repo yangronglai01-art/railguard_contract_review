@@ -44,6 +44,7 @@ class RailGuardApiClient:
         *,
         base_url: str,
         timeout_seconds: float = 30.0,
+        review_timeout_seconds: float | None = None,
         transport: httpx.BaseTransport | None = None,
     ) -> None:
         """创建可复用连接池的同步HTTP客户端。
@@ -54,6 +55,12 @@ class RailGuardApiClient:
             base_url=f"{base_url.rstrip('/')}/",
             timeout=timeout_seconds,
             transport=transport,
+        )
+        # 启动审核需要等待三个大模型Agent全部返回，使用独立的长超时。
+        self._review_timeout_seconds = (
+            review_timeout_seconds
+            if review_timeout_seconds is not None
+            else timeout_seconds
         )
 
     def close(self) -> None:
@@ -95,6 +102,7 @@ class RailGuardApiClient:
         return self._request(
             method="POST",
             path=f"contracts/{contract_id}/reviews",
+            timeout=self._review_timeout_seconds,
         )
 
     def get_review(

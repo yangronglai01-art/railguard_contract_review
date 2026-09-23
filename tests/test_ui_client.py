@@ -24,6 +24,7 @@ def create_client(handler: ResponseHandler) -> RailGuardApiClient:
     return RailGuardApiClient(
         base_url="http://railguard.test",
         timeout_seconds=1.0,
+        review_timeout_seconds=390.0,
         transport=httpx.MockTransport(handler),
     )
 
@@ -86,6 +87,8 @@ def test_client_calls_review_api_with_expected_requests() -> None:
         "GET",
         "POST",
     ]
+
+    assert requests[2].extensions["timeout"]["read"] == 390.0
 
     upload_request = requests[1]
     assert "multipart/form-data" in upload_request.headers["content-type"]
