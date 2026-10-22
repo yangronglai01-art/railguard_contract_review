@@ -1,5 +1,6 @@
 ﻿"""RailGuard应用配置。"""
 
+import os
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal, Self
@@ -22,14 +23,20 @@ class Settings(BaseSettings):
     app_env: str = "development"
     app_version: str = "0.1.0"
 
+    # Legacy defaults remain reproducible; the Petkit launcher selects its profile explicitly.
+    business_profile: Literal["baus", "petkit"] = "baus"
+    auth_mode: Literal["local_demo", "token"] = "local_demo"
+
     # 风险分析模式：
     # mock使用确定性规则；
     # openai使用OpenAI严格结构化接口；
-    # deepseek使用DeepSeek Responses接口。
+    # deepseek使用DeepSeek Responses接口；
+    # ai_platform使用统一AI网关的Chat Completions+JSON模式。
     model_provider: Literal[
         "mock",
         "openai",
         "deepseek",
+        "ai_platform",
     ] = "mock"
 
     # 当前模式使用的供应商模型名称。
@@ -48,6 +55,12 @@ class Settings(BaseSettings):
 
     # DeepSeek默认使用官方接口，也可以配置企业代理网关。
     deepseek_base_url: str = "https://api.deepseek.com"
+
+    # 统一AI网关（ai-platform）的访问密钥。
+    ai_platform_api_key: str | None = None
+
+    # 统一AI网关（ai-platform）的OpenAI兼容接口根地址。
+    ai_platform_base_url: str = "http://127.0.0.1:18700/v1"
 
     # 单次模型请求的超时时间，单位为秒。
     model_timeout_seconds: float = Field(
@@ -102,6 +115,22 @@ class Settings(BaseSettings):
     @model_validator(mode="after")
     def validate_model_configuration(self) -> Self:
         """验证模型名称和所选供应商需要的访问密钥。"""
+        if self.auth_mode == "token" and self.business_profile != "petkit":
+            raise ValueError("Token authorization is currently validated for Petkit only")
+        if self.business_profile == "petkit":
+            from railguard.business import PETKIT_CORPUS
+
+            if "rag_mock_corpus_path" not in self.model_fields_set:
+                self.rag_mock_corpus_path = Path(PETKIT_CORPUS)
+            if "database_path" not in self.model_fields_set:
+                self.database_path = Path("data/runtime/petkit/contracts.db")
+            if "checkpoint_path" not in self.model_fields_set:
+                self.checkpoint_path = Path("data/runtime/petkit/checkpoints.sqlite3")
+            if self.rag_mode == "mock" and self.rag_mock_corpus_path.name in {
+                "rag-corpus-baus-v1.json", "rag-corpus.json",
+            }:
+                raise ValueError("Petkit profile cannot use a frozen legacy corpus")
+
         if not self.model_name.strip():
             raise ValueError(
                 "MODEL_NAME must not be blank"
@@ -133,6 +162,19 @@ class Settings(BaseSettings):
                 "MODEL_PROVIDER=deepseek"
             )
 
+        # 统一AI网关模式必须具有对应的网关访问密钥。
+        if (
+            self.model_provider == "ai_platform"
+            and (
+                self.ai_platform_api_key is None
+                or not self.ai_platform_api_key.strip()
+            )
+        ):
+            raise ValueError(
+                "AI_PLATFORM_API_KEY is required when "
+                "MODEL_PROVIDER=ai_platform"
+            )
+
         return self
 
 
@@ -143,4 +185,9 @@ def get_settings() -> Settings:
     每个进程只读取一次配置，避免每个请求重复读取.env文件。
     修改配置后需要重新启动对应的服务进程。
     """
+    if os.getenv("RAILGUARD_ISOLATED_DEMO") == "1":
+        # Explicit defaults override inherited model/provider and secret variables.
+        return Settings(_env_file=None, **{
+            name: field.default for name, field in Settings.model_fields.items()
+        })
     return Settings()

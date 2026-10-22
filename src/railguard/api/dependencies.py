@@ -1,9 +1,20 @@
 """FastAPI依赖项。"""
 
-from fastapi import Request
+from fastapi import Header, Request
 
+from railguard.security import Principal, SecurityStore
 from railguard.storage.contracts import ContractRepository
 from railguard.workflow.service import ReviewService
+
+
+def get_security(request: Request) -> SecurityStore:
+    return request.app.state.security
+
+
+def get_principal(request: Request, authorization: str | None = Header(default=None)) -> Principal:
+    security = get_security(request)
+    token = authorization[7:] if authorization and authorization.startswith("Bearer ") else ""
+    return security.authenticate(token)
 
 
 def get_contract_repository(

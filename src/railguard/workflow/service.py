@@ -6,6 +6,7 @@ FastAPI路由不直接操作checkpoint或Command。
 
 import asyncio
 import logging
+from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import cast
 
@@ -116,9 +117,11 @@ class ReviewService:
     async def start_review(
         self,
         contract: ContractDocument,
+        *,
+        review_id: str | None = None,
     ) -> ReviewSnapshot:
         """创建审核ID并运行至完成或人工暂停。"""
-        review_id = new_id()
+        review_id = review_id or new_id()
         config = self._config(review_id)
 
         try:
@@ -160,6 +163,7 @@ class ReviewService:
         *,
         review_id: str,
         decision: HumanReviewDecision,
+        authorize: Callable[[], None] | None = None,
     ) -> ReviewSnapshot:
         """校验人工决定并恢复暂停的审核任务。
 
@@ -199,6 +203,9 @@ class ReviewService:
                 )
 
             try:
+                if authorize is not None:
+                    # Revalidate after the per-review lock and checkpoint reads.
+                    authorize()
                 await self._graph.ainvoke(
                     Command(
                         resume=decision.model_dump(mode="json")

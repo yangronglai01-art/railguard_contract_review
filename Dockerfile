@@ -1,5 +1,5 @@
 # 使用项目指定的Python 3.11运行环境。
-FROM python:3.11-slim
+FROM python:3.11-slim@sha256:da047cb8f9d1d98e5c070f5300ba9f7274e33b8fc0e5be5ed88740aed1b95ba9
 
 # 禁止生成.pyc文件，立即输出日志，并关闭pip版本提示。
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -21,11 +21,13 @@ RUN groupadd --system --gid 10001 railguard \
         railguard
 
 # 先复制依赖描述文件和源码，利用Docker构建缓存。
+COPY requirements.lock ./
+RUN python -m pip install -r requirements.lock
 COPY pyproject.toml README.md ./
 COPY src ./src
 
 # 安装RailGuard及其运行依赖。
-RUN python -m pip install .
+RUN python -m pip install --no-deps .
 
 # 复制演示知识库和合同文件。
 COPY --chown=railguard:railguard data/demo ./data/demo

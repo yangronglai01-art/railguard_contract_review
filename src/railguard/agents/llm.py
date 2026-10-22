@@ -92,6 +92,7 @@ class LlmRiskAnalyzer:
         max_evidence_ids: int = DEFAULT_MAX_EVIDENCE_IDS,
         max_reason_chars: int = DEFAULT_MAX_REASON_CHARS,
         max_revision_chars: int = DEFAULT_MAX_REVISION_CHARS,
+        business_profile: str = "baus",
     ) -> None:
         """保存Agent职责、模型调用器和本地输出限制。"""
         self._validate_positive_limit(
@@ -124,6 +125,7 @@ class LlmRiskAnalyzer:
         self._max_evidence_ids = max_evidence_ids
         self._max_reason_chars = max_reason_chars
         self._max_revision_chars = max_revision_chars
+        self._business_profile = business_profile
 
     async def analyze(
         self,
@@ -203,7 +205,12 @@ class LlmRiskAnalyzer:
 
             # 本地护栏使用明确的最低合格线抑制最佳实践型误报。
             # 被过滤的候选项没有进入业务结果，也不会中断整单审核。
-            if not risk_candidate_is_eligible(
+            eligible = risk_candidate_is_eligible
+            if self._business_profile == "petkit":
+                from railguard.business import petkit_candidate_is_eligible
+
+                eligible = petkit_candidate_is_eligible
+            if not eligible(
                 contract=contract,
                 finding_kind=candidate.finding_kind,
                 clause_id=candidate.clause_id,

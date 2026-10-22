@@ -38,3 +38,5 @@ Thumbs.db
 
 # Temporary working notes (remove before publishing)
 PROGRESS.md
+**/credentials*.json
+**/credentials-*.tmp

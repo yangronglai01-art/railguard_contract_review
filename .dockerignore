@@ -44,3 +44,5 @@ data/runtime
 Thumbs.db
 *.log
 *.tmp
+**/credentials*.json
+**/credentials-*.tmp

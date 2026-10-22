@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "mock_only": true,
+  "project": "rg-petkit-check-6f7ff68f8e4b",
+  "image_id": "sha256:a5a33c96dbdef4d64ed36a3102df3f3083f36fa658f7a06ef78840a22cfa9c1e",
+  "source_tree_sha256": "1a536481fcbb3202cf769267a753ca9bd3a376ec62cd6a3417a42e5835f08713",
+  "lock_sha256": "d13df4cf1fb60467b39a25ab6fff1806a3c91bb8ab08dc854a0a903eed7c37e4",
+  "ui_health": true,
+  "nonroot_uid": 10001,
+  "dependency_check": true,
+  "source_hashes_match": true,
+  "personal_credential_mode": "0600",
+  "anonymous_denied": true,
+  "cross_owner_denied": true,
+  "six_risks_source_matched": true,
+  "restart_persists_permissions": true,
+  "server_owned_reviewer": true,
+  "grant_revocation": true,
+  "metadata_audit": true,
+  "owned_project_removed": true
+}

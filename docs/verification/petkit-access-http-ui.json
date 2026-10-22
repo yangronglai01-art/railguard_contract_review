@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "mock_only": true,
+  "authenticated_http": true,
+  "cross_owner_denied": true,
+  "separate_ui_sessions": true,
+  "logout_clears_contract": true,
+  "restart_restores_permissions": true,
+  "rotation_revokes_old_token": true,
+  "server_owned_reviewer": true,
+  "audit_metadata_only": true,
+  "owned_processes_stopped": true
+}

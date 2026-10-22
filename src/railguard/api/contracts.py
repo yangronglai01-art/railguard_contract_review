@@ -11,7 +11,7 @@ from fastapi import (
     status,
 )
 
-from railguard.api.dependencies import get_contract_repository
+from railguard.api.dependencies import get_contract_repository, get_principal, get_security
 from railguard.models.schemas import ContractDocument
 from railguard.parsers.clauses import split_clauses
 from railguard.parsers.documents import (
@@ -23,6 +23,7 @@ from railguard.parsers.documents import (
     UnsupportedFileTypeError,
     parse_document,
 )
+from railguard.security import AccessDenied, Principal, SecurityStore
 from railguard.storage.contracts import ContractRepository
 
 # 所有接口统一使用/contracts前缀。
@@ -43,6 +44,8 @@ async def upload_contract(
         ContractRepository,
         Depends(get_contract_repository),
     ],
+    principal: Annotated[Principal, Depends(get_principal)],
+    security: Annotated[SecurityStore, Depends(get_security)],
 ) -> ContractDocument:
     """上传、解析并保存一份合同。
 
@@ -55,6 +58,7 @@ async def upload_contract(
     5. 使用可解释规则切分条款并保存原文位置。
     """
     # UploadFile的filename允许为空，因此需要提供空字符串回退值。
+    security.require_role(principal, "submitter")
     filename = file.filename or ""
 
     try:
@@ -104,7 +108,8 @@ async def upload_contract(
     )
 
     # 将合同完整JSON保存到SQLite。
-    repository.save(contract)
+    security.save_contract(principal, contract)
+    security.authorize(principal, contract.contract_id)
 
     return contract
 
@@ -119,8 +124,11 @@ def get_contract(
         ContractRepository,
         Depends(get_contract_repository),
     ],
+    principal: Annotated[Principal, Depends(get_principal)],
+    security: Annotated[SecurityStore, Depends(get_security)],
 ) -> ContractDocument:
     """根据合同ID读取已经保存的合同。"""
+    security.authorize(principal, contract_id)
     contract = repository.get(contract_id)
 
     if contract is None:
@@ -129,4 +137,29 @@ def get_contract(
             detail="Contract not found.",
         )
 
+    security.authorize(principal, contract_id)
     return contract
+
+
+@router.put("/{contract_id}/reviewers/{subject}")
+def assign_reviewer(
+    contract_id: str, subject: str,
+    principal: Annotated[Principal, Depends(get_principal)],
+    security: Annotated[SecurityStore, Depends(get_security)],
+):
+    if not security.enabled:
+        raise AccessDenied(403, "Requires token authorization mode")
+    security.grant(principal, contract_id, subject)
+    return {"assigned": True}
+
+
+@router.delete("/{contract_id}/reviewers/{subject}")
+def remove_reviewer(
+    contract_id: str, subject: str,
+    principal: Annotated[Principal, Depends(get_principal)],
+    security: Annotated[SecurityStore, Depends(get_security)],
+):
+    if not security.enabled:
+        raise AccessDenied(403, "Requires token authorization mode")
+    security.grant(principal, contract_id, subject, remove=True)
+    return {"removed": True}

@@ -56,6 +56,7 @@ def build_review_graph(
     legal_analyzer: RiskAnalyzer | None = None,
     security_analyzer: RiskAnalyzer | None = None,
     checkpointer: BaseCheckpointSaver | None = None,
+    require_human_review: bool = False,
 ) -> CompiledStateGraph:
     """构建并编译合同审核工作流。
 
@@ -86,6 +87,7 @@ def build_review_graph(
         commercial_analyzer=resolved_commercial_analyzer,
         legal_analyzer=resolved_legal_analyzer,
         security_analyzer=resolved_security_analyzer,
+        require_human_review=require_human_review,
     )
 
     # ReviewState定义所有节点共享的数据结构。
@@ -148,7 +150,7 @@ def build_review_graph(
     # 有风险时暂停等待人工处理，没有风险时直接生成摘要。
     builder.add_conditional_edges(
         "verify_citations",
-        route_after_verification,
+        (lambda state: "human_review") if require_human_review else route_after_verification,
         {
             "human_review": "human_review",
             "finalize_review": "finalize_review",

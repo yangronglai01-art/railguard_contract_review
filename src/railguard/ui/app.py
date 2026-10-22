@@ -79,14 +79,103 @@ def get_review_timeout_seconds() -> float:
     )
 
 
-@st.cache_resource
 def get_api_client() -> RailGuardApiClient:
-    """创建供整个Streamlit会话复用的HTTP API客户端。"""
-    return RailGuardApiClient(
-        base_url=get_api_base_url(),
-        timeout_seconds=30.0,
-        review_timeout_seconds=get_review_timeout_seconds(),
-    )
+    """A personal client belongs to one browser session, never global cache."""
+    key = (get_api_base_url(), st.session_state.get("personal_token", ""))
+    if st.session_state.get("client_key") != key:
+        previous = st.session_state.pop("personal_client", None)
+        if previous is not None:
+            previous.close()
+        st.session_state["personal_client"] = RailGuardApiClient(
+            base_url=key[0], token=key[1], timeout_seconds=30.0,
+            review_timeout_seconds=get_review_timeout_seconds(),
+        )
+        st.session_state["client_key"] = key
+    return st.session_state["personal_client"]
+
+
+def reset_identity():
+    previous = st.session_state.pop("personal_client", None)
+    if previous is not None:
+        previous.close()
+    for key in ["personal_token", "identity", "client_key", "contract_snapshot", "review_snapshot", "my_reviews"]:
+        st.session_state.pop(key, None)
+
+
+def authenticate_session(client):
+    """Confirm the session identity before rendering previously loaded contracts."""
+    if st.session_state.get("login_notice"):
+        st.warning(st.session_state.pop("login_notice"))
+    try:
+        profile = client.profile()
+    except ApiClientError as error:
+        show_api_error(error)
+        st.stop()
+    secure = profile.get("auth_mode") == "token"
+    st.session_state["auth_required"] = secure
+    if not secure:
+        return
+    if st.session_state.get("personal_token"):
+        try:
+            st.session_state["identity"] = client.identity()
+        except ApiClientError:
+            reset_identity()
+            st.session_state["login_notice"] = "身份已失效，请重新登录。"
+            st.rerun()
+        with st.sidebar:
+            person = st.session_state["identity"]
+            st.caption(f"当前账号：{person['subject']} · {person['role']}")
+            if st.button("退出登录"):
+                reset_identity()
+                st.rerun()
+        return
+    with st.sidebar, st.form("personal-login"):
+        token = st.text_input("个人访问凭据", type="password")
+        login = st.form_submit_button("登录")
+    if login:
+        candidate = RailGuardApiClient(base_url=get_api_base_url(), token=token)
+        try:
+            person = candidate.identity()
+        except ApiClientError as error:
+            show_api_error(error)
+        else:
+            reset_identity()
+            st.session_state["personal_token"] = token
+            st.session_state["identity"] = person
+            st.rerun()
+        finally:
+            candidate.close()
+    st.info("使用个人凭据登录后访问自己的合同或获授权的审核任务。")
+    st.stop()
+
+
+def render_personal_tasks(client):
+    if not st.session_state.get("auth_required"):
+        return
+    with st.sidebar:
+        if st.button("读取我的审核任务"):
+            try:
+                st.session_state["my_reviews"] = client.list_reviews()
+            except ApiClientError as error:
+                show_api_error(error)
+        items = st.session_state.get("my_reviews", [])
+        if items:
+            selected = st.selectbox("我的任务", range(len(items)), format_func=lambda i: items[i]["filename"])
+            if st.button("打开选中任务"):
+                try:
+                    review = client.get_review(items[selected]["review_id"])
+                    contract = client.get_contract(review["contract_id"])
+                except ApiClientError as error:
+                    show_api_error(error)
+                else:
+                    st.session_state["review_snapshot"] = review
+                    st.session_state["contract_snapshot"] = contract
+                    st.rerun()
+        if st.session_state.get("identity", {}).get("role") == "auditor" and st.button("读取操作审计"):
+            try:
+                st.json(client.audit())
+            except ApiClientError as error:
+                show_api_error(error)
 
 
 def initialize_session_state() -> None:
@@ -189,16 +278,22 @@ def render_sidebar(client: RailGuardApiClient) -> None:
     """展示系统说明、后端地址和连接检查入口。"""
     with st.sidebar:
         st.title("RailGuard")
-        st.caption(
-            "宁波鲍斯能源装备 · 合同风险审核工作台"
-        )
+        try:
+            profile = client.profile()
+        except ApiClientError:
+            st.caption("业务场景信息暂不可用，请检查后端连接。")
+        else:
+            st.caption(profile["display_name"])
+            st.caption(f"合成规则版本：{profile['rule_version']}")
+            if profile.get("model_provider") == "mock":
+                st.info("当前为确定性规则演示，不代表真实模型审核能力。")
 
         st.divider()
         st.write("当前演示范围")
         st.markdown(
             """
-            - 软件、ERP、MES与QMS实施合同
-            - 生产设备、系统集成与运维服务合同
+            - 软件、云服务与设备数据平台采购
+            - 相关技术服务合同，固定采购方立场
             - 商务、法务和数据安全Agent
             - RAG证据引用与来源验证
             - 人工确认、驳回和修改决定
@@ -233,7 +328,7 @@ def render_header() -> None:
     """展示审核工作台标题和业务说明。"""
     st.title("合同智能审核工作台")
     st.write(
-        "面向高端装备制造企业的采购合同，"
+        "面向软件、云服务与技术服务采购合同，"
         "由三个专业Agent并行识别风险，"
         "再由人工审核人确认最终处理结果。"
     )
@@ -491,11 +586,17 @@ def submit_human_decision(
     finding_choices: dict[str, str] = {}
 
     st.subheader("4. 人工审核决定")
+    identity = st.session_state.get("identity", {})
+    if st.session_state.get("auth_required") and identity.get("role") != "reviewer":
+        st.info("需要已获此合同授权的审核人登录后作出决定。")
+        return
 
     with st.form(f"decision-form-{review_id}"):
         reviewer = st.text_input(
             "审核人",
             placeholder="请输入姓名或企业账号",
+            value=identity.get("subject", ""),
+            disabled=st.session_state.get("auth_required", False),
         )
 
         st.markdown("**逐项确认风险**")
@@ -740,11 +841,14 @@ def main() -> None:
     initialize_session_state()
 
     client = get_api_client()
+    authenticate_session(client)
 
     render_sidebar(client)
+    render_personal_tasks(client)
     render_header()
     show_pending_notice()
-    render_upload(client)
+    if not st.session_state.get("auth_required") or st.session_state.get("identity", {}).get("role") == "submitter":
+        render_upload(client)
 
     contract = st.session_state.get("contract_snapshot")
 
@@ -753,6 +857,16 @@ def main() -> None:
         return
 
     render_contract(contract)
+    if st.session_state.get("auth_required") and st.session_state.get("identity", {}).get("role") == "submitter":
+        with st.expander("审核人授权"):
+            subject = st.text_input("审核人账号", value="legal-01")
+            for label, remove in [("授予审核权限", False), ("撤回审核权限", True)]:
+                if st.button(label):
+                    try:
+                        client.grant_reviewer(contract["contract_id"], subject, remove=remove)
+                        st.success("授权已更新。")
+                    except ApiClientError as error:
+                        show_api_error(error)
 
     review = st.session_state.get("review_snapshot")
 

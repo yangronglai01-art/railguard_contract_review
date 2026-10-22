@@ -10,6 +10,8 @@ services:
     init: true
 
     environment:
+      BUSINESS_PROFILE: "${BUSINESS_PROFILE:-petkit}"
+      AUTH_MODE: "${AUTH_MODE:-token}"
       APP_NAME: "${APP_NAME:-RailGuard AI}"
       APP_ENV: "${APP_ENV:-production}"
       APP_VERSION: "${APP_VERSION:-0.1.0}"
@@ -28,10 +30,10 @@ services:
       RAG_BASE_URL: "${DOCKER_RAG_BASE_URL:-http://host.docker.internal:8001}"
       RAG_API_KEY: "${RAG_API_KEY:-}"
       RAG_TIMEOUT_SECONDS: "${RAG_TIMEOUT_SECONDS:-10}"
-      RAG_MOCK_CORPUS_PATH: "/app/data/demo/rag-corpus-baus-v1.json"
+      RAG_MOCK_CORPUS_PATH: "${RAG_MOCK_CORPUS_PATH:-/app/data/demo/rag-corpus-petkit-v1.json}"
 
-      DATABASE_PATH: "/app/data/runtime/railguard.db"
-      CHECKPOINT_PATH: "/app/data/runtime/review-checkpoints.sqlite3"
+      DATABASE_PATH: "/app/data/runtime/petkit/contracts.db"
+      CHECKPOINT_PATH: "/app/data/runtime/petkit/checkpoints.sqlite3"
 
     volumes:
       - railguard-runtime:/app/data/runtime

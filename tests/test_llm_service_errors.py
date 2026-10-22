@@ -24,6 +24,10 @@ from railguard.models.schemas import (
     RiskFinding,
 )
 from railguard.rag.models import RagSearchRequest
+from railguard.security import (
+    Principal,
+    SecurityStore,
+)
 from railguard.storage.contracts import ContractRepository
 from railguard.workflow.graph import build_review_graph
 from railguard.workflow.results import ReviewSnapshot
@@ -217,12 +221,16 @@ async def test_model_errors_have_stable_service_and_http_codes(
     repository.initialize()
     repository.save(contract)
     api_service = FailingReviewService(mapped_error)
+    principal = Principal("local-demo", "submitter")
+    security = SecurityStore(repository, enabled=False)
 
     with pytest.raises(HTTPException) as http_error:
         await start_contract_review(
             contract.contract_id,
             repository,
             api_service,
+            principal,
+            security,
         )
 
     assert http_error.value.status_code == expected_status

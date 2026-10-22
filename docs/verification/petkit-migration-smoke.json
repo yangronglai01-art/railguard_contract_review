@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "synthetic": true,
+  "model_mode": "fixed_mock_no_external_calls",
+  "real_http_upload": true,
+  "risk_categories": 6,
+  "citations_source_matched": true,
+  "ui_app_test": true,
+  "restart_resume": true,
+  "human_decision": "changes_requested",
+  "owned_processes_stopped": true
+}

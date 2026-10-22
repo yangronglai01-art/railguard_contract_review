@@ -20,6 +20,8 @@ def isolate_model_environment(
         "OPENAI_BASE_URL",
         "DEEPSEEK_API_KEY",
         "DEEPSEEK_BASE_URL",
+        "AI_PLATFORM_API_KEY",
+        "AI_PLATFORM_BASE_URL",
         "MODEL_TIMEOUT_SECONDS",
         "MODEL_MAX_RETRIES",
         "MODEL_MAX_INPUT_CHARS",
@@ -122,6 +124,45 @@ def test_deepseek_mode_accepts_complete_configuration() -> None:
     assert settings.model_max_input_chars == 90_000
 
 
+@pytest.mark.parametrize("api_key", [None, "", "   "])
+def test_ai_platform_mode_requires_api_key(
+    api_key: str | None,
+) -> None:
+    """验证统一AI网关模式拒绝缺失、空字符串和纯空白密钥。"""
+    with pytest.raises(
+        ValidationError,
+        match="AI_PLATFORM_API_KEY is required",
+    ):
+        Settings(
+            _env_file=None,
+            model_provider="ai_platform",
+            model_name="chat-default",
+            ai_platform_api_key=api_key,
+        )
+
+
+def test_ai_platform_mode_accepts_complete_configuration() -> None:
+    """验证统一AI网关模式可以配置完整连接参数和调用限制。"""
+    settings = Settings(
+        _env_file=None,
+        model_provider="ai_platform",
+        model_name="chat-default",
+        ai_platform_api_key="gateway-test-key",
+        ai_platform_base_url="http://127.0.0.1:18700/v1",
+        model_timeout_seconds=120.0,
+        model_max_retries=1,
+        model_max_input_chars=90_000,
+    )
+
+    assert settings.model_provider == "ai_platform"
+    assert settings.model_name == "chat-default"
+    assert settings.ai_platform_api_key == "gateway-test-key"
+    assert settings.ai_platform_base_url == "http://127.0.0.1:18700/v1"
+    assert settings.model_timeout_seconds == 120.0
+    assert settings.model_max_retries == 1
+    assert settings.model_max_input_chars == 90_000
+
+
 @pytest.mark.parametrize(
     ("model_provider", "credentials", "expected_message"),
     [
@@ -134,6 +175,11 @@ def test_deepseek_mode_accepts_complete_configuration() -> None:
             "deepseek",
             {"openai_api_key": "openai-test-key"},
             "DEEPSEEK_API_KEY is required",
+        ),
+        (
+            "ai_platform",
+            {"deepseek_api_key": "deepseek-test-key"},
+            "AI_PLATFORM_API_KEY is required",
         ),
     ],
 )
@@ -181,6 +227,32 @@ def test_deepseek_configuration_reads_environment_variables(
     assert settings.deepseek_base_url == "https://api.deepseek.com"
     assert settings.model_timeout_seconds == 120.0
     assert settings.openai_api_key is None
+
+
+def test_ai_platform_configuration_reads_environment_variables(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """验证统一AI网关环境变量可以正确映射到应用配置字段。"""
+    monkeypatch.setenv("MODEL_PROVIDER", "ai_platform")
+    monkeypatch.setenv("MODEL_NAME", "chat-default")
+    monkeypatch.setenv(
+        "AI_PLATFORM_API_KEY",
+        "environment-gateway-key",
+    )
+    monkeypatch.setenv(
+        "AI_PLATFORM_BASE_URL",
+        "http://127.0.0.1:18700/v1",
+    )
+    monkeypatch.setenv("MODEL_TIMEOUT_SECONDS", "120")
+
+    settings = Settings(_env_file=None)
+
+    assert settings.model_provider == "ai_platform"
+    assert settings.model_name == "chat-default"
+    assert settings.ai_platform_api_key == "environment-gateway-key"
+    assert settings.ai_platform_base_url == "http://127.0.0.1:18700/v1"
+    assert settings.model_timeout_seconds == 120.0
+    assert settings.deepseek_api_key is None
 
 
 @pytest.mark.parametrize(

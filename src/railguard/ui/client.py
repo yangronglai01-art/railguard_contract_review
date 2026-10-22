@@ -46,6 +46,7 @@ class RailGuardApiClient:
         timeout_seconds: float = 30.0,
         review_timeout_seconds: float | None = None,
         transport: httpx.BaseTransport | None = None,
+        token: str = "",
     ) -> None:
         """创建可复用连接池的同步HTTP客户端。
 
@@ -55,6 +56,7 @@ class RailGuardApiClient:
             base_url=f"{base_url.rstrip('/')}/",
             timeout=timeout_seconds,
             transport=transport,
+            headers={"Authorization": f"Bearer {token}"} if token else {},
         )
         # 启动审核需要等待三个大模型Agent全部返回，使用独立的长超时。
         self._review_timeout_seconds = (
@@ -72,6 +74,30 @@ class RailGuardApiClient:
         return self._request(
             method="GET",
             path="health",
+        )
+
+    def profile(self) -> dict[str, Any]:
+        """Read the server's scenario; never infer it from client environment."""
+        return self._request(method="GET", path="profile")
+
+    def identity(self) -> dict[str, Any]:
+        return self._request(method="GET", path="security/me")
+
+    def get_contract(self, contract_id):
+        return self._request(method="GET", path=f"contracts/{contract_id}")
+
+    def audit(self):
+        return self._request(method="GET", path="security/audit")
+
+    def list_reviews(self) -> list:
+        return self._request(method="GET", path="reviews", allow_list=True)
+
+    def grant_reviewer(self, contract_id, subject, remove=False):
+        from urllib.parse import quote
+
+        return self._request(
+            method="DELETE" if remove else "PUT",
+            path=f"contracts/{quote(contract_id, safe='')}/reviewers/{quote(subject, safe='')}",
         )
 
     def upload_contract(
@@ -141,6 +167,7 @@ class RailGuardApiClient:
         *,
         method: str,
         path: str,
+        allow_list: bool = False,
         **kwargs: Any,
     ) -> dict[str, Any]:
         """发送请求并统一处理网络、HTTP和JSON错误。"""
@@ -172,7 +199,7 @@ class RailGuardApiClient:
                 "RailGuard后端返回了无效JSON。"
             ) from exc
 
-        if not isinstance(payload, dict):
+        if not isinstance(payload, dict) and not (allow_list and isinstance(payload, list)):
             raise ApiProtocolError(
                 "RailGuard后端JSON顶层必须是对象。"
             )

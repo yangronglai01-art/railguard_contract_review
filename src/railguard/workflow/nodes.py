@@ -51,12 +51,14 @@ class ReviewNodes:
         commercial_analyzer: RiskAnalyzer,
         legal_analyzer: RiskAnalyzer,
         security_analyzer: RiskAnalyzer,
+        require_human_review: bool = False,
     ) -> None:
         """注入RAG检索器和三个风险分析Agent。"""
         self._retriever = retriever
         self._commercial_analyzer = commercial_analyzer
         self._legal_analyzer = legal_analyzer
         self._security_analyzer = security_analyzer
+        self._require_human_review = require_human_review
 
     def _capture_agent_retries(
         self,
@@ -349,7 +351,7 @@ class ReviewNodes:
 
         next_status = (
             "awaiting_human"
-            if verified_findings
+            if verified_findings or self._require_human_review
             else "approved"
         )
 

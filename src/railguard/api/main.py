@@ -1,5 +1,6 @@
 ﻿"""RailGuard FastAPI应用入口。"""
 
+import sqlite3
 from collections.abc import AsyncIterator
 from contextlib import (
     AsyncExitStack,
@@ -8,9 +9,11 @@ from contextlib import (
 
 import httpx
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 
 from railguard.agents.provider import (
     RiskAnalyzerSet,
+    create_ai_platform_risk_analyzers,
     create_deepseek_risk_analyzers,
     create_openai_risk_analyzers,
 )
@@ -41,6 +44,10 @@ async def _create_rag_retriever(
     关闭FastAPI应用时会自动释放连接池。
     """
     if settings.rag_mode == "mock":
+        if settings.business_profile == "petkit":
+            from railguard.business import validate_petkit_corpus
+
+            validate_petkit_corpus(settings.rag_mock_corpus_path)
         return MockRagRetriever.from_json_file(
             settings.rag_mock_corpus_path
         )
@@ -78,6 +85,10 @@ def _create_risk_analyzers(
     """
     # Mock模式不创建外部模型客户端。
     if settings.model_provider == "mock":
+        if settings.business_profile == "petkit":
+            from railguard.petkit_rules import create_petkit_rule_analyzers
+
+            return create_petkit_rule_analyzers()
         return None
 
     # 根据供应商选择对应密钥、接口地址和创建工厂。
@@ -92,6 +103,12 @@ def _create_risk_analyzers(
         base_url = settings.deepseek_base_url
         factory = create_deepseek_risk_analyzers
         key_name = "DEEPSEEK_API_KEY"
+
+    elif settings.model_provider == "ai_platform":
+        api_key = settings.ai_platform_api_key
+        base_url = settings.ai_platform_base_url
+        factory = create_ai_platform_risk_analyzers
+        key_name = "AI_PLATFORM_API_KEY"
 
     else:
         raise ValueError(
@@ -109,6 +126,10 @@ def _create_risk_analyzers(
 
     # 两家供应商共用超时、重试和输入限制。
     # 工厂内部负责处理各自的结构化输出协议差异。
+    profile_options = (
+        {"business_profile": settings.business_profile}
+        if settings.business_profile != "baus" else {}
+    )
     return factory(
         model_name=settings.model_name,
         api_key=api_key,
@@ -116,6 +137,7 @@ def _create_risk_analyzers(
         timeout_seconds=settings.model_timeout_seconds,
         max_retries=settings.model_max_retries,
         max_input_chars=settings.model_max_input_chars,
+        **profile_options,
     )
 
 
@@ -146,6 +168,10 @@ def create_app(
                 )
 
             active_repository.initialize()
+            from railguard.security import SecurityStore
+
+            application.state.security = SecurityStore(active_repository, active_settings.auth_mode == "token")
+            application.state.security.initialize()
 
             active_review_service = review_service
 
@@ -181,6 +207,7 @@ def create_app(
                         else None
                     ),
                     checkpointer=checkpointer,
+                    require_human_review=active_settings.business_profile == "petkit",
                 )
                 active_review_service = ReviewService(graph)
 
@@ -205,6 +232,29 @@ def create_app(
     # 注册合同上传、查询和审核路由。
     application.include_router(contracts_router)
     application.include_router(reviews_router)
+    from railguard.api.security import router as security_router
+    from railguard.security import AccessDenied
+
+    application.include_router(security_router)
+
+    @application.exception_handler(AccessDenied)
+    async def access_denied_handler(request, exc):
+        return JSONResponse(status_code=exc.status, content={"detail": exc.detail})
+
+    @application.exception_handler(sqlite3.Error)
+    async def storage_error_handler(request, exc):
+        return JSONResponse(status_code=503, content={"detail": "Persistent storage unavailable"})
+
+    @application.get("/profile", tags=["system"])
+    def business_profile() -> dict:
+        from railguard.business import profile_manifest
+
+        return {
+            **profile_manifest(active_settings.business_profile),
+            "model_provider": active_settings.model_provider,
+            "rag_mode": active_settings.rag_mode,
+            "auth_mode": active_settings.auth_mode,
+        }
 
     @application.get("/health", tags=["system"])
     def health_check() -> dict[str, str]:

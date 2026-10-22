@@ -1,0 +1,88 @@
+{
+  "hits": [
+    {
+      "document_id": "synthetic-petkit-procurement-v1",
+      "title": "小佩业务背景采购审核规则（自建合成，非企业制度或法律依据）",
+      "content": "软件、云服务和设备数据平台采购，应核对付款与可交付成果及书面验收的联系；全额预付或高比例首付款需人工判断，不能用模拟阈值宣称真实公司制度。",
+      "source": "付款与交付里程碑",
+      "score": null,
+      "metadata": {
+        "category": "payment",
+        "document_type": "synthetic_demo_policy",
+        "business_profile": "petkit",
+        "version": "petkit-procurement-demo-v1",
+        "keywords": "付款,合同款,服务费用,预付,尾款,验收"
+      }
+    },
+    {
+      "document_id": "synthetic-petkit-procurement-v1",
+      "title": "小佩业务背景采购审核规则（自建合成，非企业制度或法律依据）",
+      "content": "合同应明确喂食器、饮水机、猫砂盆设备连接、App接口、遥测准确性、数据导出和恢复测试，以及整改、复验和书面确认；不以沉默或上线时间替代明确验收。",
+      "source": "验收与复验",
+      "score": null,
+      "metadata": {
+        "category": "acceptance",
+        "document_type": "synthetic_demo_policy",
+        "business_profile": "petkit",
+        "version": "petkit-procurement-demo-v1",
+        "keywords": "验收,异议,上线,测试,整改,复验,合格"
+      }
+    },
+    {
+      "document_id": "synthetic-petkit-procurement-v1",
+      "title": "小佩业务背景采购审核规则（自建合成，非企业制度或法律依据）",
+      "content": "区分定制固件、App接口和标准云订阅。定制成果应明确权利或许可；标准SaaS明确订阅范围和期限，不强制供应商移交基础平台源代码。约定必要接口文档和退出数据导出。",
+      "source": "成果权利与订阅许可",
+      "score": null,
+      "metadata": {
+        "category": "intellectual_property",
+        "document_type": "synthetic_demo_policy",
+        "business_profile": "petkit",
+        "version": "petkit-procurement-demo-v1",
+        "keywords": "知识产权,著作权,源代码,定制,开发成果,使用许可,订阅"
+      }
+    },
+    {
+      "document_id": "synthetic-petkit-procurement-v1",
+      "title": "小佩业务背景采购审核规则（自建合成，非企业制度或法律依据）",
+      "content": "应明确延期交付、服务不可用、质量缺陷、数据损失的责任、整改、赔偿、退款及采购方解除条件；核心责任全部留待协商无法作为已落实的保护。",
+      "source": "违约赔偿与解除",
+      "score": null,
+      "metadata": {
+        "category": "liability",
+        "document_type": "synthetic_demo_policy",
+        "business_profile": "petkit",
+        "version": "petkit-procurement-demo-v1",
+        "keywords": "违约,赔偿,解除,退款,延期,缺陷,责任"
+      }
+    },
+    {
+      "document_id": "synthetic-petkit-procurement-v1",
+      "title": "小佩业务背景采购审核规则（自建合成，非企业制度或法律依据）",
+      "content": "明确质保、故障响应和修复时间，设备服务连续性、备份恢复与退出时账号、数据和接口文档移交；云服务结束应约定导出窗口。",
+      "source": "运维质保与服务退出",
+      "score": null,
+      "metadata": {
+        "category": "support",
+        "document_type": "synthetic_demo_policy",
+        "business_profile": "petkit",
+        "version": "petkit-procurement-demo-v1",
+        "keywords": "维护,运维,质保,故障,响应,修复,服务期,移交"
+      }
+    },
+    {
+      "document_id": "synthetic-petkit-procurement-v1",
+      "title": "小佩业务背景采购审核规则（自建合成，非企业制度或法律依据）",
+      "content": "供应商接触用户账号、设备标识、喂食饮水遥测、宠物影像和售后记录，应限定目的、范围、最小权限、返还删除和分包边界。宠物影像可能连带家庭环境或人员信息；不得将处理用途、保存及删除等核心事项全部留待协商。",
+      "source": "用户与设备数据处理",
+      "score": null,
+      "metadata": {
+        "category": "data_security",
+        "document_type": "synthetic_demo_policy",
+        "business_profile": "petkit",
+        "version": "petkit-procurement-demo-v1",
+        "keywords": "数据,账号,遥测,影像,个人信息,安全,保密,权限,删除,分包,云服务"
+      }
+    }
+  ]
+}
