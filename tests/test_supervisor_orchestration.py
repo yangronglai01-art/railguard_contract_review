@@ -19,6 +19,12 @@ from railguard.workflow.orchestration import (
     ReviewPlan,
     ReviewTask,
 )
+from railguard.workflow.planner import (
+    ConstrainedPlanner,
+    LlmPlan,
+    LlmPlanTask,
+    validate_plan_against_contract,
+)
 from railguard.workflow.supervisor import build_supervisor_graph
 
 
@@ -197,3 +203,185 @@ def test_supervisor_graph_runs_end_to_end() -> None:
 
     # 冲突记录为列表，可被 add reducer 合并。
     assert isinstance(result["conflict_records"], list)
+
+
+def test_deterministic_planner_fallback_when_no_invoker() -> None:
+    planner = ConstrainedPlanner(invoker=None)
+
+    async def _run() -> ReviewPlan:
+        return await planner.plan(
+            contract=_make_contract(),
+            review_id="r1",
+            trace_id=new_trace_id(),
+            business_profile="baus",
+            started_at_iso=now_iso(),
+        )
+
+    plan = asyncio.run(_run())
+    assert plan.status == "draft"
+    assert [t.kind for t in plan.tasks] == [
+        "retrieval",
+        "commercial",
+        "legal",
+        "security",
+        "aggregation",
+        "verification",
+    ]
+
+
+def test_validate_plan_against_contract_rejects_bad_clause_id() -> None:
+    context = ReviewContext(
+        review_id="r1",
+        trace_id=new_trace_id(),
+        business_profile="baus",
+        contract_id="c1",
+        contract_title="合同.pdf",
+        clause_count=2,
+        started_at_iso=now_iso(),
+    )
+    plan_id = new_id()
+    bad_plan = ReviewPlan(
+        plan_id=plan_id,
+        review_id="r1",
+        context=context,
+        created_at_iso=now_iso(),
+        tasks=[
+            ReviewTask(task_id="retrieval", plan_id=plan_id, kind="retrieval"),
+            ReviewTask(
+                task_id="commercial",
+                plan_id=plan_id,
+                kind="commercial",
+                clause_ids=["does-not-exist"],
+                depends_on=["retrieval"],
+            ),
+            ReviewTask(task_id="legal", plan_id=plan_id, kind="legal", depends_on=["retrieval"]),
+            ReviewTask(task_id="security", plan_id=plan_id, kind="security", depends_on=["retrieval"]),
+            ReviewTask(
+                task_id="aggregation",
+                plan_id=plan_id,
+                kind="aggregation",
+                depends_on=["commercial", "legal", "security"],
+            ),
+            ReviewTask(
+                task_id="verification",
+                plan_id=plan_id,
+                kind="verification",
+                depends_on=["aggregation"],
+            ),
+        ],
+    )
+    from railguard.workflow.planner import PlannerError
+
+    with pytest.raises(PlannerError):
+        validate_plan_against_contract(
+            bad_plan,
+            contract=_make_contract(),
+        )
+
+
+def test_planner_falls_back_when_llm_output_invalid() -> None:
+    """大模型输出无法通过确定性校验时，规划器应回退到确定性计划。"""
+
+    class _BadInvoker:
+        async def ainvoke(self, messages: list) -> LlmPlan:
+            # 引用不存在的条款，无法通过校验。
+            return LlmPlan(
+                tasks=[
+                    LlmPlanTask(task_id="retrieval", kind="retrieval"),
+                    LlmPlanTask(
+                        task_id="commercial",
+                        kind="commercial",
+                        clause_ids=["ghost-clause"],
+                        depends_on=["retrieval"],
+                    ),
+                    LlmPlanTask(task_id="legal", kind="legal", depends_on=["retrieval"]),
+                    LlmPlanTask(task_id="security", kind="security", depends_on=["retrieval"]),
+                    LlmPlanTask(
+                        task_id="aggregation",
+                        kind="aggregation",
+                        depends_on=["commercial", "legal", "security"],
+                    ),
+                    LlmPlanTask(
+                        task_id="verification",
+                        kind="verification",
+                        depends_on=["aggregation"],
+                    ),
+                ],
+                rationale="bad plan",
+            )
+
+    planner = ConstrainedPlanner(invoker=_BadInvoker())
+
+    async def _run() -> ReviewPlan:
+        return await planner.plan(
+            contract=_make_contract(),
+            review_id="r1",
+            trace_id=new_trace_id(),
+            business_profile="baus",
+            started_at_iso=now_iso(),
+        )
+
+    plan = asyncio.run(_run())
+    # 回退到确定性计划，条款引用全部真实。
+    assert [t.kind for t in plan.tasks] == [
+        "retrieval",
+        "commercial",
+        "legal",
+        "security",
+        "aggregation",
+        "verification",
+    ]
+    commercial = next(
+        t for t in plan.tasks if t.kind == "commercial"
+    )
+    assert set(commercial.clause_ids) == {"cl1", "cl2"}
+
+
+def test_planner_accepts_valid_llm_output() -> None:
+    """合法的大模型计划应被直接采用，而非回退。"""
+
+    class _GoodInvoker:
+        async def ainvoke(self, messages: list) -> LlmPlan:
+            return LlmPlan(
+                tasks=[
+                    LlmPlanTask(task_id="retrieval", kind="retrieval"),
+                    LlmPlanTask(
+                        task_id="commercial",
+                        kind="commercial",
+                        clause_ids=["cl1"],
+                        depends_on=["retrieval"],
+                    ),
+                    LlmPlanTask(task_id="legal", kind="legal", depends_on=["retrieval"]),
+                    LlmPlanTask(task_id="security", kind="security", depends_on=["retrieval"]),
+                    LlmPlanTask(
+                        task_id="aggregation",
+                        kind="aggregation",
+                        depends_on=["commercial", "legal", "security"],
+                    ),
+                    LlmPlanTask(
+                        task_id="verification",
+                        kind="verification",
+                        depends_on=["aggregation"],
+                    ),
+                ],
+                rationale="valid plan",
+            )
+
+    planner = ConstrainedPlanner(invoker=_GoodInvoker())
+
+    async def _run() -> ReviewPlan:
+        return await planner.plan(
+            contract=_make_contract(),
+            review_id="r1",
+            trace_id=new_trace_id(),
+            business_profile="baus",
+            started_at_iso=now_iso(),
+        )
+
+    plan = asyncio.run(_run())
+    assert plan.rationale == "valid plan"
+    commercial = next(
+        t for t in plan.tasks if t.kind == "commercial"
+    )
+    # 采用了大模型给出的 clause_ids，而非确定性计划的全部条款。
+    assert commercial.clause_ids == ["cl1"]

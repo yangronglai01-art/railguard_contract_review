@@ -13,8 +13,11 @@ from fastapi.responses import JSONResponse
 
 from railguard.agents.provider import (
     RiskAnalyzerSet,
+    create_ai_platform_planner,
     create_ai_platform_risk_analyzers,
+    create_deepseek_planner,
     create_deepseek_risk_analyzers,
+    create_openai_planner,
     create_openai_risk_analyzers,
 )
 from railguard.api.contracts import router as contracts_router
@@ -30,6 +33,7 @@ from railguard.workflow.checkpoint import (
     open_sqlite_checkpointer,
 )
 from railguard.workflow.graph import build_review_graph
+from railguard.workflow.planner import ConstrainedPlanner
 from railguard.workflow.service import ReviewService
 from railguard.workflow.supervisor import build_supervisor_graph
 
@@ -142,6 +146,60 @@ def _create_risk_analyzers(
     )
 
 
+def _create_planner(
+    settings: Settings,
+) -> ConstrainedPlanner | None:
+    """根据配置创建 supervisor_v2 的主 Agent 受约束规划器。
+
+    Mock 模式返回 None，supervisor_v2 图会回退到确定性规划器。
+    其余供应商返回绑定对应结构化输出协议的大模型规划器。
+    """
+    if settings.model_provider == "mock":
+        return None
+
+    if settings.model_provider == "openai":
+        factory = create_openai_planner
+        api_key = settings.openai_api_key
+        base_url = settings.openai_base_url
+        key_name = "OPENAI_API_KEY"
+    elif settings.model_provider == "deepseek":
+        factory = create_deepseek_planner
+        api_key = settings.deepseek_api_key
+        base_url = settings.deepseek_base_url
+        key_name = "DEEPSEEK_API_KEY"
+    elif settings.model_provider == "ai_platform":
+        factory = create_ai_platform_planner
+        api_key = settings.ai_platform_api_key
+        base_url = settings.ai_platform_base_url
+        key_name = "AI_PLATFORM_API_KEY"
+    else:
+        raise ValueError(
+            "Unsupported model provider: "
+            f"{settings.model_provider}"
+        )
+
+    if api_key is None or not api_key.strip():
+        raise ValueError(
+            f"{key_name} is required when "
+            f"MODEL_PROVIDER={settings.model_provider}"
+        )
+
+    profile_options = (
+        {"business_profile": settings.business_profile}
+        if settings.business_profile != "baus"
+        else {}
+    )
+    return factory(
+        model_name=settings.model_name,
+        api_key=api_key,
+        base_url=base_url,
+        timeout_seconds=settings.model_timeout_seconds,
+        max_retries=settings.model_max_retries,
+        max_input_chars=settings.model_max_input_chars,
+        **profile_options,
+    )
+
+
 def create_app(
     repository: ContractRepository | None = None,
     *,
@@ -217,6 +275,7 @@ def create_app(
                             if analyzer_set is not None
                             else None
                         ),
+                        planner=_create_planner(active_settings),
                         checkpointer=checkpointer,
                         require_human_review=require_human_review,
                     )

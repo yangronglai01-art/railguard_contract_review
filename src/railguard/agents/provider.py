@@ -20,6 +20,7 @@ from railguard.agents.llm import (
 )
 from railguard.agents.models import LlmRiskAnalysis
 from railguard.observability import record_model_retry
+from railguard.workflow.planner import ConstrainedPlanner, LlmPlan
 
 # DeepSeek官方OpenAI兼容接口的根地址。
 DEFAULT_DEEPSEEK_BASE_URL = "https://api.deepseek.com"
@@ -55,6 +56,8 @@ class _DeepSeekAnalysisInvoker:
         chat_model: ChatOpenAI,
         *,
         response_max_retries: int,
+        schema_model: type = LlmRiskAnalysis,
+        schema_name: str = "LlmRiskAnalysis",
     ) -> None:
         """绑定输出Schema并配置响应协议重试次数。"""
         # Responses协议使用text.format，而不是Chat Completions的
@@ -64,8 +67,8 @@ class _DeepSeekAnalysisInvoker:
             text={
                 "format": {
                     "type": "json_schema",
-                    "name": "LlmRiskAnalysis",
-                    "schema": LlmRiskAnalysis.model_json_schema(),
+                    "name": schema_name,
+                    "schema": schema_model.model_json_schema(),
                 }
             }
         )
@@ -114,6 +117,7 @@ class _ChatCompletionsJsonInvoker:
         chat_model: ChatOpenAI,
         *,
         response_max_retries: int,
+        schema_model: type = LlmRiskAnalysis,
     ) -> None:
         """绑定JSON模式并配置响应协议重试次数。"""
         # DeepSeek的JSON模式只支持type=json_object，且要求提示词
@@ -124,13 +128,17 @@ class _ChatCompletionsJsonInvoker:
         )
         self._parser = StrOutputParser()
         self._response_max_retries = response_max_retries
+        self._schema_model = schema_model
 
     async def ainvoke(
         self,
         messages: Sequence[BaseMessage],
     ) -> object:
         """调用模型、解析JSON，并区分网络故障和响应格式错误。"""
-        augmented = _inject_json_schema_contract(messages)
+        augmented = _inject_json_schema_contract(
+            messages,
+            schema_model=self._schema_model,
+        )
         for attempt in range(self._response_max_retries + 1):
             # 服务连接和请求异常继续交给SDK自身的重试策略。
             response = await self._model.ainvoke(augmented)
@@ -156,14 +164,16 @@ class _ChatCompletionsJsonInvoker:
 
 def _inject_json_schema_contract(
     messages: Sequence[BaseMessage],
+    *,
+    schema_model: type = LlmRiskAnalysis,
 ) -> list[BaseMessage]:
-    """把LlmRiskAnalysis的JSON Schema追加到系统提示词。
+    """把业务模型的JSON Schema追加到系统提示词。
 
     JSON模式无法在response_format中携带Schema，因此把Schema
     契约写入系统提示词，指导模型按结构输出纯JSON。
     """
     schema_text = json.dumps(
-        LlmRiskAnalysis.model_json_schema(),
+        schema_model.model_json_schema(),
         ensure_ascii=False,
         separators=(",", ":"),
     )
@@ -420,6 +430,144 @@ def create_ai_platform_risk_analyzers(
         invoker=_ChatCompletionsJsonInvoker(
             chat_model,
             response_max_retries=max_retries,
+        ),
+        max_input_chars=max_input_chars,
+        business_profile=business_profile,
+    )
+
+
+def create_openai_planner(
+    *,
+    model_name: str,
+    api_key: str,
+    base_url: str | None = None,
+    timeout_seconds: float = 60.0,
+    max_retries: int = 2,
+    max_input_chars: int = DEFAULT_MAX_INPUT_CHARS,
+    business_profile: str = "baus",
+) -> ConstrainedPlanner:
+    """创建使用OpenAI严格结构化接口的主Agent受约束规划器。
+
+    规划器输出的LlmPlan契约与风险Agent的LlmRiskAnalysis契约
+    相互独立；规划结果仍由确定性校验函数兜底。
+    """
+    (
+        normalized_name,
+        normalized_key,
+        normalized_url,
+    ) = _normalize_model_arguments(
+        model_name=model_name,
+        api_key=api_key,
+        base_url=base_url,
+        timeout_seconds=timeout_seconds,
+        max_retries=max_retries,
+        max_input_chars=max_input_chars,
+    )
+
+    chat_model = ChatOpenAI(
+        model=normalized_name,
+        api_key=normalized_key,
+        base_url=normalized_url,
+        timeout=timeout_seconds,
+        max_retries=max_retries,
+    )
+
+    structured_invoker = chat_model.with_structured_output(
+        LlmPlan,
+        method="json_schema",
+        strict=True,
+    )
+
+    return ConstrainedPlanner(
+        invoker=structured_invoker,
+        max_input_chars=max_input_chars,
+        business_profile=business_profile,
+    )
+
+
+def create_deepseek_planner(
+    *,
+    model_name: str,
+    api_key: str,
+    base_url: str | None = DEFAULT_DEEPSEEK_BASE_URL,
+    timeout_seconds: float = 60.0,
+    max_retries: int = 2,
+    max_input_chars: int = DEFAULT_MAX_INPUT_CHARS,
+    business_profile: str = "baus",
+) -> ConstrainedPlanner:
+    """创建使用DeepSeek Responses API的主Agent受约束规划器。"""
+    (
+        normalized_name,
+        normalized_key,
+        normalized_url,
+    ) = _normalize_model_arguments(
+        model_name=model_name,
+        api_key=api_key,
+        base_url=base_url,
+        timeout_seconds=timeout_seconds,
+        max_retries=max_retries,
+        max_input_chars=max_input_chars,
+    )
+
+    chat_model = ChatOpenAI(
+        model=normalized_name,
+        api_key=normalized_key,
+        base_url=normalized_url or DEFAULT_DEEPSEEK_BASE_URL,
+        timeout=timeout_seconds,
+        max_retries=max_retries,
+        use_responses_api=True,
+    )
+
+    return ConstrainedPlanner(
+        invoker=_DeepSeekAnalysisInvoker(
+            chat_model,
+            response_max_retries=max_retries,
+            schema_model=LlmPlan,
+            schema_name="LlmPlan",
+        ),
+        max_input_chars=max_input_chars,
+        business_profile=business_profile,
+    )
+
+
+def create_ai_platform_planner(
+    *,
+    model_name: str,
+    api_key: str,
+    base_url: str | None = DEFAULT_AI_PLATFORM_BASE_URL,
+    timeout_seconds: float = 60.0,
+    max_retries: int = 2,
+    max_input_chars: int = DEFAULT_MAX_INPUT_CHARS,
+    business_profile: str = "baus",
+) -> ConstrainedPlanner:
+    """创建接入统一AI网关的主Agent受约束规划器。"""
+    (
+        normalized_name,
+        normalized_key,
+        normalized_url,
+    ) = _normalize_model_arguments(
+        model_name=model_name,
+        api_key=api_key,
+        base_url=base_url,
+        timeout_seconds=timeout_seconds,
+        max_retries=max_retries,
+        max_input_chars=max_input_chars,
+    )
+
+    chat_model = ChatOpenAI(
+        model=normalized_name,
+        api_key=normalized_key,
+        base_url=normalized_url or DEFAULT_AI_PLATFORM_BASE_URL,
+        timeout=timeout_seconds,
+        max_retries=max_retries,
+        max_tokens=AI_PLATFORM_MAX_OUTPUT_TOKENS,
+    )
+
+    return ConstrainedPlanner(
+        invoker=_ChatCompletionsJsonInvoker(
+            chat_model,
+            response_max_retries=max_retries,
+            schema_model=LlmPlan,
         ),
         max_input_chars=max_input_chars,
         business_profile=business_profile,
