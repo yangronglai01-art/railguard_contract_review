@@ -17,6 +17,8 @@ SAMPLES = ROOT / "data/demo/petkit-contract-cases-v1.json"
 
 def demo_settings(data_dir: Path | None = None, *, secure: bool = False) -> Settings:
     """No .env, host API keys or legacy SQLite paths enter this profile."""
+    if os.environ.get('APP_ENV') in {'staging','production'}:
+        raise RuntimeError('Demo launcher cannot override enterprise deployment')
     data = (data_dir or ROOT / "data/runtime/petkit").resolve()
     defaults = {name: field.default for name, field in Settings.model_fields.items()}
     defaults.update(

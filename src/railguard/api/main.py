@@ -31,6 +31,7 @@ from railguard.workflow.checkpoint import (
 )
 from railguard.workflow.graph import build_review_graph
 from railguard.workflow.service import ReviewService
+from railguard.workflow.supervisor import build_supervisor_graph
 
 
 async def _create_rag_retriever(
@@ -68,7 +69,7 @@ async def _create_rag_retriever(
             )
         )
 
-        return HttpRagRetriever(client)
+        return HttpRagRetriever(client,required_domain="contract" if settings.app_env in {"staging","production"} else None)
 
     raise ValueError(
         f"Unsupported RAG mode: {settings.rag_mode}"
@@ -163,24 +164,30 @@ def create_app(
             active_repository = repository
 
             if active_repository is None:
-                active_repository = ContractRepository(
-                    active_settings.database_path
-                )
+                if active_settings.database_url:
+                    from railguard.storage.postgres import PostgresContractRepository
+                    active_repository = PostgresContractRepository(active_settings.database_url)
+                else:
+                    active_repository = ContractRepository(active_settings.database_path)
 
             active_repository.initialize()
             from railguard.security import SecurityStore
 
-            application.state.security = SecurityStore(active_repository, active_settings.auth_mode == "token")
+            if active_settings.auth_mode == "oidc":
+                from railguard.enterprise_security import EnterpriseSecurityStore
+                application.state.security = EnterpriseSecurityStore(active_repository,active_settings)
+            else:
+                application.state.security = SecurityStore(active_repository,active_settings.auth_mode == "token")
             application.state.security.initialize()
 
             active_review_service = review_service
 
             if active_review_service is None:
-                checkpointer = await stack.enter_async_context(
-                    open_sqlite_checkpointer(
-                        active_settings.checkpoint_path
-                    )
-                )
+                if active_settings.checkpoint_url:
+                    from railguard.workflow.postgres import open_postgres_checkpointer
+                    checkpointer = await stack.enter_async_context(open_postgres_checkpointer(active_settings.checkpoint_url))
+                else:
+                    checkpointer = await stack.enter_async_context(open_sqlite_checkpointer(active_settings.checkpoint_path))
                 retriever = await _create_rag_retriever(
                     settings=active_settings,
                     stack=stack,
@@ -189,27 +196,52 @@ def create_app(
                     active_settings
                 )
 
-                graph = build_review_graph(
-                    retriever=retriever,
-                    commercial_analyzer=(
-                        analyzer_set.commercial
-                        if analyzer_set is not None
-                        else None
-                    ),
-                    legal_analyzer=(
-                        analyzer_set.legal
-                        if analyzer_set is not None
-                        else None
-                    ),
-                    security_analyzer=(
-                        analyzer_set.security
-                        if analyzer_set is not None
-                        else None
-                    ),
-                    checkpointer=checkpointer,
-                    require_human_review=active_settings.business_profile == "petkit",
+                require_human_review = (
+                    active_settings.business_profile == "petkit"
                 )
-                active_review_service = ReviewService(graph)
+                if active_settings.review_orchestration_mode == "supervisor_v2":
+                    graph = build_supervisor_graph(
+                        retriever=retriever,
+                        commercial_analyzer=(
+                            analyzer_set.commercial
+                            if analyzer_set is not None
+                            else None
+                        ),
+                        legal_analyzer=(
+                            analyzer_set.legal
+                            if analyzer_set is not None
+                            else None
+                        ),
+                        security_analyzer=(
+                            analyzer_set.security
+                            if analyzer_set is not None
+                            else None
+                        ),
+                        checkpointer=checkpointer,
+                        require_human_review=require_human_review,
+                    )
+                else:
+                    graph = build_review_graph(
+                        retriever=retriever,
+                        commercial_analyzer=(
+                            analyzer_set.commercial
+                            if analyzer_set is not None
+                            else None
+                        ),
+                        legal_analyzer=(
+                            analyzer_set.legal
+                            if analyzer_set is not None
+                            else None
+                        ),
+                        security_analyzer=(
+                            analyzer_set.security
+                            if analyzer_set is not None
+                            else None
+                        ),
+                        checkpointer=checkpointer,
+                        require_human_review=require_human_review,
+                    )
+                active_review_service = ReviewService(graph,postgres_lock_dsn=active_settings.database_url)
 
             application.state.contract_repository = (
                 active_repository
@@ -245,6 +277,12 @@ def create_app(
     async def storage_error_handler(request, exc):
         return JSONResponse(status_code=503, content={"detail": "Persistent storage unavailable"})
 
+    if active_settings.database_url:
+        import psycopg
+        @application.exception_handler(psycopg.Error)
+        async def postgres_error_handler(request, exc):
+            return JSONResponse(status_code=503,content={"detail":"Persistent storage unavailable"})
+
     @application.get("/profile", tags=["system"])
     def business_profile() -> dict:
         from railguard.business import profile_manifest
@@ -254,6 +292,7 @@ def create_app(
             "model_provider": active_settings.model_provider,
             "rag_mode": active_settings.rag_mode,
             "auth_mode": active_settings.auth_mode,
+            "review_orchestration_mode": active_settings.review_orchestration_mode,
         }
 
     @application.get("/health", tags=["system"])
@@ -268,6 +307,9 @@ def create_app(
                 active_settings.model_provider
             ),
             "rag_mode": active_settings.rag_mode,
+            "review_orchestration_mode": (
+                active_settings.review_orchestration_mode
+            ),
         }
 
     return application

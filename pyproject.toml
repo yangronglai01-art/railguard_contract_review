@@ -15,6 +15,8 @@ dependencies = [
     "pydantic-settings",
     "langgraph",
     "langgraph-checkpoint-sqlite",
+    "langgraph-checkpoint-postgres>=3,<4",
+    "psycopg[binary,pool]>=3.2,<4",
     "langchain-openai",
     "httpx",
     "python-docx",

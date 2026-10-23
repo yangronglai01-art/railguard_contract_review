@@ -31,4 +31,5 @@ def test_health_check() -> None:
         "environment": "development",
         "model_provider": "mock",
         "rag_mode": "mock",
+        "review_orchestration_mode": "fixed_v1",
     }

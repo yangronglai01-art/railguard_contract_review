@@ -5,6 +5,7 @@ from typing import Annotated, Never
 from fastapi import (
     APIRouter,
     Depends,
+    Header,
     HTTPException,
     Query,
     status,
@@ -174,6 +175,7 @@ async def submit_review_decision(
     ],
     principal: Annotated[Principal, Depends(get_principal)],
     security: Annotated[SecurityStore, Depends(get_security)],
+    idempotency_key: Annotated[str | None, Header(alias="Idempotency-Key")] = None,
 ) -> ReviewSnapshot:
     """提交人工决定并恢复暂停的LangGraph审核任务。"""
     try:
@@ -189,6 +191,10 @@ async def submit_review_decision(
             security.record(principal, "decision", review_id, "intent")
 
         options = {"authorize": authorize_decision} if security.enabled else {}
+        if getattr(service,"_postgres_lock_dsn",None):
+            if not idempotency_key or len(idempotency_key)>128:
+                raise HTTPException(422,"Idempotency-Key required for enterprise approval")
+            options['decision_id']=idempotency_key
         result = await service.submit_decision(
             review_id=review_id,
             decision=decision,

@@ -15,6 +15,12 @@ from railguard.models.schemas import (
     RiskFinding,
     SchemaModel,
 )
+from railguard.workflow.orchestration import (
+    ConflictRecord,
+    MemoryRecord,
+    ReviewEvent,
+    ReviewPlan,
+)
 
 # 审核流程当前所处的业务状态。
 ReviewStatus = Literal[
@@ -190,3 +196,17 @@ class ReviewState(TypedDict, total=False):
 
     # 各Agent模型调用的重试次数，元素为(node_name, retry_count)。
     retry_counts: Annotated[list[tuple[str, int]], add]
+
+    # supervisor_v2 主从编排状态。
+    # 主 Agent 产出的受约束计划。
+    plan: ReviewPlan | None
+
+    # 任务级共享记忆记录。
+    # add 表示并行或顺序写入的记录会被合并。
+    memory_records: Annotated[list[MemoryRecord], add]
+
+    # 有限协同复核发现的结论冲突。
+    conflict_records: Annotated[list[ConflictRecord], add]
+
+    # PG 事务 Outbox 事件驱动架构产出的领域事件。
+    events: Annotated[list[ReviewEvent], add]

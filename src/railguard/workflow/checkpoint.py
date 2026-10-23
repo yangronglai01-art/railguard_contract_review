@@ -15,6 +15,16 @@ from railguard.models.schemas import (
     Evidence,
     RiskFinding,
 )
+from railguard.workflow.orchestration import (
+    ConflictRecord,
+    MemoryRecord,
+    ReviewContext,
+    ReviewEvent,
+    ReviewPlan,
+    ReviewTask,
+    SupervisorRunState,
+    TaskResult,
+)
 from railguard.workflow.state import (
     HumanReviewDecision,
     WorkflowError,
@@ -36,6 +46,14 @@ def create_checkpoint_serializer() -> JsonPlusSerializer:
             RiskFinding,
             HumanReviewDecision,
             WorkflowError,
+            ReviewContext,
+            ReviewPlan,
+            ReviewTask,
+            TaskResult,
+            MemoryRecord,
+            ConflictRecord,
+            ReviewEvent,
+            SupervisorRunState,
         )
     )
 

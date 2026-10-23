@@ -1,3 +1,5 @@
+> **Enterprise implementation / 2026-10-22:** [Production code path, configuration and remaining acceptance gates](docs/production-20261022.md). PostgreSQL/identity adapters are implemented; local fixture regressions are not production deployment acceptance.
+
 # RailGuard · 小佩业务模拟合同审核
 
 以小佩智能宠物硬件业务为背景的自建模拟项目：采购方审核软件、云服务、设备数据平台及相关技术服务合同。三Agent分别检查商务、法务和数据安全风险，验证证据引用后交人工决定。

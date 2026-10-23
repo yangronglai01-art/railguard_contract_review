@@ -105,6 +105,7 @@ class ReviewService:
     def __init__(
         self,
         graph: CompiledStateGraph,
+        postgres_lock_dsn: str | None = None,
     ) -> None:
         """保存已绑定checkpointer的审核图。
 
@@ -112,6 +113,7 @@ class ReviewService:
         两个请求同时恢复同一个人工审批任务。
         """
         self._graph = graph
+        self._postgres_lock_dsn = postgres_lock_dsn
         self._review_locks: dict[str, asyncio.Lock] = {}
 
     async def start_review(
@@ -164,6 +166,7 @@ class ReviewService:
         review_id: str,
         decision: HumanReviewDecision,
         authorize: Callable[[], None] | None = None,
+        decision_id: str | None = None,
     ) -> ReviewSnapshot:
         """校验人工决定并恢复暂停的审核任务。
 
@@ -175,9 +178,35 @@ class ReviewService:
             asyncio.Lock(),
         )
 
+        if self._postgres_lock_dsn:
+            from railguard.workflow.postgres import review_lock
+            lock = review_lock(self._postgres_lock_dsn,review_id)
         async with lock:
+            commands=None
+            if self._postgres_lock_dsn and decision_id is not None:
+                if not 1 <= len(decision_id) <= 128:
+                    raise ReviewDecisionError('Invalid decision idempotency key')
+                if authorize is not None:authorize()
+                from railguard.workflow.decisions import Commands
+                commands=Commands(self._postgres_lock_dsn)
+                initial=await self._load_state_snapshot(review_id)
+                command,created=commands.begin(review_id,decision.reviewer,decision_id,decision,
+                                               allow_create=initial.values.get('status')=='awaiting_human')
+                if command['status']=='applied':
+                    return ReviewSnapshot.model_validate_json(command['result'])
             snapshot = await self._load_state_snapshot(review_id)
             state = cast(ReviewState, snapshot.values)
+            if commands and not created and state.get('human_decision') is not None:
+                previous=HumanReviewDecision.model_validate(state['human_decision'])
+                if previous != decision:
+                    raise ReviewConflictError('Checkpoint contains a different human decision')
+                if snapshot.next:
+                    if authorize is not None:authorize()
+                    await self._graph.ainvoke(None,config=self._config(review_id))
+                    snapshot=await self._load_state_snapshot(review_id)
+                result=self._to_review_snapshot(snapshot)
+                commands.complete(review_id,decision.reviewer,decision_id,result)
+                return result
 
             if (
                 state.get("status") != "awaiting_human"
@@ -228,9 +257,10 @@ class ReviewService:
             resumed_snapshot = (
                 await self._load_state_snapshot(review_id)
             )
-            return self._to_review_snapshot(
-                resumed_snapshot
-            )
+            result = self._to_review_snapshot(resumed_snapshot)
+            if commands:
+                commands.complete(review_id,decision.reviewer,decision_id,result)
+            return result
 
     async def _load_state_snapshot(
         self,
@@ -437,7 +467,7 @@ class ReviewService:
             )
             return []
 
-        return [str(row[0]) for row in rows]
+        return [str(row["thread_id"] if isinstance(row,dict) else row[0]) for row in rows]
 
     async def list_reviews(self) -> list[ReviewSnapshot]:
         """枚举并返回全部审核任务的当前快照。"""

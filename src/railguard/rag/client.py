@@ -56,13 +56,14 @@ class RagRetriever(Protocol):
 class HttpRagRetriever:
     """通过HTTP调用外部RAG服务的检索器。"""
 
-    def __init__(self, client: httpx.AsyncClient) -> None:
+    def __init__(self, client: httpx.AsyncClient, required_domain: str | None = None) -> None:
         """保存由应用生命周期管理的HTTP客户端。
 
         AsyncClient应在外部配置base_url、超时时间和认证信息，
         这样生产环境可以复用连接池，测试也可以注入模拟传输层。
         """
         self._client = client
+        self._required_domain = required_domain
 
     async def retrieve(
         self,
@@ -118,6 +119,9 @@ class HttpRagRetriever:
             raise RagProtocolError(
                 "RAG service returned an invalid response"
             ) from exc
+
+        if self._required_domain and any(hit.metadata.get("domain") != self._required_domain for hit in payload.hits):
+            raise RagProtocolError("Evidence returned from the wrong knowledge domain")
 
         # 保留RAG服务原有的结果顺序，并确保不超过top_k。
         return [

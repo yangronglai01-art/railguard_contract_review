@@ -1,0 +1,47 @@
+# Test-only credentials; never use these for an enterprise database.
+name: Enterprise backend / PostgreSQL17
+'on':
+  push: null
+  pull_request: null
+  workflow_dispatch: null
+permissions:
+  contents: read
+jobs:
+  enterprise-postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17@sha256:b8faeff7712663c2773a190181e1246e37e364b887611c04658c28b44e2408fe
+        env:
+          POSTGRES_USER: petkit_qa
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: contract_qa
+        ports:
+        - 5432:5432
+        options: --health-cmd "pg_isready -U petkit_qa" --health-interval 5s --health-timeout
+          5s --health-retries 12
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Install declared dependencies
+      run: python -m pip install -e '.[dev]'
+      working-directory: .
+    - name: Create independent checkpoint database
+      run: python -c "import psycopg; c=psycopg.connect('postgresql://petkit_qa:ci-only-password@127.0.0.1:5432/contract_qa',autocommit=True);
+        c.execute('CREATE DATABASE checkpoint_qa'); c.close()"
+    - name: Run full regression including real PostgreSQL
+      run: python -m pytest tests -q --junitxml=enterprise-ci.xml
+      working-directory: .
+      env:
+        RAILGUARD_ISOLATED_DEMO: '1'
+        PETKIT_TEST_CONTRACT_DSN: postgresql://petkit_qa:ci-only-password@127.0.0.1:5432/contract_qa
+        PETKIT_TEST_CHECKPOINT_DSN: postgresql://petkit_qa:ci-only-password@127.0.0.1:5432/checkpoint_qa
+    - name: Upload verification evidence
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: contract-enterprise-postgres
+        path: enterprise-ci.xml
